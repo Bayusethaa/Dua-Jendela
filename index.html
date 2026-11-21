@@ -7,35 +7,82 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌙</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#14172b;--bg2:#1d2140;--glow:#f6c768;--rose:#ff8fa3;--ink:#f3ecdf;--mute:#a7a9c4}
+:root{--bg:#14172b;--bg2:#1d2140;--bg3:#272c54;--glow:#f6c768;--rose:#ff8fa3;--mint:#7fd8a6;--ink:#f3ecdf;--mute:#a7a9c4}
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:radial-gradient(ellipse at 20% 0,#262b57 0,var(--bg) 55%) fixed;color:var(--ink);font:400 17px/1.55 Nunito,system-ui,sans-serif;min-height:100vh}
-main{max-width:680px;margin:0 auto;padding:32px 18px 64px}
-h1,h2{font-family:Fraunces,Georgia,serif;margin:0}
+body{background:radial-gradient(ellipse at 20% 0,#262b57 0,var(--bg) 55%) fixed;color:var(--ink);font:400 17px/1.55 Nunito,system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+main{max-width:680px;margin:0 auto;padding:28px 18px 64px;position:relative}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;margin:0}
 h1{font-size:clamp(2.2rem,8vw,3.4rem);font-weight:800;line-height:1.05}
-.sub{color:var(--mute);margin:10px 0 22px}
-.win{display:flex;gap:14px;margin:0 0 22px}
-.win i{flex:1;height:64px;border-radius:30px 30px 6px 6px;background:var(--glow);box-shadow:0 0 36px #f6c76866;position:relative}
-.win i+i{background:var(--rose);box-shadow:0 0 36px #ff8fa366}
-.win i::after{content:"";position:absolute;inset:0;background:linear-gradient(#0003 0 0) center/3px 100% no-repeat,linear-gradient(#0003 0 0) center 55%/100% 3px no-repeat}
-.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
-.chips button{padding:9px 16px;border-radius:999px;border:2px solid #343968;background:transparent;color:var(--mute);font:700 15px Nunito,sans-serif;cursor:pointer}
+.sub{color:var(--mute);margin:10px 0 20px}
+
+/* Top Bar: Suara Ambience & Nama Pasangan */
+.top-bar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.couple-tag{background:var(--bg2);border:1px solid #343968;padding:6px 14px;border-radius:999px;font-size:14px;color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:6px;transition:.2s}
+.couple-tag:hover{border-color:var(--rose)}
+.sound-btn{background:var(--bg2);border:1px solid #343968;color:var(--mute);padding:6px 14px;border-radius:999px;font:700 13px Nunito,sans-serif;cursor:pointer;display:flex;align-items:center;gap:6px;transition:.2s}
+.sound-btn.playing{background:#23324d;border-color:var(--mint);color:var(--mint);box-shadow:0 0 16px #7fd8a633}
+
+/* Dua Jendela Interaktif (Ketuk Jendela) */
+.win{display:flex;gap:14px;margin:0 0 18px}
+.win-pane{flex:1;height:78px;border-radius:34px 34px 8px 8px;background:var(--glow);box-shadow:0 0 36px #f6c76855;position:relative;cursor:pointer;border:none;transition:transform .15s,filter .2s;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;font:700 12px Nunito,sans-serif;color:#2a2208}
+.win-pane+.win-pane{background:var(--rose);box-shadow:0 0 36px #ff8fa355;color:#2b0a12}
+.win-pane::after{content:"";position:absolute;inset:0;background:linear-gradient(#0003 0 0) center/3px 100% no-repeat,linear-gradient(#0003 0 0) center 55%/100% 3px no-repeat;pointer-events:none}
+.win-pane:active{transform:scale(.95)}
+.win-pane span{position:relative;z-index:2;background:#fff8;padding:2px 8px;border-radius:999px}
+
+/* Jam Kembar (Dual Clock) */
+.clock-bar{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:var(--bg2);border:1px solid #343968;border-radius:16px;padding:12px 16px;margin-bottom:20px}
+.clock-item{display:flex;flex-direction:column;gap:2px}
+.clock-item:last-child{text-align:right;border-left:1px solid #343968;padding-left:12px}
+.clock-label{font-size:12px;color:var(--mute);display:flex;align-items:center;gap:4px}
+.clock-item:last-child .clock-label{justify-content:flex-end}
+.clock-time{font:800 1.35rem Fraunces,serif;color:var(--ink);letter-spacing:.5px}
+.tz-select{background:transparent;border:none;color:var(--glow);font:700 12px Nunito,sans-serif;cursor:pointer;padding:0}
+.tz-select option{background:var(--bg2);color:var(--ink)}
+
+/* Misi Harian (Daily Quest) */
+.quest-box{background:var(--bg2);border-radius:18px;padding:16px;margin-bottom:22px;border:1px solid #343968}
+.quest-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.quest-head h3{font-size:1.05rem;color:var(--mint)}
+.quest-prog{font-size:13px;font-weight:700;color:var(--mute)}
+.progress-track{height:6px;background:var(--bg);border-radius:999px;overflow:hidden;margin-bottom:12px}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--mint),var(--glow));width:0%;transition:width .3s}
+.quest-list{display:flex;flex-direction:column;gap:8px}
+.quest-item{display:flex;align-items:center;gap:10px;font-size:14.5px;cursor:pointer;padding:6px 10px;border-radius:10px;background:var(--bg);transition:.2s}
+.quest-item:hover{background:var(--bg3)}
+.quest-item input{accent-color:var(--mint);width:17px;height:17px;cursor:pointer}
+.quest-item.done span{text-decoration:line-through;color:var(--mute)}
+
+/* Filter Chips */
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.chips button{padding:8px 15px;border-radius:999px;border:2px solid #343968;background:transparent;color:var(--mute);font:700 14px Nunito,sans-serif;cursor:pointer;transition:.2s}
 .chips button[aria-pressed=true]{background:var(--glow);border-color:var(--glow);color:#2a2208}
-button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--rose);outline-offset:3px}
+button:focus-visible,a:focus-visible,summary:focus-visible,select:focus-visible{outline:3px solid var(--rose);outline-offset:3px}
+
+/* Grid Game */
 .grid{display:grid;gap:12px}
-.g{display:flex;gap:16px;align-items:center;padding:18px;border-radius:20px;background:var(--bg2);color:inherit;text-decoration:none;border:2px solid transparent;border-left:8px solid var(--c)}
-.g:hover{border-color:var(--c);border-left-width:8px}
-.g .ic{font-size:2.6rem;line-height:1;flex:none}
-.g h2{font-size:1.25rem;margin-bottom:2px}
-.g p{margin:0;color:var(--mute);font-size:15px;line-height:1.4}
+.g{display:flex;gap:16px;align-items:center;padding:18px;border-radius:20px;background:var(--bg2);color:inherit;text-decoration:none;border:2px solid transparent;border-left:8px solid var(--c);transition:transform .2s,border-color .2s}
+.g:hover{border-color:var(--c);transform:translateX(4px)}
+.g .ic{font-size:2.5rem;line-height:1;flex:none}
+.g h2{font-size:1.22rem;margin-bottom:2px}
+.g p{margin:0;color:var(--mute);font-size:14.5px;line-height:1.4}
 .g em{display:inline-block;margin-top:6px;font:700 13px Nunito,sans-serif;font-style:normal;color:var(--c)}
+.hide{display:none}
+
 details{margin-top:24px;background:var(--bg2);border-radius:16px;padding:14px 18px;color:var(--mute);font-size:15px}
 summary{cursor:pointer;font-weight:700;color:var(--ink)}
 details ol{margin:10px 0 0;padding-left:20px}
-.hide{display:none}
 
-/* intro */
+/* Partikel Hati Melayang */
+.float-heart{position:fixed;pointer-events:none;font-size:22px;z-index:99;animation:floatUp 1.3s ease-out forwards}
+@keyframes floatUp{0%{opacity:1;transform:translateY(0) scale(.8)}100%{opacity:0;transform:translateY(-110px) scale(1.4)}}
+
+/* Toast */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--rose);color:#2b0a12;padding:10px 20px;border-radius:999px;font-weight:700;font-size:14px;box-shadow:0 8px 24px #0006;opacity:0;transition:.3s;z-index:100;pointer-events:none}
+#toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+/* Intro */
 #intro{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;cursor:pointer;transition:opacity .8s,visibility .8s;overflow:hidden;padding:20px;text-align:center}
 #intro.out{opacity:0;visibility:hidden}
 .iw{display:flex;gap:22px}
@@ -49,39 +96,88 @@ details ol{margin:10px 0 0;padding-left:20px}
 @keyframes rise{from{transform:translateY(14px)}to{opacity:1;transform:none}}
 .st{position:absolute;color:var(--glow);opacity:0;animation:tw 2.4s infinite}
 @keyframes tw{0%,100%{opacity:0;transform:scale(.6)}50%{opacity:.9;transform:scale(1.1)}}
-body.ready .g{animation:up .6s calc(var(--i) * 90ms) backwards}
+body.ready .g{animation:up .6s calc(var(--i) * 80ms) backwards}
 @keyframes up{from{opacity:0;transform:translateY(18px)}}
-.win i{animation:glow 3s ease-in-out infinite}
-.win i+i{animation-delay:1.5s}
-@keyframes glow{50%{filter:brightness(1.25)}}
-@media(prefers-reduced-motion:reduce){#intro,.win i,body.ready .g{animation:none}}
+@media(prefers-reduced-motion:reduce){#intro,body.ready .g{animation:none}}
 </style>
 </head>
 <body>
 <div id="intro" aria-hidden="true"><div class="iw"><i></i><i></i></div><div class="it">Dua Jendela</div><div class="is">Jarak boleh jauh, mainnya tetap bareng</div><div class="sk">Ketuk untuk lewati</div></div>
 <script>try{if(sessionStorage.getItem('dj-intro')||matchMedia('(prefers-reduced-motion:reduce)').matches)document.getElementById('intro').remove()}catch(e){}</script>
+
 <main>
-<div class="win" aria-hidden="true"><i></i><i></i></div>
+<!-- Top Bar: Nama Pasangan & Suara Hujan -->
+<div class="top-bar">
+  <button class="couple-tag" id="edit-names" title="Klik untuk ubah nama panggilan">
+    💛 <span id="name-p1">Aku</span> &amp; <span id="name-p2">Kamu</span> ✏️
+  </button>
+  <button class="sound-btn" id="rain-toggle" aria-pressed="false">
+    🌧️ Suara Hujan: Mati
+  </button>
+</div>
+
+<!-- Jendela Interaktif (Bisa diketuk untuk kirim sinyal kangen) -->
+<div class="win">
+  <button class="win-pane" id="win-1" title="Ketuk jendelamu"><span>Ketuk Jendela 💛</span></button>
+  <button class="win-pane" id="win-2" title="Kirim sinyal kangen ke pasangan"><span>Kirim Kangen 🌸 (<b id="tap-count">0</b>)</span></button>
+</div>
+
 <h1>Dua Jendela</h1>
 <p class="sub">Jarak boleh jauh, mainnya tetap bareng. Pilih game, lalu mainkan berdua.</p>
 
+<!-- Jam Kembar (Dual Timezone) -->
+<div class="clock-bar" aria-label="Perbedaan waktu">
+  <div class="clock-item">
+    <span class="clock-label">📍 Waktumu</span>
+    <span class="clock-time" id="time-local">--:--</span>
+  </div>
+  <div class="clock-item">
+    <span class="clock-label">
+      🌙 Waktu Pasangan · 
+      <select class="tz-select" id="tz-partner" aria-label="Zona waktu pasangan">
+        <option value="Asia/Jakarta">WIB</option>
+        <option value="Asia/Makassar" selected>WITA</option>
+        <option value="Asia/Jayapura">WIT</option>
+        <option value="Asia/Tokyo">Jepang (JST)</option>
+        <option value="Europe/London">Inggris (GMT)</option>
+        <option value="America/New_York">AS Timur (EST)</option>
+      </select>
+    </span>
+    <span class="clock-time" id="time-partner">--:--</span>
+  </div>
+</div>
+
+<!-- Tantangan Harian Berdua -->
+<section class="quest-box" aria-label="Misi Harian">
+  <div class="quest-head">
+    <h3>✨ Misi Kecil Hari Ini</h3>
+    <span class="quest-prog" id="quest-prog">0/3 Selesai</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="quest-bar"></div></div>
+  <div class="quest-list" id="quest-list">
+    <label class="quest-item"><input type="checkbox" data-q="0"><span>Main minimal 1 game adu cepat bareng</span></label>
+    <label class="quest-item"><input type="checkbox" data-q="1"><span>Kirim foto langit atau makanan hari ini di chat</span></label>
+    <label class="quest-item"><input type="checkbox" data-q="2"><span>Bilang satu hal yang disyukuri hari ini</span></label>
+  </div>
+</section>
+
 <div class="chips" role="group" aria-label="Filter game">
-<button aria-pressed="true" data-f="all">Semua</button>
-<button aria-pressed="false" data-f="live">Live berdua</button>
-<button aria-pressed="false" data-f="santai">Santai</button>
+  <button aria-pressed="true" data-f="all">Semua</button>
+  <button aria-pressed="false" data-f="live">Live berdua</button>
+  <button aria-pressed="false" data-f="santai">Santai</button>
 </div>
 
 <div class="grid" id="grid">
-<a class="g" data-k="live" href="cerdas.html" style="--c:#7aa2ff"><span class="ic">🧠</span><div><h2>Cerdas Cermat</h2><p>Adu pintar 10 soal sejarah, budaya, geografi, sains, dan dunia. Yang benar dan tercepat dapat poin lebih.</p><em>Live · 5–8 menit</em></div></a>
-<a class="g" data-k="live" href="ular.html" style="--c:#8bd17c"><span class="ic">🐍</span><div><h2>Ular Tangga</h2><p>Lempar dadu bergantian, naik tangga, hindari ular. Ada kotak 🎁 berisi tantangan kecil.</p><em>Live · 10–15 menit</em></div></a>
-<a class="g" data-k="live" href="ketik.html" style="--c:#ff6b9a"><span class="ic">⌨️</span><div><h2>Adu Ketik Lidah Kusut</h2><p>Ketik kalimat berlidah kusut paling cepat. Lucu, kompetitif, dan ada hukuman buat yang kalah.</p><em>Live · 3 menit</em></div></a>
-<a class="g" data-k="live" href="truth.html" style="--c:#4dd0c8"><span class="ic">🎲</span><div><h2>Truth or Dare</h2><p>Bergantian memilihkan pertanyaan atau tantangan untuk pasangan. Ada tingkat Santai, Seru, Berani.</p><em>Live · bebas lama</em></div></a>
-<a class="g" data-k="live" href="tangkap.html" style="--c:#f6c768"><span class="ic">⭐</span><div><h2>Tangkap Bintang</h2><p>Duel reaksi cepat. Tekan bintang sebelum pasanganmu, hindari bom.</p><em>Live · 2–3 menit</em></div></a>
-<a class="g" data-k="live" href="empat.html" style="--c:#ffb86b"><span class="ic">🔴</span><div><h2>4 Sejajar</h2><p>Jatuhkan hati 💛 dan 🌸 bergantian, buat empat sejajar lebih dulu.</p><em>Live · 5–10 menit</em></div></a>
-<a class="g" data-k="live" href="escape.html" style="--c:#7fd8a6"><span class="ic">🔑</span><div><h2>Kamar Terkunci</h2><p>Escape room kerja sama. Petunjuk kalian berbeda, jadi harus saling cerita.</p><em>Live · 10–15 menit</em></div></a>
-<a class="g" data-k="live" href="live.html" style="--c:#ff8fa3"><span class="ic">✏️</span><div><h2>Tic-tac-toe &amp; Tebak Gambar</h2><p>Dua klasik dalam satu ruangan. Gambar tampil langsung di layar pasangan.</p><em>Live · bebas lama</em></div></a>
-<a class="g" data-k="live" href="sama.html" style="--c:#b69cff"><span class="ic">💞</span><div><h2>Kita Sama Nggak?</h2><p>Pilih mana, jawab diam-diam, lalu lihat apakah kalian sepikiran.</p><em>Live · 5 menit</em></div></a>
-<a class="g" data-k="santai" href="santai.html" style="--c:#6ec6ff"><span class="ic">🌙</span><div><h2>Game Santai</h2><p>Tebak Aku (kuis lewat link), kartu obrolan, dan hitung mundur ketemu. Tidak perlu online bersamaan.</p><em>Santai · kapan saja</em></div></a>
+  <a class="g" data-k="live" href="cerdas.html" style="--c:#7aa2ff"><span class="ic">🧠</span><div><h2>Cerdas Cermat</h2><p>Adu pintar 10 soal sejarah, budaya, geografi, sains, dan dunia. Yang benar dan tercepat dapat poin lebih.</p><em>Live · 5–8 menit</em></div></a>
+  <a class="g" data-k="live" href="ular.html" style="--c:#8bd17c"><span class="ic">🐍</span><div><h2>Ular Tangga</h2><p>Lempar dadu bergantian, naik tangga, hindari ular. Ada kotak 🎁 berisi tantangan kecil.</p><em>Live · 10–15 menit</em></div></a>
+  <a class="g" data-k="live" href="ketik.html" style="--c:#ff6b9a"><span class="ic">⌨️</span><div><h2>Adu Ketik Lidah Kusut</h2><p>Ketik kalimat berlidah kusut paling cepat. Lucu, kompetitif, dan ada hukuman buat yang kalah.</p><em>Live · 3 menit</em></div></a>
+  <a class="g" data-k="live" href="truth.html" style="--c:#4dd0c8"><span class="ic">🎲</span><div><h2>Truth or Dare</h2><p>Bergantian memilihkan pertanyaan atau tantangan untuk pasangan. Ada tingkat Santai, Seru, Berani.</p><em>Live · bebas lama</em></div></a>
+  <a class="g" data-k="live" href="tangkap.html" style="--c:#f6c768"><span class="ic">⭐</span><div><h2>Tangkap Bintang</h2><p>Duel reaksi cepat. Tekan bintang sebelum pasanganmu, hindari bom.</p><em>Live · 2–3 menit</em></div></a>
+  <a class="g" data-k="live" href="empat.html" style="--c:#ffb86b"><span class="ic">🔴</span><div><h2>4 Sejajar</h2><p>Jatuhkan hati 💛 dan 🌸 bergantian, buat empat sejajar lebih dulu.</p><em>Live · 5–10 menit</em></div></a>
+  <a class="g" data-k="live" href="escape.html" style="--c:#7fd8a6"><span class="ic">🔑</span><div><h2>Kamar Terkunci</h2><p>Escape room kerja sama. Petunjuk kalian berbeda, jadi harus saling cerita.</p><em>Live · 10–15 menit</em></div></a>
+  <a class="g" data-k="live" href="live.html" style="--c:#ff8fa3"><span class="ic">✏️</span><div><h2>Tic-tac-toe &amp; Tebak Gambar</h2><p>Dua klasik dalam satu ruangan. Gambar tampil langsung di layar pasangan.</p><em>Live · bebas lama</em></div></a>
+  <a class="g" data-k="live" href="sama.html" style="--c:#b69cff"><span class="ic">💞</span><div><h2>Kita Sama Nggak?</h2><p>Pilih mana, jawab diam-diam, lalu lihat apakah kalian sepikiran.</p><em>Live · 5 menit</em></div></a>
+  <a class="g" data-k="santai" href="santai.html" style="--c:#6ec6ff"><span class="ic">🌙</span><div><h2>Game Santai</h2><p>Tebak Aku (kuis lewat link), kartu obrolan, dan hitung mundur ketemu. Tidak perlu online bersamaan.</p><em>Santai · kapan saja</em></div></a>
 </div>
 
 <details>
@@ -94,13 +190,160 @@ body.ready .g{animation:up .6s calc(var(--i) * 90ms) backwards}
 </ol>
 </details>
 </main>
+
+<div id="toast" role="status"></div>
+
 <script>
+const toast = document.getElementById('toast');
+let toastTimer;
+const showToast = (msg) => {
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+};
+
+// 1. Kustomisasi Nama Panggilan
+const p1El = document.getElementById('name-p1');
+const p2El = document.getElementById('name-p2');
+p1El.textContent = localStorage.getItem('dj-p1') || 'Aku';
+p2El.textContent = localStorage.getItem('dj-p2') || 'Kamu';
+
+document.getElementById('edit-names').onclick = () => {
+  const n1 = prompt('Nama panggilanmu:', p1El.textContent);
+  if (n1 !== null && n1.trim()) {
+    p1El.textContent = n1.trim();
+    localStorage.setItem('dj-p1', n1.trim());
+  }
+  const n2 = prompt('Nama panggilan pasanganmu:', p2El.textContent);
+  if (n2 !== null && n2.trim()) {
+    p2El.textContent = n2.trim();
+    localStorage.setItem('dj-p2', n2.trim());
+  }
+};
+
+// 2. Ketuk Jendela & Animasi Hati + Salin Sinyal Kangen
+let taps = parseInt(localStorage.getItem('dj-taps') || '0', 10);
+const tapCountEl = document.getElementById('tap-count');
+tapCountEl.textContent = taps;
+
+const spawnHeart = (e, emoji) => {
+  const h = document.createElement('span');
+  h.className = 'float-heart';
+  h.textContent = emoji;
+  const rect = e.currentTarget.getBoundingClientRect();
+  h.style.left = (rect.left + Math.random() * rect.width) + 'px';
+  h.style.top = rect.top + 'px';
+  document.body.appendChild(h);
+  setTimeout(() => h.remove(), 1300);
+};
+
+document.getElementById('win-1').onclick = (e) => {
+  spawnHeart(e, '✨');
+  showToast(`Jendela ${p1El.textContent} menyala hangat! 💛`);
+};
+
+document.getElementById('win-2').onclick = async (e) => {
+  taps++;
+  tapCountEl.textContent = taps;
+  localStorage.setItem('dj-taps', taps);
+  spawnHeart(e, '🌸');
+  const msg = `Tok tok! ${p1El.textContent} ngetuk jendelamu (${taps}x hari ini) — kangen, main yuk! 🌸`;
+  try {
+    await navigator.clipboard.writeText(msg);
+    showToast('Sinyal kangen disalin! Tinggal paste ke chat 💌');
+  } catch {
+    showToast(`Sinyal kangen terkirim (${taps}x)! 🌸`);
+  }
+};
+
+// 3. Jam Kembar (Dual Timezone)
+const tzSelect = document.getElementById('tz-partner');
+if (localStorage.getItem('dj-tz')) tzSelect.value = localStorage.getItem('dj-tz');
+tzSelect.onchange = () => {
+  localStorage.setItem('dj-tz', tzSelect.value);
+  updateClocks();
+};
+
+const updateClocks = () => {
+  const now = new Date();
+  document.getElementById('time-local').textContent = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+  document.getElementById('time-partner').textContent = now.toLocaleTimeString('id-ID', { timeZone: tzSelect.value, hour: '2-digit', minute: '2-digit' });
+};
+updateClocks();
+setInterval(updateClocks, 10000);
+
+// 4. Suara Hujan Sintetis (Web Audio API - Tanpa File Eksternal)
+let audioCtx = null, rainNode = null, isRaining = false;
+const rainBtn = document.getElementById('rain-toggle');
+rainBtn.onclick = () => {
+  if (!isRaining) {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const bufferSize = 2 * audioCtx.sampleRate;
+      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      let lastOut = 0.0;
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        output[i] = (lastOut + (0.02 * white)) / 1.02;
+        lastOut = output[i];
+        output[i] *= 0.12; // volume lembut
+      }
+      rainNode = audioCtx.createBufferSource();
+      rainNode.buffer = noiseBuffer;
+      rainNode.loop = true;
+      rainNode.connect(audioCtx.destination);
+      rainNode.start(0);
+    } else {
+      audioCtx.resume();
+    }
+    isRaining = true;
+    rainBtn.classList.add('playing');
+    rainBtn.setAttribute('aria-pressed', 'true');
+    rainBtn.textContent = '🌧️ Suara Hujan: Nyala';
+    showToast('Suara hujan lembut dinyalakan 🌧️');
+  } else {
+    audioCtx.suspend();
+    isRaining = false;
+    rainBtn.classList.remove('playing');
+    rainBtn.setAttribute('aria-pressed', 'false');
+    rainBtn.textContent = '🌧️ Suara Hujan: Mati';
+  }
+};
+
+// 5. Misi Harian (Daily Quest)
+const todayKey = 'dj-quest-' + new Date().toISOString().slice(0, 10);
+let quests = JSON.parse(localStorage.getItem(todayKey) || '[false,false,false]');
+const checkboxes = document.querySelectorAll('#quest-list input');
+const updateQuests = () => {
+  let doneCount = 0;
+  checkboxes.forEach((cb, i) => {
+    cb.checked = !!quests[i];
+    cb.parentElement.classList.toggle('done', cb.checked);
+    if (cb.checked) doneCount++;
+  });
+  document.getElementById('quest-prog').textContent = `${doneCount}/3 Selesai`;
+  document.getElementById('quest-bar').style.width = `${(doneCount / 3) * 100}%`;
+};
+checkboxes.forEach((cb, i) => {
+  cb.onchange = () => {
+    quests[i] = cb.checked;
+    localStorage.setItem(todayKey, JSON.stringify(quests));
+    updateQuests();
+    if (quests.every(Boolean)) showToast('Yeay! Semua misi hari ini selesai 🎉');
+  };
+});
+updateQuests();
+
+// Filter Game (Original)
 document.querySelectorAll('.chips button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('.chips button').forEach(x=>x.setAttribute('aria-pressed',x===b));
   const f=b.dataset.f;
   document.querySelectorAll('.g').forEach(g=>g.classList.toggle('hide',f!=='all'&&g.dataset.k!==f));
 });
 
+// Intro Animation (Original)
 const intro=document.getElementById('intro');
 document.querySelectorAll('.g').forEach((g,i)=>g.style.setProperty('--i',i));
 const ready=()=>document.body.classList.add('ready');
