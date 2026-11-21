@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paket Game Receh &amp; Call · Dua Jendela</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#14172b;--bg2:#1d2140;--bg3:#272d57;--glow:#f6c768;--rose:#ff8fa3;--mint:#7fd8a6;--sky:#6ec6ff;--ink:#f3ecdf;--mute:#a7a9c4}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 20% 0,#262b57 0,var(--bg) 55%) fixed;color:var(--ink);font:400 16px/1.55 Nunito,system-ui,sans-serif;min-height:100vh}
+main{max-width:680px;margin:0 auto;padding:28px 18px 64px}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;margin:0}
+h1{font-size:clamp(1.9rem,6vw,2.7rem);font-weight:800}
+.sub{color:var(--mute);margin:6px 0 20px}
+.top-nav{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.back{color:var(--glow);text-decoration:none;font-weight:700}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.tab{padding:9px 14px;border-radius:999px;border:2px solid #343968;background:var(--bg2);color:var(--mute);font:700 13.5px Nunito,sans-serif;cursor:pointer;transition:.2s}
+.tab.active{background:var(--rose);border-color:var(--rose);color:#2b0a12}
+
+.panel{display:none;background:var(--bg2);border:1px solid #343968;border-radius:22px;padding:22px}
+.panel.active{display:block}
+
+/* Skor cepat */
+.score-strip{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;background:var(--bg);padding:12px 16px;border-radius:16px;margin-bottom:18px}
+.p-box{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.p-box:last-child{flex-direction:row-reverse}
+.p-name{font-weight:700;font-size:15px}
+.p-pts{font:800 1.3rem Fraunces,serif;color:var(--glow)}
+.btn-mini{background:var(--bg3);color:var(--ink);border:1px solid #454d8a;border-radius:8px;padding:4px 10px;font-weight:700;cursor:pointer}
+.btn-mini:hover{background:var(--glow);color:#2a2208}
+
+/* Stage umum */
+.stage{background:var(--bg);border:2px dashed #3d437a;border-radius:20px;padding:24px 18px;text-align:center;margin:16px 0}
+.badge{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:800;background:#2a315e;color:var(--sky);margin-bottom:10px}
+.word-big{font:800 clamp(1.4rem,5vw,2.05rem)/1.25 Fraunces,serif;color:var(--glow);margin:6px 0 10px}
+.emoji-clue{font-size:clamp(2.2rem,8vw,3.2rem);letter-spacing:6px;margin:8px 0 12px}
+.taboo{color:var(--rose);font-size:14px;font-weight:700}
+.answer-box{margin-top:12px;padding:10px 14px;border-radius:12px;background:#22284d;color:var(--mint);font-weight:700;font-size:14.5px;display:none}
+.answer-box.show{display:block}
+.timer-box{font:800 2rem Fraunces,serif;color:var(--mint);margin-top:10px}
+.timer-box.warn{color:var(--rose)}
+
+.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:14px}
+.btn{padding:11px 17px;border-radius:14px;border:none;font:700 14.5px Nunito,sans-serif;cursor:pointer;transition:.15s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--glow);color:#2a2208}
+.btn-mint{background:var(--mint);color:#0b2919}
+.btn-rose{background:var(--rose);color:#2b0a12}
+.btn-ghost{background:var(--bg3);color:var(--ink);border:1px solid #444b85}
+
+/* Input Game Tebak Harga & Sambung Kata */
+.input-row{display:flex;gap:8px;max-width:420px;margin:14px auto 0}
+.input-row input{flex:1;background:var(--bg2);border:2px solid #3c4278;border-radius:12px;padding:10px 14px;color:var(--ink);font:700 15px Nunito,sans-serif}
+.input-row input:focus{outline:none;border-color:var(--glow)}
+.chain-tags{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:14px;max-height:110px;overflow-y:auto}
+.chain-tag{background:#262c54;border:1px solid #3f4782;padding:4px 11px;border-radius:999px;font-size:13.5px;font-weight:700;color:var(--ink)}
+.chain-tag:last-child{border-color:var(--glow);color:var(--glow)}
+
+/* Roda / Spinner Lucu */
+.wheel-card{background:var(--bg);border-radius:20px;padding:26px 18px;text-align:center;border:1px solid #383e73}
+.spinner-emoji{font-size:3.6rem;display:inline-block;transition:transform .5s cubic-bezier(.22,1,.36,1)}
+.spinner-emoji.spin{transform:rotate(720deg) scale(1.15)}
+.dare-result{font:700 1.2rem/1.45 Nunito,sans-serif;color:var(--ink);margin:14px 0 6px;min-height:56px;display:flex;align-items:center;justify-content:center}
+.custom-row{display:flex;gap:8px;margin-top:16px}
+.custom-row input{flex:1;background:var(--bg);border:1px solid #3c4278;border-radius:12px;padding:10px 14px;color:var(--ink);font:inherit}
+</style>
+</head>
+<body>
+<main>
+  <div class="top-nav">
+    <a class="back" href="index.html">← Kembali ke Dua Jendela</a>
+    <button class="btn-mini" id="reset-score">Reset Skor</button>
+  </div>
+
+  <h1>Paket Game Receh &amp; Call</h1>
+  <p class="sub">Pilih dari 6 game santai di bawah ini—mainkan bergantian sambil call.</p>
+
+  <div class="score-strip">
+    <div class="p-box">
+      <span class="p-name">💛 Pemain 1</span>
+      <div>
+        <span class="p-pts" id="s1">0</span>
+        <button class="btn-mini" onclick="addScore(1, 1)">+1</button>
+      </div>
+    </div>
+    <span style="color:var(--mute);font-weight:700">VS</span>
+    <div class="p-box">
+      <span class="p-name">🌸 Pemain 2</span>
+      <div>
+        <span class="p-pts" id="s2">0</span>
+        <button class="btn-mini" onclick="addScore(2, 1)">+1</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab active" data-tab="aksi">🎙️ Tebak Kata</button>
+    <button class="tab" data-tab="harga">💰 Tebak Harga</button>
+    <button class="tab" data-tab="sambung">🔗 Sambung Kata</button>
+    <button class="tab" data-tab="emoji">🧩 Sandi Emoji</button>
+    <button class="tab" data-tab="siapa">👀 Siapa Paling...</button>
+    <button class="tab" data-tab="roda">🎡 Tantangan Receh</button>
+  </div>
+
+  <!-- GAME 1: TEBAK KATA & DESKRIPSI KILAT -->
+  <section class="panel active" id="panel-aksi">
+    <h2>Tebak Kata &amp; Deskripsi Kilat</h2>
+    <p class="sub" style="margin-bottom:8px">Jelaskan situasi di bawah ini lewat suara saat call tanpa menyebut kata terlarangnya!</p>
+
+    <div class="stage">
+      <span class="badge" id="aksi-cat">SIAP MAIN</span>
+      <div class="word-big" id="aksi-word">Tekan "Mulai Ronde" untuk dapat kata</div>
+      <div class="taboo" id="aksi-taboo">Kata terlarang akan muncul di sini</div>
+      <div class="timer-box" id="aksi-timer">45d</div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="btn-start-aksi">▶ Mulai Ronde (45d)</button>
+      <button class="btn btn-mint" id="btn-win-aksi">✅ Ketebak! (+1)</button>
+      <button class="btn btn-ghost" id="btn-next-aksi">Ganti Kata</button>
+      <button class="btn btn-rose" id="btn-stop-aksi">Stop</button>
+    </div>
+  </section>
+
+  <!-- GAME 2: TEBAK HARGA -->
+  <section class="panel" id="panel-harga">
+    <h2>Tebak Harga Barang &amp; Jajanan</h2>
+    <p class="sub" style="margin-bottom:8px">Tebak harga perkiraan (dalam Rupiah). Sistem akan kasih tahu terlalu murah atau terlalu mahal!</p>
+
+    <div class="stage">
+      <span class="badge" id="harga-cat">JAJANAN / BARANG</span>
+      <div class="word-big" id="harga-item">Nama barang muncul di sini</div>
+      <div class="taboo" id="harga-hint">Masukkan tebakanmu dalam Rupiah (contoh: 15000)</div>
+      <div class="input-row">
+        <input type="number" id="harga-input" placeholder="Contoh: 25000" step="500">
+        <button class="btn btn-primary" id="btn-guess-harga">Tebak!</button>
+      </div>
+      <div class="answer-box" id="harga-feedback">Hasil tebakan</div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-ghost" id="btn-next-harga">Barang Berikutnya</button>
+      <button class="btn btn-mint" id="btn-reveal-harga">Buka Harga Asli</button>
+    </div>
+  </section>
+
+  <!-- GAME 3: SAMBUNG KATA / LIRIK -->
+  <section class="panel" id="panel-sambung">
+    <h2>Sambung Kata Kilat</h2>
+    <p class="sub" style="margin-bottom:8px">Lanjutkan kata dari <b>huruf terakhir</b> kata sebelumnya dalam 10 detik sebelum waktu habis!</p>
+
+    <div class="stage">
+      <span class="badge" id="sambung-rule">SAMBUNG HURUF TERAKHIR</span>
+      <div class="word-big" id="sambung-current">KANGEN</div>
+      <div class="taboo" id="sambung-clue">Lanjut dari huruf: <b>N</b></div>
+      <div class="timer-box" id="sambung-timer">10d</div>
+
+      <div class="input-row">
+        <input type="text" id="sambung-input" placeholder="Ketik kata sambungan..." autocomplete="off">
+        <button class="btn btn-primary" id="btn-add-sambung">Kirim</button>
+      </div>
+      <div class="chain-tags" id="sambung-history"></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-mint" id="btn-reset-sambung">🔄 Ronde &amp; Kata Awal Baru</button>
+      <button class="btn btn-rose" id="btn-stop-sambung">Stop Timer</button>
+    </div>
+  </section>
+
+  <!-- GAME 4: SANDI EMOJI -->
+  <section class="panel" id="panel-emoji">
+    <h2>Tebak Sandi Emoji</h2>
+    <p class="sub" style="margin-bottom:8px">Tebak situasi, lagu, atau kebiasaan kocak dari deretan emoji berikut!</p>
+
+    <div class="stage">
+      <span class="badge" id="emoji-cat">KATEGORI</span>
+      <div class="emoji-clue" id="emoji-clue">🌧️☕📱</div>
+      <div class="taboo" id="emoji-hint">Petunjuk: suasana santai pas hujan</div>
+      <div class="answer-box" id="emoji-ans">Jawaban muncul di sini</div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="btn-next-emoji">Soal Baru</button>
+      <button class="btn btn-ghost" id="btn-reveal-emoji">Intip Jawaban</button>
+      <button class="btn btn-mint" id="btn-win-emoji">✅ Benar! (+1)</button>
+    </div>
+  </section>
+
+  <!-- GAME 5: SIAPA YANG PALING... -->
+  <section class="panel" id="panel-siapa">
+    <h2>Siapa yang Paling...?</h2>
+    <p class="sub" style="margin-bottom:8px">Baca pertanyaannya keras-keras di call, lalu tunjuk atau sebut siapa yang paling cocok!</p>
+
+    <div class="stage">
+      <span class="badge">CEK KEBIASAAN</span>
+      <div class="word-big" id="siapa-q">Siapa yang paling sering bilang "5 menit lagi" padahal belum mandi?</div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="btn-next-siapa">Pertanyaan Berikutnya</button>
+      <button class="btn btn-ghost" onclick="addScore(1, 1)">💛 Poin Pemain 1</button>
+      <button class="btn btn-rose" onclick="addScore(2, 1)">🌸 Poin Pemain 2</button>
+    </div>
+  </section>
+
+  <!-- GAME 6: PUTAR TANTANGAN RECEH -->
+  <section class="panel" id="panel-roda">
+    <h2>Putar Tantangan Receh</h2>
+    <p class="sub" style="margin-bottom:8px">Cocok buat nentuin "hukuman" lucu atau tantangan random pas lagi gabut.</p>
+
+    <div class="wheel-card">
+      <div class="spinner-emoji" id="wheel-icon">🎡</div>
+      <div class="dare-result" id="dare-text">Klik putar buat dapat tantangan kocak!</div>
+      <button class="btn btn-primary" id="btn-spin">✨ Putar Tantangan</button>
+    </div>
+
+    <div class="custom-row">
+      <input type="text" id="custom-dare" placeholder="Tambah tantangan versimu sendiri... (misal: kirim voice note ketawa jahat)">
+      <button class="btn btn-ghost" id="btn-add-dare">+ Tambah</button>
+    </div>
+  </section>
+</main>
+
+<script>
+// Skor & Tab
+let s1 = 0, s2 = 0, turn = 1;
+window.addScore = (p, d) => {
+  if (p === 1) { s1 = Math.max(0, s1 + d); document.getElementById('s1').textContent = s1; }
+  else { s2 = Math.max(0, s2 + d); document.getElementById('s2').textContent = s2; }
+};
+document.getElementById('reset-score').onclick = () => {
+  s1 = 0; s2 = 0;
+  document.getElementById('s1').textContent = 0;
+  document.getElementById('s2').textContent = 0;
+};
+
+document.querySelectorAll('.tab').forEach(t => {
+  t.onclick = () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('panel-' + t.dataset.tab).classList.add('active');
+  };
+});
+
+// ================= GAME 1: TEBAK KATA =================
+const prompts = [
+  { cat: 'SITUASI LUCU', word: 'Salah manggil "sayang" ke kasir minimarket', taboo: 'Dilarang sebut: kasir, sayang, toko, manggil' },
+  { cat: 'DESKRIPSI KILAT', word: 'Kucing oren yang hobi nyolong lauk', taboo: 'Dilarang sebut: kucing, meong, oren, ikan, lauk' },
+  { cat: 'CERITA KILAT', word: 'Lupa matiin kompor pas udah di jalan', taboo: 'Dilarang sebut: kompor, api, lupa, jalan, masak' },
+  { cat: 'DESKRIPSI KILAT', word: 'Makan bakso kuah pedas pas lagi sariawan', taboo: 'Dilarang sebut: bakso, pedas, kuah, bibir, sakit' },
+  { cat: 'SITUASI LUCU', word: 'Sinyal ilang pas lagi ngomong bagian penting', taboo: 'Dilarang sebut: sinyal, internet, putus, lemot, call' },
+  { cat: 'CERITA KILAT', word: 'Bangun kesiangan padahal udah pasang 5 alarm', taboo: 'Dilarang sebut: bangun, alarm, tidur, kesiangan, jam' },
+  { cat: 'SUARA & AKTING', word: 'Abang-abang tukang nasi goreng lewat depan rumah', taboo: 'Dilarang sebut: nasi, goreng, gerobak, tek-tek, abang' },
+  { cat: 'MOMEN LDR', word: 'Kangen pengen ketemu tapi dompet lagi tipis', taboo: 'Dilarang sebut: kangen, ketemu, uang, dompet, tiket' }
+];
+let timerId = null, timeLeft = 45;
+const wordEl = document.getElementById('aksi-word'), catEl = document.getElementById('aksi-cat'), tabooEl = document.getElementById('aksi-taboo'), timerEl = document.getElementById('aksi-timer');
+const pickPrompt = () => {
+  const item = prompts[Math.floor(Math.random() * prompts.length)];
+  catEl.textContent = item.cat; wordEl.textContent = item.word; tabooEl.textContent = item.taboo;
+};
+document.getElementById('btn-start-aksi').onclick = () => {
+  clearInterval(timerId); pickPrompt(); timeLeft = 45; timerEl.textContent = '45d'; timerEl.classList.remove('warn');
+  timerId = setInterval(() => {
+    timeLeft--; timerEl.textContent = Math.max(0, timeLeft) + 'd';
+    if (timeLeft <= 10) timerEl.classList.add('warn');
+    if (timeLeft <= 0) { clearInterval(timerId); timerEl.textContent = 'WAKTU HABIS!'; }
+  }, 1000);
+};
+document.getElementById('btn-win-aksi').onclick = () => {
+  clearInterval(timerId); addScore(turn, 1); timerEl.textContent = `YEAY! +1 UNTUK PEMAIN ${turn} 🎉`; turn = turn === 1 ? 2 : 1;
+};
+document.getElementById('btn-next-aksi').onclick = () => { pickPrompt(); clearInterval(timerId); timeLeft = 45; timerEl.textContent = '45d'; timerEl.classList.remove('warn'); };
+document.getElementById('btn-stop-aksi').onclick = () => clearInterval(timerId);
+
+// ================= GAME 2: TEBAK HARGA =================
+const itemsHarga = [
+  { cat: 'JAJANAN MINIMARKET', name: '1 Bungkus Indomie Goreng + Es Teh Manis Warung', price: 8000 },
+  { cat: 'KOPI KEKINIAN', name: '1 Cup Es Kopi Susu Gula Aren Reguler', price: 20000 },
+  { cat: 'KEBUTUHAN RUMAH', name: '1 Tabung Gas Elpiji 3 Kg (Isi Ulang)', price: 22000 },
+  { cat: 'HIBURAN', name: '1 Tiket Nonton Bioskop Hari Biasa (Weekday)', price: 40000 },
+  { cat: 'KULINER MALAM', name: '1 Porsi Martabak Manis Cokelat Kacang Spesial', price: 35000 },
+  { cat: 'BARANG RECEH', name: '1 Pasang Sandal Jepit Swallow Original', price: 15000 },
+  { cat: 'TRANSPORTASI', name: '1 Liter Pertalite di SPBU', price: 10000 },
+  { cat: 'SKINCARE / MANDI', name: '1 Botol Sabun Mandi Cair Refill 450ml', price: 24000 }
+];
+let curHarga = itemsHarga[0], triesHarga = 0;
+const hFeedback = document.getElementById('harga-feedback');
+const hInput = document.getElementById('harga-input');
+const fmtRp = (n) => 'Rp ' + n.toLocaleString('id-ID');
+
+const pickHarga = () => {
+  curHarga = itemsHarga[Math.floor(Math.random() * itemsHarga.length)];
+  triesHarga = 0;
+  document.getElementById('harga-cat').textContent = curHarga.cat;
+  document.getElementById('harga-item').textContent = curHarga.name;
+  hFeedback.classList.remove('show');
+  hInput.value = '';
+};
+pickHarga();
+
+const checkHarga = () => {
+  const val = parseInt(hInput.value, 10);
+  if (isNaN(val) || val <= 0) return;
+  triesHarga++;
+  hFeedback.classList.add('show');
+  const diff = Math.abs(val - curHarga.price);
+  if (diff <= 2000) {
+    hFeedback.style.color = 'var(--mint)';
+    hFeedback.textContent = `🎉 TEPAT / SANGAT DEKAT! Harga aslinya ${fmtRp(curHarga.price)} (${triesHarga}x tebak). +1 Poin!`;
+    addScore(turn, 1);
+    turn = turn === 1 ? 2 : 1;
+  } else if (val < curHarga.price) {
+    hFeedback.style.color = 'var(--sky)';
+    hFeedback.textContent = `⬆️ ${fmtRp(val)} masih TERLALU MURAH! Naikin lagi!`;
+  } else {
+    hFeedback.style.color = 'var(--rose)';
+    hFeedback.textContent = `⬇️ ${fmtRp(val)} masih TERLALU MAHAL! Turunin dikit!`;
+  }
+  hInput.value = '';
+  hInput.focus();
+};
+document.getElementById('btn-guess-harga').onclick = checkHarga;
+hInput.onkeydown = (e) => { if (e.key === 'Enter') checkHarga(); };
+document.getElementById('btn-next-harga').onclick = pickHarga;
+document.getElementById('btn-reveal-harga').onclick = () => {
+  hFeedback.classList.add('show');
+  hFeedback.style.color = 'var(--glow)';
+  hFeedback.textContent = `💡 Harga patokannya: ${fmtRp(curHarga.price)}`;
+};
+
+// ================= GAME 3: SAMBUNG KATA =================
+const starterWords = ['KANGEN', 'JENDELA', 'MALAM', 'KOPI', 'HUJAN', 'RINDU', 'PELANGI', 'BINTANG', 'CERITA'];
+let usedWords = [], sambungTimer = null, sambungSec = 10;
+const sCurEl = document.getElementById('sambung-current');
+const sClueEl = document.getElementById('sambung-clue');
+const sTimerEl = document.getElementById('sambung-timer');
+const sInput = document.getElementById('sambung-input');
+const sHist = document.getElementById('sambung-history');
+
+const renderChain = () => {
+  const last = usedWords[usedWords.length - 1];
+  const lastChar = last.slice(-1);
+  sCurEl.textContent = last;
+  sClueEl.innerHTML = `Lanjut dari huruf: <b>${lastChar}</b> (${usedWords.length} kata)`;
+  sHist.innerHTML = usedWords.map(w => `<span class="chain-tag">${w}</span>`).join('');
+  sHist.scrollTop = sHist.scrollHeight;
+};
+
+const startSambungTimer = () => {
+  clearInterval(sambungTimer);
+  sambungSec = 10;
+  sTimerEl.textContent = '10d';
+  sTimerEl.classList.remove('warn');
+  sambungTimer = setInterval(() => {
+    sambungSec--;
+    sTimerEl.textContent = Math.max(0, sambungSec) + 'd';
+    if (sambungSec <= 3) sTimerEl.classList.add('warn');
+    if (sambungSec <= 0) {
+      clearInterval(sambungTimer);
+      sTimerEl.textContent = '💥 WAKTU HABIS! LAWAN +1 POIN';
+    }
+  }, 1000);
+};
+
+const initSambung = () => {
+  clearInterval(sambungTimer);
+  const w = starterWords[Math.floor(Math.random() * starterWords.length)];
+  usedWords = [w];
+  renderChain();
+  sTimerEl.textContent = '10d';
+  sTimerEl.classList.remove('warn');
+  sInput.value = '';
+};
+initSambung();
+
+const submitSambung = () => {
+  const raw = sInput.value.trim().toUpperCase().replace(/[^A-Z]/g, '');
+  if (raw.length < 2) return;
+  const reqChar = usedWords[usedWords.length - 1].slice(-1);
+  if (raw[0] !== reqChar) {
+    sClueEl.innerHTML = `❌ Harus diawali huruf <b>${reqChar}</b>!`;
+    return;
+  }
+  if (usedWords.includes(raw)) {
+    sClueEl.innerHTML = `❌ Kata <b>${raw}</b> sudah dipakai! Cari kata lain dari <b>${reqChar}</b>`;
+    return;
+  }
+  usedWords.push(raw);
+  sInput.value = '';
+  renderChain();
+  startSambungTimer();
+};
+document.getElementById('btn-add-sambung').onclick = submitSambung;
+sInput.onkeydown = (e) => { if (e.key === 'Enter') submitSambung(); };
+document.getElementById('btn-reset-sambung').onclick = initSambung;
+document.getElementById('btn-stop-sambung').onclick = () => clearInterval(sambungTimer);
+
+// ================= GAME 4: SANDI EMOJI =================
+const emojis = [
+  { cat: 'KEBIASAAN', clue: '🌧️☕📱', hint: 'Petunjuk: suasana santai pas hujan', ans: 'Ngopi sambil scroll HP pas hujan turun' },
+  { cat: 'MOMEN LDR', clue: '✈️🗓️🥺', hint: 'Petunjuk: hitung hari mau ketemu', ans: 'Nunggu jadwal ketemu sambil kangen' },
+  { cat: 'KULINER', clue: '🍜🔥🥵', hint: 'Petunjuk: makanan berkuah yang bikin keringetan', ans: 'Makan mi atau bakso pedas panas' },
+  { cat: 'SEHARI-HARI', clue: '⏰😴❌', hint: 'Petunjuk: urusan pagi hari', ans: 'Matikan alarm dan lanjut tidur lagi' },
+  { cat: 'DRAMA KECIL', clue: '🔋🪫😱', hint: 'Petunjuk: musuh utama pas lagi call', ans: 'Baterai HP sekarat pas lagi asik ngobrol' }
+];
+const emojiAnsEl = document.getElementById('emoji-ans');
+const pickEmoji = () => {
+  const item = emojis[Math.floor(Math.random() * emojis.length)];
+  document.getElementById('emoji-cat').textContent = item.cat;
+  document.getElementById('emoji-clue').textContent = item.clue;
+  document.getElementById('emoji-hint').textContent = item.hint;
+  emojiAnsEl.textContent = 'Jawaban: ' + item.ans;
+  emojiAnsEl.classList.remove('show');
+};
+pickEmoji();
+document.getElementById('btn-next-emoji').onclick = pickEmoji;
+document.getElementById('btn-reveal-emoji').onclick = () => emojiAnsEl.classList.toggle('show');
+document.getElementById('btn-win-emoji').onclick = () => { addScore(turn, 1); emojiAnsEl.classList.add('show'); turn = turn === 1 ? 2 : 1; };
+
+// ================= GAME 5: SIAPA PALING =================
+const siapaList = [
+  'Siapa yang paling sering bilang "5 menit lagi" padahal belum mandi?',
+  'Siapa yang paling gampang baper pas denger lagu galau?',
+  'Siapa yang paling sering lupa naro barang padahal baru dipegang?',
+  'Siapa yang paling lama mutusin mau makan apa?',
+  'Siapa yang paling sering ketiduran pas lagi ngobrol?',
+  'Siapa yang paling jago bikin alasan pas telat?'
+];
+document.getElementById('btn-next-siapa').onclick = () => {
+  document.getElementById('siapa-q').textContent = siapaList[Math.floor(Math.random() * siapaList.length)];
+};
+
+// ================= GAME 6: TANTANGAN RECEH =================
+const dares = [
+  '🎤 Nyanyi 1 reff lagu romantis atau dangdut dengan suara dramatis di call.',
+  '📸 Kirim foto benda terdekat di sebelahmu lewat chat sekarang juga!',
+  '😂 Ceritain hal paling konyol yang pernah bikin kamu malu sendiri.',
+  '🗣️ Tiruin gaya bicara atau kalimat andalan pasanganmu pas lagi kesel.',
+  '💌 Kasih 2 pujian jujur ke pasangan tanpa boleh ketawa atau salting.',
+  '🐢 Bicara pelan banget kayak lagi ngantuk berat selama 30 detik di call.'
+];
+const wheelIcon = document.getElementById('wheel-icon'), dareText = document.getElementById('dare-text');
+document.getElementById('btn-spin').onclick = () => {
+  wheelIcon.classList.remove('spin'); void wheelIcon.offsetWidth; wheelIcon.classList.add('spin');
+  const d = dares[Math.floor(Math.random() * dares.length)];
+  setTimeout(() => { dareText.textContent = d; }, 220);
+};
+document.getElementById('btn-add-dare').onclick = () => {
+  const input = document.getElementById('custom-dare'), val = input.value.trim();
+  if (!val) return;
+  dares.push('🎲 ' + val); dareText.textContent = 'Tantangan ditambahkan: "' + val + '"'; input.value = '';
+};
+</script>
+</body>
+</html>
