@@ -34,9 +34,32 @@ details{margin-top:24px;background:var(--bg2);border-radius:16px;padding:14px 18
 summary{cursor:pointer;font-weight:700;color:var(--ink)}
 details ol{margin:10px 0 0;padding-left:20px}
 .hide{display:none}
+
+/* intro */
+#intro{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;cursor:pointer;transition:opacity .8s,visibility .8s;overflow:hidden;padding:20px;text-align:center}
+#intro.out{opacity:0;visibility:hidden}
+.iw{display:flex;gap:22px}
+.iw i{--lc:var(--glow);width:76px;height:106px;border-radius:40px 40px 8px 8px;background:#2a2f5c;position:relative;animation:lit 1s .4s forwards}
+.iw i+i{--lc:var(--rose);animation-delay:1.2s}
+.iw i::after{content:"";position:absolute;inset:0;background:linear-gradient(#0003 0 0) center/3px 100% no-repeat,linear-gradient(#0003 0 0) center 55%/100% 3px no-repeat}
+@keyframes lit{to{background:var(--lc);box-shadow:0 0 70px var(--lc)}}
+.it{font:800 clamp(2.4rem,9vw,3.6rem)/1 Fraunces,Georgia,serif;opacity:0;animation:rise .9s 2s forwards}
+.is{color:var(--mute);opacity:0;animation:rise .9s 2.6s forwards}
+.sk{position:absolute;bottom:26px;font-size:13px;color:var(--mute);opacity:0;animation:rise .6s 1s forwards}
+@keyframes rise{from{transform:translateY(14px)}to{opacity:1;transform:none}}
+.st{position:absolute;color:var(--glow);opacity:0;animation:tw 2.4s infinite}
+@keyframes tw{0%,100%{opacity:0;transform:scale(.6)}50%{opacity:.9;transform:scale(1.1)}}
+body.ready .g{animation:up .6s calc(var(--i) * 90ms) backwards}
+@keyframes up{from{opacity:0;transform:translateY(18px)}}
+.win i{animation:glow 3s ease-in-out infinite}
+.win i+i{animation-delay:1.5s}
+@keyframes glow{50%{filter:brightness(1.25)}}
+@media(prefers-reduced-motion:reduce){#intro,.win i,body.ready .g{animation:none}}
 </style>
 </head>
 <body>
+<div id="intro" aria-hidden="true"><div class="iw"><i></i><i></i></div><div class="it">Dua Jendela</div><div class="is">Jarak boleh jauh, mainnya tetap bareng</div><div class="sk">Ketuk untuk lewati</div></div>
+<script>try{if(sessionStorage.getItem('dj-intro')||matchMedia('(prefers-reduced-motion:reduce)').matches)document.getElementById('intro').remove()}catch(e){}</script>
 <main>
 <div class="win" aria-hidden="true"><i></i><i></i></div>
 <h1>Dua Jendela</h1>
@@ -49,7 +72,12 @@ details ol{margin:10px 0 0;padding-left:20px}
 </div>
 
 <div class="grid" id="grid">
+<a class="g" data-k="live" href="cerdas.html" style="--c:#7aa2ff"><span class="ic">🧠</span><div><h2>Cerdas Cermat</h2><p>Adu pintar 10 soal sejarah, budaya, geografi, sains, dan dunia. Yang benar dan tercepat dapat poin lebih.</p><em>Live · 5–8 menit</em></div></a>
+<a class="g" data-k="live" href="ular.html" style="--c:#8bd17c"><span class="ic">🐍</span><div><h2>Ular Tangga</h2><p>Lempar dadu bergantian, naik tangga, hindari ular. Ada kotak 🎁 berisi tantangan kecil.</p><em>Live · 10–15 menit</em></div></a>
+<a class="g" data-k="live" href="ketik.html" style="--c:#ff6b9a"><span class="ic">⌨️</span><div><h2>Adu Ketik Lidah Kusut</h2><p>Ketik kalimat berlidah kusut paling cepat. Lucu, kompetitif, dan ada hukuman buat yang kalah.</p><em>Live · 3 menit</em></div></a>
+<a class="g" data-k="live" href="truth.html" style="--c:#4dd0c8"><span class="ic">🎲</span><div><h2>Truth or Dare</h2><p>Bergantian memilihkan pertanyaan atau tantangan untuk pasangan. Ada tingkat Santai, Seru, Berani.</p><em>Live · bebas lama</em></div></a>
 <a class="g" data-k="live" href="tangkap.html" style="--c:#f6c768"><span class="ic">⭐</span><div><h2>Tangkap Bintang</h2><p>Duel reaksi cepat. Tekan bintang sebelum pasanganmu, hindari bom.</p><em>Live · 2–3 menit</em></div></a>
+<a class="g" data-k="live" href="empat.html" style="--c:#ffb86b"><span class="ic">🔴</span><div><h2>4 Sejajar</h2><p>Jatuhkan hati 💛 dan 🌸 bergantian, buat empat sejajar lebih dulu.</p><em>Live · 5–10 menit</em></div></a>
 <a class="g" data-k="live" href="escape.html" style="--c:#7fd8a6"><span class="ic">🔑</span><div><h2>Kamar Terkunci</h2><p>Escape room kerja sama. Petunjuk kalian berbeda, jadi harus saling cerita.</p><em>Live · 10–15 menit</em></div></a>
 <a class="g" data-k="live" href="live.html" style="--c:#ff8fa3"><span class="ic">✏️</span><div><h2>Tic-tac-toe &amp; Tebak Gambar</h2><p>Dua klasik dalam satu ruangan. Gambar tampil langsung di layar pasangan.</p><em>Live · bebas lama</em></div></a>
 <a class="g" data-k="live" href="sama.html" style="--c:#b69cff"><span class="ic">💞</span><div><h2>Kita Sama Nggak?</h2><p>Pilih mana, jawab diam-diam, lalu lihat apakah kalian sepikiran.</p><em>Live · 5 menit</em></div></a>
@@ -72,6 +100,16 @@ document.querySelectorAll('.chips button').forEach(b=>b.onclick=()=>{
   const f=b.dataset.f;
   document.querySelectorAll('.g').forEach(g=>g.classList.toggle('hide',f!=='all'&&g.dataset.k!==f));
 });
+
+const intro=document.getElementById('intro');
+document.querySelectorAll('.g').forEach((g,i)=>g.style.setProperty('--i',i));
+const ready=()=>document.body.classList.add('ready');
+if(!intro)ready();
+else{
+  for(let i=0;i<26;i++){const x=document.createElement('span');x.className='st';x.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*2.4}s;font-size:${8+Math.random()*12}px`;x.textContent='✦';intro.append(x)}
+  const end=()=>{if(intro.classList.contains('out'))return;intro.classList.add('out');try{sessionStorage.setItem('dj-intro','1')}catch(e){}ready();setTimeout(()=>intro.remove(),900)};
+  intro.onclick=end;setTimeout(end,4300);
+}
 </script>
 </body>
 </html>
