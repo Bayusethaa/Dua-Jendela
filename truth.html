@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Truth or Dare · Dua Jendela</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎲</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<style>
+:root{--bg:#14172b;--bg2:#1d2140;--glow:#f6c768;--rose:#ff8fa3;--ink:#f3ecdf;--mute:#a7a9c4;--ok:#7fd8a6;--bad:#ff7a7a}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:radial-gradient(ellipse at 20% 0,#262b57 0,var(--bg) 55%) fixed;color:var(--ink);font:400 17px/1.55 Nunito,system-ui,sans-serif;min-height:100vh}
+main{max-width:600px;margin:0 auto;padding:28px 18px 64px}
+h1,h2{font-family:Fraunces,Georgia,serif;margin:0}
+h1{font-size:clamp(2rem,7vw,3rem);font-weight:800;line-height:1.05}
+h2{font-size:1.5rem;margin-bottom:8px}
+a{color:var(--glow)}
+.sub{color:var(--mute);margin:10px 0 22px}
+.box{background:var(--bg2);border-radius:20px;padding:22px 20px;margin-bottom:16px}
+.btn{background:var(--rose);color:#3a0d18;border:0;border-radius:12px;padding:13px 22px;font:700 17px Nunito,sans-serif;cursor:pointer;margin-top:10px}
+.btn.alt{background:transparent;border:2px solid var(--glow);color:var(--glow)}
+.btn.ok{background:var(--ok);color:#0d2e1d}
+button:focus-visible,input:focus-visible{outline:3px solid var(--rose);outline-offset:2px}
+input[type=text]{width:100%;padding:11px 12px;border-radius:10px;border:2px solid #343968;background:var(--bg);color:var(--ink);font:inherit;text-transform:uppercase}
+.row{display:flex;gap:10px;align-items:stretch}
+.row>*{flex:1}
+.row .btn{margin-top:0;flex:0 0 auto}
+.code{font:800 2.6rem/1 Fraunces,Georgia,serif;letter-spacing:.15em;color:var(--glow);margin:8px 0}
+.note{color:var(--mute);font-size:14px}
+#st{min-height:1.5em;color:var(--rose);font-weight:700;margin-top:12px}
+.hide{display:none}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chips button{padding:8px 14px;border-radius:999px;border:2px solid #343968;background:transparent;color:var(--mute);font:700 14px Nunito,sans-serif;cursor:pointer}
+.chips button[aria-pressed=true]{border-color:var(--rose);color:var(--rose)}
+#sc{display:flex;justify-content:space-around;text-align:center;margin-bottom:14px}
+#sc b{display:block;font:800 2.4rem/1 Fraunces,Georgia,serif;color:var(--glow)}
+#sc div:last-child b{color:var(--rose)}
+.card{min-height:200px;border-radius:18px;padding:24px 20px;display:flex;flex-direction:column;justify-content:center;background:var(--bg);border:2px dashed var(--rose);font-family:Fraunces,Georgia,serif;font-size:1.35rem;line-height:1.35}
+.card small{font:700 14px Nunito,sans-serif;color:var(--rose);margin-bottom:10px}
+.card.t{border-color:var(--glow)}.card.t small{color:var(--glow)}
+.acts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+@media(prefers-reduced-motion:no-preference){.card.pop{animation:pop .3s}@keyframes pop{from{transform:rotate(-3deg) scale(.9);opacity:.4}}}
+</style>
+</head>
+<body>
+<main>
+<h1>Truth or Dare</h1>
+<p class="sub">Bergantian memilihkan tantangan untuk pasangan. Seru kalau sambil video call. <a href="index.html">Kembali ke menu</a></p>
+
+<div class="box" id="lobby">
+<h2>Buat ruangan</h2>
+<button class="btn" id="mk">Buat kode ruangan</button>
+<div id="mine" class="hide"><div class="code" id="cd"></div><p class="note">Kirim kode ini ke pasanganmu, lalu tunggu dia masuk.</p></div>
+<h2 style="margin-top:26px">Masuk ruangan</h2>
+<div class="row">
+<input type="text" id="jc" maxlength="5" placeholder="Kode 5 huruf" autocomplete="off" aria-label="Kode ruangan">
+<button class="btn" id="jn">Masuk</button>
+</div>
+<div id="st" role="status"></div>
+</div>
+
+<div class="box hide" id="game">
+<div class="chips" id="lv" role="group" aria-label="Tingkat">
+<button data-l="0" aria-pressed="true">Santai</button>
+<button data-l="1" aria-pressed="false">Seru</button>
+<button data-l="2" aria-pressed="false">Berani</button>
+</div>
+<div id="sc"><div><b id="s1">0</b>Kamu</div><div><b id="s2">0</b>Pasanganmu</div></div>
+<div class="card" id="card"></div>
+<div class="acts" id="acts"></div>
+<p class="note" style="text-align:center;margin-top:14px">Yang melakukan tantangan dapat +1 kalau selesai dan -1 kalau melewati. Giliran memilih bergantian.</p>
+</div>
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+let peer,conn,me,tries=0;
+const st=t=>$('#st').textContent=t;
+const send=o=>{if(conn&&conn.open)conn.send(o)};
+const rcode=()=>{const a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';return Array.from({length:5},()=>a[Math.random()*a.length|0]).join('')};
+const other=r=>r==='host'?'guest':'host';
+
+// [tingkat][0=truth,1=dare]
+const D=[
+ [["Apa hal pertama yang kamu pikirkan saat melihat fotoku?","Lagu apa yang selalu mengingatkanmu padaku?","Apa kebiasaan kecilku yang paling kamu suka?","Kapan terakhir kali kamu senyum sendiri gara-gara aku?","Makanan apa yang ingin kamu masakkan untukku?","Apa hal pertama yang kamu lakukan setiap bangun tidur?"],
+  ["Kirim selfie dengan ekspresi paling jelek.","Nyanyikan bagian reff lagu favoritmu selama 15 detik.","Tirukan suara hewan pilihan pasanganmu.","Tunjukkan benda paling random di dekatmu dan ceritakan kisahnya.","Joget tanpa musik selama 20 detik.","Bilang \"aku sayang kamu\" dengan tiga gaya berbeda."]],
+ [["Apa momen paling memalukan yang pernah kamu alami di depanku?","Apa yang kamu sembunyikan darimu waktu kita baru kenal?","Kapan kamu pertama sadar kamu suka padaku?","Mimpi paling aneh apa yang pernah kamu alami tentang aku?","Apa hal paling konyol yang pernah kamu lakukan karena kangen?","Kebiasaanku yang paling bikin kamu geregetan apa?"],
+  ["Bikin puisi dua baris tentang pasanganmu, sekarang juga.","Peragakan cara jalan pasanganmu sampai dia tertawa.","Kirim voice note ucapan selamat pagi versi paling lebay.","Pakai benda di dekatmu sebagai topi dan bergaya 10 detik.","Gambar wajah pasanganmu dengan mata terpejam lalu tunjukkan.","Jadikan foto lucu pasanganmu wallpaper layar selama sehari."]],
+ [["Apa satu hal yang belum pernah kamu bilang padaku tapi ingin kamu bilang?","Apa ketakutan terbesarmu soal hubungan kita?","Janji apa yang ingin kamu tepati padaku tahun ini?","Kalau besok kita bisa ketemu, tiga hal pertama yang kamu lakukan apa?","Apa hal yang diam-diam bikin kamu cemburu?","Kapan kamu paling merasa dicintai olehku?"],
+  ["Sebutkan tiga hal yang kamu syukuri dari pasanganmu sambil menatap kamera.","Rekam pesan 10 detik untuk dirimu tahun depan dan tunjukkan ke pasangan.","Kirim foto kenangan favoritmu dan ceritakan alasannya.","Ganti nama kontak pasanganmu jadi panggilan konyol pilihannya selama sehari.","Tutup mata dan deskripsikan wajah pasanganmu dari ingatan.","Janjikan satu hal manis yang akan kamu lakukan saat ketemu, di depan kamera."]]
+];
+let lvl=0,chooser='host',cur=null,sc={host:0,guest:0};
+
+// ---- koneksi ----
+function mkRoom(){
+  if(peer)peer.destroy();
+  const c=rcode();peer=new Peer('dj-td-'+c);
+  peer.on('open',()=>{me='host';$('#cd').textContent=c;$('#mine').classList.remove('hide');st('')});
+  peer.on('connection',cn=>{if(conn&&conn.open){cn.close();return}conn=cn;wire()});
+  peer.on('error',e=>{if(e.type==='unavailable-id'&&tries++<5)mkRoom();else st('Gagal membuat ruangan ('+e.type+'). Coba lagi.')});
+}
+function joinRoom(){
+  const c=$('#jc').value.trim().toUpperCase();
+  if(c.length!==5){st('Masukkan kode 5 huruf.');return}
+  st('Menghubungkan…');
+  if(peer)peer.destroy();
+  peer=new Peer();
+  peer.on('open',()=>{me='guest';conn=peer.connect('dj-td-'+c,{reliable:true});wire()});
+  peer.on('error',e=>st(e.type==='peer-unavailable'?'Kode tidak ditemukan. Cek lagi ya.':'Gagal terhubung ('+e.type+').'));
+}
+function wire(){
+  conn.on('open',()=>{$('#lobby').classList.add('hide');$('#game').classList.remove('hide');render()});
+  conn.on('data',onData);
+  conn.on('close',()=>alert('Pasanganmu terputus. Muat ulang halaman untuk main lagi.'));
+}
+$('#mk').onclick=()=>{tries=0;mkRoom()};
+$('#jn').onclick=joinRoom;
+$('#jc').onkeydown=e=>{if(e.key==='Enter')joinRoom()};
+
+// ---- tampilan ----
+function render(pop){
+  document.querySelectorAll('#lv button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.l===lvl));
+  $('#s1').textContent=sc[me];$('#s2').textContent=sc[other(me)];
+  const card=$('#card'),acts=$('#acts'),mine=chooser===me;
+  acts.innerHTML='';
+  if(!cur){
+    card.className='card';
+    card.innerHTML=mine?'<small>Giliranmu memilih</small>Pilih Truth atau Dare untuk pasanganmu.':'<small>Giliran pasanganmu memilih</small>Bersiap, sebentar lagi kamu dapat kartu…';
+    if(mine){
+      acts.innerHTML='<button class="btn" id="bt">Truth</button><button class="btn alt" id="bd">Dare</button>';
+      $('#bt').onclick=()=>pick(0);$('#bd').onclick=()=>pick(1);
+    }
+  }else{
+    const text=D[cur.l][cur.k][cur.i];
+    card.className='card '+(cur.k?'':'t')+(pop?' pop':'');
+    card.innerHTML=`<small>${cur.k?'DARE':'TRUTH'} · ${['Santai','Seru','Berani'][cur.l]}${mine?' · untuk pasanganmu':' · untukmu'}</small>${text}`;
+    if(!mine){
+      acts.innerHTML='<button class="btn ok" id="dn">Selesai (+1)</button><button class="btn alt" id="sk">Lewati (-1)</button>';
+      $('#dn').onclick=()=>res(true);$('#sk').onclick=()=>res(false);
+    }else acts.innerHTML='<p class="note">Tunggu pasanganmu menyelesaikannya…</p>';
+  }
+}
+function pick(k){
+  if(cur)return;
+  const i=Math.random()*D[lvl][k].length|0;
+  cur={k,i,l:lvl};send({t:'card',c:cur});render(true);
+}
+function res(ok){
+  const p=other(chooser);
+  sc[p]+=ok?1:-1;
+  send({t:'res',ok});next();
+}
+function next(){chooser=other(chooser);cur=null;render()}
+document.querySelectorAll('#lv button').forEach(b=>b.onclick=()=>{if(cur)return;lvl=+b.dataset.l;send({t:'lv',l:lvl});render()});
+function onData(d){
+  if(d.t==='card'){const c=d.c;if(D[c.l]&&D[c.l][c.k]&&D[c.l][c.k][c.i]!==undefined){cur=c;render(true)}}
+  else if(d.t==='res'){sc[other(chooser)]+=d.ok?1:-1;next()}
+  else if(d.t==='lv'&&D[d.l]){lvl=d.l;render()}
+}
+</script>
+</body>
+</html>

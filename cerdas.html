@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cerdas Cermat · Dua Jendela</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧠</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<style>
+:root{--bg:#14172b;--bg2:#1d2140;--glow:#f6c768;--rose:#ff8fa3;--ink:#f3ecdf;--mute:#a7a9c4;--ok:#7fd8a6;--bad:#ff7a7a}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:radial-gradient(ellipse at 20% 0,#262b57 0,var(--bg) 55%) fixed;color:var(--ink);font:400 17px/1.55 Nunito,system-ui,sans-serif;min-height:100vh}
+main{max-width:600px;margin:0 auto;padding:28px 18px 64px}
+h1,h2{font-family:Fraunces,Georgia,serif;margin:0}
+h1{font-size:clamp(2rem,7vw,3rem);font-weight:800;line-height:1.05}
+h2{font-size:1.5rem;margin-bottom:8px}
+a{color:var(--glow)}
+.sub{color:var(--mute);margin:10px 0 22px}
+.box{background:var(--bg2);border-radius:20px;padding:22px 20px;margin-bottom:16px}
+.btn{background:var(--rose);color:#3a0d18;border:0;border-radius:12px;padding:13px 22px;font:700 17px Nunito,sans-serif;cursor:pointer;margin-top:10px}
+button:focus-visible,input:focus-visible{outline:3px solid var(--rose);outline-offset:2px}
+input[type=text]{width:100%;padding:11px 12px;border-radius:10px;border:2px solid #343968;background:var(--bg);color:var(--ink);font:inherit;text-transform:uppercase}
+.row{display:flex;gap:10px;align-items:stretch}
+.row>*{flex:1}
+.row .btn{margin-top:0;flex:0 0 auto}
+.code{font:800 2.6rem/1 Fraunces,Georgia,serif;letter-spacing:.15em;color:var(--glow);margin:8px 0}
+.note{color:var(--mute);font-size:14px}
+#st{min-height:1.5em;color:var(--rose);font-weight:700;margin-top:12px}
+.hide{display:none}
+#sc{display:flex;justify-content:space-around;text-align:center;margin-bottom:10px}
+#sc b{display:block;font:800 2.4rem/1 Fraunces,Georgia,serif;color:var(--glow)}
+#sc div:last-child b{color:var(--rose)}
+.tm{height:10px;border-radius:5px;background:#343968;overflow:hidden;margin-bottom:14px}
+.tm i{display:block;height:100%;width:100%;background:var(--glow);transform-origin:left}
+.tm i.run{animation:cd 15s linear forwards}
+@keyframes cd{to{transform:scaleX(0);background:var(--bad)}}
+.cat{font:700 13px Nunito,sans-serif;color:var(--rose);margin-bottom:4px}
+.q{font:800 1.4rem/1.3 Fraunces,Georgia,serif;margin:0 0 16px;min-height:4.2rem}
+.opt{display:block;width:100%;text-align:left;margin:0 0 10px;padding:14px 16px;border-radius:14px;border:2px solid #343968;background:var(--bg);color:var(--ink);font:700 16px Nunito,sans-serif;cursor:pointer}
+.opt:disabled{cursor:default}
+.opt.me{border-color:var(--glow);background:#f6c76822}
+.opt.ok{border-color:var(--ok);background:#7fd8a622}
+.opt.no{border-color:var(--bad);background:#ff7a7a22}
+.tag{float:right;font-size:13px;color:var(--rose)}
+#msg{text-align:center;font-weight:700;min-height:1.6em;margin-top:6px}
+.big{font:800 2.2rem/1.2 Fraunces,Georgia,serif;color:var(--glow);text-align:center}
+@media(prefers-reduced-motion:reduce){.tm i.run{animation-duration:15s}}
+</style>
+</head>
+<body>
+<main>
+<h1>Cerdas Cermat</h1>
+<p class="sub">Jawab soal yang sama, bersamaan. Yang benar dan tercepat dapat 2 poin, yang benar tapi kedua dapat 1 poin. <a href="index.html">Kembali ke menu</a></p>
+
+<div class="box" id="lobby">
+<h2>Buat ruangan</h2>
+<button class="btn" id="mk">Buat kode ruangan</button>
+<div id="mine" class="hide"><div class="code" id="cd"></div><p class="note">Kirim kode ini ke pasanganmu, lalu tunggu dia masuk.</p></div>
+<h2 style="margin-top:26px">Masuk ruangan</h2>
+<div class="row">
+<input type="text" id="jc" maxlength="5" placeholder="Kode 5 huruf" autocomplete="off" aria-label="Kode ruangan">
+<button class="btn" id="jn">Masuk</button>
+</div>
+<div id="st" role="status"></div>
+</div>
+
+<div class="box hide" id="game">
+<div id="sc"><div><b id="s1">0</b>Kamu</div><div><b id="s2">0</b>Pasanganmu</div></div>
+<div class="tm"><i id="tm"></i></div>
+<div id="body"></div>
+<div id="msg" role="status"></div>
+<div style="text-align:center"><button class="btn" id="go">Mulai</button></div>
+</div>
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+let peer,conn,me,tries=0;
+const st=t=>$('#st').textContent=t;
+const send=o=>{if(conn&&conn.open)conn.send(o)};
+const rcode=()=>{const a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';return Array.from({length:5},()=>a[Math.random()*a.length|0]).join('')};
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const other=r=>r==='host'?'guest':'host';
+
+// [kategori, soal, [pilihan], indeks jawaban benar]
+const Q=[
+["Sejarah","Di kota mana Soekarno dan Hatta dibawa para pemuda sebelum proklamasi?",["Bogor","Rengasdengklok","Yogyakarta","Bandung"],1],
+["Sejarah","Sumpah Gajah Mada untuk menyatukan Nusantara dikenal sebagai…",["Sumpah Pemuda","Sumpah Palapa","Sumpah Prajurit","Sumpah Setia"],1],
+["Sejarah","Sumpah Pemuda diikrarkan pada tahun…",["1908","1928","1945","1966"],1],
+["Sejarah","Siapa yang mendampingi Soekarno sebagai proklamator?",["Sutan Sjahrir","Mohammad Hatta","Ki Hajar Dewantara","Tan Malaka"],1],
+["Sejarah","Hari Kartini diperingati setiap tanggal…",["21 April","2 Mei","20 Mei","10 November"],0],
+["Sejarah","Pertempuran yang diperingati sebagai Hari Pahlawan terjadi di…",["Bandung","Semarang","Surabaya","Medan"],2],
+["Sejarah","Candi Borobudur dibangun pada masa kerajaan…",["Majapahit","Sriwijaya","Mataram Kuno","Kutai"],2],
+["Sejarah","Kerajaan Hindu tertua di Indonesia adalah…",["Kutai","Tarumanegara","Majapahit","Sriwijaya"],0],
+["Sejarah","Sila ketiga Pancasila berbunyi…",["Kemanusiaan yang adil dan beradab","Persatuan Indonesia","Kerakyatan yang dipimpin hikmat","Keadilan sosial"],1],
+["Budaya","Rumah adat khas Jawa Tengah adalah…",["Gadang","Joglo","Tongkonan","Honai"],1],
+["Budaya","Alat musik petik Sasando berasal dari…",["Nusa Tenggara Timur","Maluku","Aceh","Bali"],0],
+["Budaya","Alat musik kolintang berasal dari daerah…",["Toraja","Minahasa","Bugis","Flores"],1],
+["Budaya","Banda Aceh dijuluki Serambi…",["Mekkah","Madinah","Nusantara","Sumatra"],0],
+["Budaya","Tari Saman berasal dari…",["Aceh","Bali","Papua","Jawa Barat"],0],
+["Budaya","Rumah adat Toraja yang atapnya melengkung disebut…",["Joglo","Tongkonan","Honai","Gadang"],1],
+["Budaya","Alat musik dari bambu yang dimainkan dengan digoyangkan adalah…",["Angklung","Sasando","Rebab","Gendang"],0],
+["Budaya","Batik ditetapkan UNESCO sebagai warisan budaya takbenda pada tahun…",["2003","2009","2013","2019"],1],
+["Geografi","Gunung tertinggi di Indonesia adalah…",["Semeru","Kerinci","Puncak Jaya","Rinjani"],2],
+["Geografi","Danau Toba berada di provinsi…",["Aceh","Sumatera Barat","Sumatera Utara","Jambi"],2],
+["Geografi","Ibu kota Provinsi Sumatera Barat adalah…",["Medan","Padang","Pekanbaru","Jambi"],1],
+["Geografi","Ibu kota Provinsi Jawa Timur adalah…",["Malang","Surabaya","Semarang","Kediri"],1],
+["Geografi","Selat yang memisahkan Pulau Jawa dan Sumatra adalah…",["Malaka","Sunda","Lombok","Makassar"],1],
+["Geografi","Kota yang dijuluki Kota Hujan adalah…",["Bandung","Bogor","Malang","Sukabumi"],1],
+["Geografi","Pulau Dewata adalah julukan untuk…",["Lombok","Bali","Flores","Sumba"],1],
+["Sains","Planet terdekat dari Matahari adalah…",["Venus","Merkurius","Mars","Bumi"],1],
+["Sains","Gas paling banyak di atmosfer Bumi adalah…",["Oksigen","Karbon dioksida","Nitrogen","Argon"],2],
+["Sains","Jumlah tulang pada tubuh manusia dewasa adalah…",["186","206","226","256"],1],
+["Sains","Organ yang menghasilkan insulin adalah…",["Hati","Pankreas","Ginjal","Lambung"],1],
+["Sains","Satuan gaya dalam SI adalah…",["Joule","Watt","Newton","Pascal"],2],
+["Sains","Berapa jumlah jantung seekor gurita?",["1","2","3","4"],2],
+["Sains","Hewan darat tercepat di dunia adalah…",["Singa","Cheetah","Kuda","Kijang"],1],
+["Sains","Air mendidih pada suhu berapa derajat Celsius di permukaan laut?",["90","100","110","120"],1],
+["Sains","Proses tumbuhan membuat makanan dengan bantuan cahaya disebut…",["Respirasi","Fotosintesis","Evaporasi","Transpirasi"],1],
+["Dunia","Ibu kota Jepang adalah…",["Osaka","Kyoto","Tokyo","Nagoya"],2],
+["Dunia","Benua terluas di dunia adalah…",["Afrika","Asia","Amerika Utara","Eropa"],1],
+["Dunia","Samudra terluas di dunia adalah…",["Atlantik","Hindia","Pasifik","Arktik"],2],
+["Dunia","Taj Mahal terletak di negara…",["Pakistan","India","Bangladesh","Nepal"],1],
+["Dunia","Gunung Everest berada di pegunungan…",["Alpen","Andes","Himalaya","Rocky"],2],
+["Dunia","Mata uang Jepang adalah…",["Won","Yuan","Yen","Baht"],2],
+["Dunia","Negara yang bentuknya mirip sepatu bot adalah…",["Italia","Spanyol","Yunani","Portugal"],0],
+["Dunia","Penemu telepon yang paling dikenal adalah…",["Thomas Edison","Alexander Graham Bell","Nikola Tesla","Guglielmo Marconi"],1],
+["Dunia","Hewan terbesar yang pernah hidup di Bumi adalah…",["Gajah","Paus biru","Hiu paus","Jerapah"],1],
+["Umum","Bahan utama pembuatan tempe adalah…",["Kacang tanah","Kedelai","Jagung","Beras"],1],
+["Umum","Berapa menit jumlahnya dalam satu hari?",["1240","1340","1440","1540"],2],
+["Umum","Berapa pemain satu tim sepak bola yang berada di lapangan?",["9","10","11","12"],2],
+["Umum","Campuran warna biru dan kuning menghasilkan warna…",["Ungu","Hijau","Oranye","Cokelat"],1],
+["Cinta","Bunga yang paling identik dengan simbol cinta adalah…",["Melati","Mawar","Anggrek","Matahari"],1],
+["Cinta","Hari Valentine diperingati setiap tanggal…",["14 Februari","1 Januari","17 Agustus","25 Desember"],0]
+];
+const TOTAL=10,SEC=15;
+let order=[],n=0,sc={host:0,guest:0},q=null,perm=[],ans={},t0=0,done=false,resT=null,nextT=null,lockT=null;
+
+// ---- koneksi ----
+function mkRoom(){
+  if(peer)peer.destroy();
+  const c=rcode();peer=new Peer('dj-cc-'+c);
+  peer.on('open',()=>{me='host';$('#cd').textContent=c;$('#mine').classList.remove('hide');st('')});
+  peer.on('connection',cn=>{if(conn&&conn.open){cn.close();return}conn=cn;wire()});
+  peer.on('error',e=>{if(e.type==='unavailable-id'&&tries++<5)mkRoom();else st('Gagal membuat ruangan ('+e.type+'). Coba lagi.')});
+}
+function joinRoom(){
+  const c=$('#jc').value.trim().toUpperCase();
+  if(c.length!==5){st('Masukkan kode 5 huruf.');return}
+  st('Menghubungkan…');
+  if(peer)peer.destroy();
+  peer=new Peer();
+  peer.on('open',()=>{me='guest';conn=peer.connect('dj-cc-'+c,{reliable:true});wire()});
+  peer.on('error',e=>st(e.type==='peer-unavailable'?'Kode tidak ditemukan. Cek lagi ya.':'Gagal terhubung ('+e.type+').'));
+}
+function wire(){
+  conn.on('open',()=>{
+    $('#lobby').classList.add('hide');$('#game').classList.remove('hide');
+    if(me==='guest'){$('#go').classList.add('hide');$('#msg').textContent='Menunggu pasanganmu menekan Mulai…'}
+    else $('#msg').textContent='Tekan Mulai kalau kalian sudah siap.';
+  });
+  conn.on('data',onData);
+  conn.on('close',()=>alert('Pasanganmu terputus. Muat ulang halaman untuk main lagi.'));
+}
+$('#mk').onclick=()=>{tries=0;mkRoom()};
+$('#jn').onclick=joinRoom;
+$('#jc').onkeydown=e=>{if(e.key==='Enter')joinRoom()};
+
+// ---- game ----
+const showScore=()=>{$('#s1').textContent=sc[me];$('#s2').textContent=sc[other(me)]};
+function startGame(o){
+  order=o;n=0;sc={host:0,guest:0};showScore();$('#go').classList.add('hide');
+  clearTimeout(nextT);$('#body').innerHTML='';
+  if(me==='host')nextT=setTimeout(nextRound,800);
+}
+function nextRound(){
+  if(n>=TOTAL){send({t:'end'});showEnd();return}
+  n++;send({t:'q',n,i:order[n-1]});begin(n,order[n-1]);
+}
+function begin(num,i){
+  n=num;q=Q[i];q.done=false;ans={};done=false;perm=shuf([0,1,2,3]);
+  clearTimeout(resT);clearTimeout(lockT);
+  $('#msg').textContent=`Soal ${n} dari ${TOTAL}`;
+  $('#body').innerHTML=`<div class="cat">${q[0]}</div><p class="q">${q[1]}</p>`+
+    perm.map((o,j)=>`<button class="opt" data-j="${j}">${q[2][o]}</button>`).join('');
+  document.querySelectorAll('.opt').forEach(b=>b.onclick=()=>choose(+b.dataset.j));
+  const tm=$('#tm');tm.style.animationPlayState='';tm.classList.remove('run');void tm.offsetWidth;tm.classList.add('run');
+  t0=performance.now();
+  lockT=setTimeout(()=>{if(!done)lock(-1,SEC*1000)},SEC*1000);
+  resT=setTimeout(resolve,SEC*1000+1500);
+}
+function choose(j){if(!done)lock(perm[j],Math.round(performance.now()-t0))}
+function lock(orig,ms){
+  done=true;ans[me]={i:orig,ms};
+  document.querySelectorAll('.opt').forEach(b=>{b.disabled=true;if(orig>=0&&perm[+b.dataset.j]===orig)b.classList.add('me')});
+  send({t:'a',n,i:orig,ms});
+  if(ans[other(me)])resolve();
+  else if(orig>=0)$('#msg').textContent='Menunggu pasanganmu menjawab…';
+}
+function resolve(){
+  if(!q||q.done)return;q.done=true;
+  clearTimeout(resT);clearTimeout(lockT);
+  $('#tm').style.animationPlayState='paused';
+  const ok=r=>ans[r]&&ans[r].i===q[3];
+  const rs=['host','guest'].filter(ok).sort((a,b)=>ans[a].ms-ans[b].ms);
+  rs.forEach((r,k)=>sc[r]+=k===0?2:1);
+  showScore();
+  const mine=ans[me],theirs=ans[other(me)];
+  document.querySelectorAll('.opt').forEach(b=>{
+    const o=perm[+b.dataset.j];b.disabled=true;b.classList.remove('me');
+    if(o===q[3])b.classList.add('ok');
+    else if(mine&&mine.i===o)b.classList.add('no');
+    if(theirs&&theirs.i===o)b.innerHTML+=' <span class="tag">Dia</span>';
+  });
+  const m=rs.includes(me)?(rs[0]===me?'Benar dan tercepat! +2':'Benar! +1'):(mine&&mine.i>=0?'Salah. Jawabannya sudah ditandai hijau.':'Waktu habis.');
+  $('#msg').textContent=m+(rs.includes(other(me))?(rs[0]===other(me)?'  Pasanganmu tercepat.':'  Pasanganmu juga benar.'):'');
+  if(me==='host'){clearTimeout(nextT);nextT=setTimeout(nextRound,3800)}
+}
+function showEnd(){
+  clearTimeout(resT);clearTimeout(lockT);
+  const a=sc[me],b=sc[other(me)];
+  $('#tm').classList.remove('run');
+  $('#body').innerHTML=`<div class="big">${a>b?'Kamu juara! 🏆':a<b?'Pasanganmu juara! 🏆':'Seri! 💞'}</div><p style="text-align:center">${a<b?'Hukuman: kirim voice note pujian untuk sang juara.':a>b?'Hadiah: minta pasanganmu menceritakan satu hal yang dia kagumi darimu.':'Hadiah bersama: pilih game berikutnya dari menu.'}</p>`;
+  $('#msg').textContent='Selesai!';
+  if(me==='host'){$('#go').textContent='Main lagi';$('#go').classList.remove('hide')}
+}
+$('#go').onclick=()=>{const o=shuf([...Q.keys()]).slice(0,TOTAL);send({t:'go',o});startGame(o)};
+function onData(d){
+  if(d.t==='go'&&Array.isArray(d.o)&&d.o.every(k=>Q[k]))startGame(d.o);
+  else if(d.t==='q'&&Q[d.i])begin(d.n,d.i);
+  else if(d.t==='a'&&d.n===n&&q&&!q.done){ans[other(me)]={i:+d.i,ms:+d.ms};if(done)resolve()}
+  else if(d.t==='end')showEnd();
+}
+</script>
+</body>
+</html>

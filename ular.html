@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ular Tangga · Dua Jendela</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<style>
+:root{--bg:#14172b;--bg2:#1d2140;--glow:#f6c768;--rose:#ff8fa3;--ink:#f3ecdf;--mute:#a7a9c4;--ok:#7fd8a6}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:radial-gradient(ellipse at 20% 0,#262b57 0,var(--bg) 55%) fixed;color:var(--ink);font:400 17px/1.55 Nunito,system-ui,sans-serif;min-height:100vh}
+main{max-width:560px;margin:0 auto;padding:28px 14px 64px}
+h1,h2{font-family:Fraunces,Georgia,serif;margin:0}
+h1{font-size:clamp(2rem,7vw,3rem);font-weight:800;line-height:1.05}
+h2{font-size:1.5rem;margin-bottom:8px}
+a{color:var(--glow)}
+.sub{color:var(--mute);margin:10px 0 22px}
+.box{background:var(--bg2);border-radius:20px;padding:20px 16px;margin-bottom:16px}
+.btn{background:var(--rose);color:#3a0d18;border:0;border-radius:12px;padding:13px 22px;font:700 17px Nunito,sans-serif;cursor:pointer;margin-top:10px}
+.btn:disabled{opacity:.45;cursor:default}
+button:focus-visible,input:focus-visible{outline:3px solid var(--rose);outline-offset:2px}
+input[type=text]{width:100%;padding:11px 12px;border-radius:10px;border:2px solid #343968;background:var(--bg);color:var(--ink);font:inherit;text-transform:uppercase}
+.row{display:flex;gap:10px;align-items:stretch}
+.row>*{flex:1}
+.row .btn{margin-top:0;flex:0 0 auto}
+.code{font:800 2.6rem/1 Fraunces,Georgia,serif;letter-spacing:.15em;color:var(--glow);margin:8px 0}
+.note{color:var(--mute);font-size:14px}
+#st{min-height:1.5em;color:var(--rose);font-weight:700;margin-top:12px}
+.hide{display:none}
+#msg{text-align:center;font-weight:700;min-height:1.6em;margin-bottom:10px}
+#wrap{position:relative;width:100%;aspect-ratio:1;border-radius:12px;overflow:hidden;background:#232850}
+#bd{display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(10,1fr);width:100%;height:100%}
+#bd div{font-size:clamp(7px,2vw,11px);color:#8a8fb5;padding:2px 3px;border:1px solid #14172b55;position:relative}
+#bd div:nth-child(even){background:#1d2140}
+#bd div.ch::after{content:"🎁";position:absolute;right:1px;bottom:-1px;font-size:clamp(9px,3vw,16px)}
+#bd div.fin{background:#f6c76833;color:var(--glow);font-weight:700}
+#ov{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.pw{position:absolute;width:7%;height:7%;display:grid;place-items:center;font-size:clamp(14px,5vw,26px);transform:translate(-50%,-50%);transition:left .17s,top .17s;filter:drop-shadow(0 2px 3px #000a)}
+.pw.jump{transition:left .6s ease-in-out,top .6s ease-in-out}
+#dice{font-size:4rem;line-height:1;text-align:center;margin:10px 0 0}
+#dice.roll{animation:shake .5s}
+@keyframes shake{25%{transform:rotate(-18deg)}50%{transform:rotate(14deg)}75%{transform:rotate(-8deg)}}
+#ch{display:none;background:var(--bg);border:2px dashed var(--rose);border-radius:14px;padding:12px 14px;margin-top:12px;text-align:center}
+#ch.on{display:block}
+@media(prefers-reduced-motion:reduce){#dice.roll{animation:none}.pw,.pw.jump{transition:none}}
+</style>
+</head>
+<body>
+<main>
+<h1>Ular Tangga</h1>
+<p class="sub">Lempar dadu bergantian, naik tangga, hindari ular. Angka 6 dapat giliran lagi, dan kotak 🎁 punya tantangan kecil. <a href="index.html">Kembali ke menu</a></p>
+
+<div class="box" id="lobby">
+<h2>Buat ruangan</h2>
+<button class="btn" id="mk">Buat kode ruangan</button>
+<div id="mine" class="hide"><div class="code" id="cd"></div><p class="note">Kirim kode ini ke pasanganmu, lalu tunggu dia masuk.</p></div>
+<h2 style="margin-top:26px">Masuk ruangan</h2>
+<div class="row">
+<input type="text" id="jc" maxlength="5" placeholder="Kode 5 huruf" autocomplete="off" aria-label="Kode ruangan">
+<button class="btn" id="jn">Masuk</button>
+</div>
+<div id="st" role="status"></div>
+</div>
+
+<div class="box hide" id="game">
+<div id="msg" role="status"></div>
+<div id="wrap">
+<div id="bd"></div>
+<svg id="ov" viewBox="0 0 100 100" aria-hidden="true"></svg>
+<div class="pw" id="p-host">💛</div>
+<div class="pw" id="p-guest">🌸</div>
+</div>
+<div id="dice" aria-live="polite">🎲</div>
+<div id="ch"></div>
+<div style="text-align:center"><button class="btn" id="roll">Lempar dadu</button></div>
+<p class="note" style="text-align:center;margin-top:12px">Kamu <b id="m1"></b>, pasanganmu <b id="m2"></b>. Harus tepat 100 untuk menang.</p>
+</div>
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+let peer,conn,me,tries=0;
+const st=t=>$('#st').textContent=t;
+const send=o=>{if(conn&&conn.open)conn.send(o)};
+const rcode=()=>{const a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';return Array.from({length:5},()=>a[Math.random()*a.length|0]).join('')};
+const other=r=>r==='host'?'guest':'host';
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const E={host:'💛',guest:'🌸'};
+
+const L={4:14,9:31,20:38,28:84,40:59,51:67,63:81,71:91};
+const S={17:7,54:34,62:19,64:60,87:24,93:73,95:75,98:79};
+const CH={12:'Kirim selfie lucu ke pasanganmu.',25:'Sebutkan tiga hal yang kamu suka dari pasanganmu.',35:'Nyanyikan satu bagian lagu favoritmu.',46:'Ceritakan kenangan terlucu kalian berdua.',56:'Tirukan gaya bicara pasanganmu.',69:'Kirim satu emoji yang menggambarkan harimu dan jelaskan.',77:'Tebak makanan favorit pasanganmu.',89:'Sebutkan satu rencana manis untuk saat kalian bertemu.'};
+const FACE=['⚀','⚁','⚂','⚃','⚄','⚅'];
+
+// ---- koneksi ----
+function mkRoom(){
+  if(peer)peer.destroy();
+  const c=rcode();peer=new Peer('dj-ut-'+c);
+  peer.on('open',()=>{me='host';$('#cd').textContent=c;$('#mine').classList.remove('hide');st('')});
+  peer.on('connection',cn=>{if(conn&&conn.open){cn.close();return}conn=cn;wire()});
+  peer.on('error',e=>{if(e.type==='unavailable-id'&&tries++<5)mkRoom();else st('Gagal membuat ruangan ('+e.type+'). Coba lagi.')});
+}
+function joinRoom(){
+  const c=$('#jc').value.trim().toUpperCase();
+  if(c.length!==5){st('Masukkan kode 5 huruf.');return}
+  st('Menghubungkan…');
+  if(peer)peer.destroy();
+  peer=new Peer();
+  peer.on('open',()=>{me='guest';conn=peer.connect('dj-ut-'+c,{reliable:true});wire()});
+  peer.on('error',e=>st(e.type==='peer-unavailable'?'Kode tidak ditemukan. Cek lagi ya.':'Gagal terhubung ('+e.type+').'));
+}
+function wire(){
+  conn.on('open',()=>{
+    $('#lobby').classList.add('hide');$('#game').classList.remove('hide');
+    $('#m1').textContent=E[me];$('#m2').textContent=E[other(me)];
+    buildBoard();reset();
+  });
+  conn.on('data',onData);
+  conn.on('close',()=>alert('Pasanganmu terputus. Muat ulang halaman untuk main lagi.'));
+}
+$('#mk').onclick=()=>{tries=0;mkRoom()};
+$('#jn').onclick=joinRoom;
+$('#jc').onkeydown=e=>{if(e.key==='Enter')joinRoom()};
+
+// ---- papan ----
+const xy=n=>{const i=n-1,r=i/10|0,c=r%2?9-i%10:i%10;return[c*10+5,(9-r)*10+5]};
+function buildBoard(){
+  let h='';
+  for(let rt=0;rt<10;rt++){
+    const r=9-rt;
+    for(let c=0;c<10;c++){
+      const n=r*10+(r%2?9-c:c)+1;
+      h+=`<div class="${CH[n]?'ch':''}${n===100?' fin':''}">${n}</div>`;
+    }
+  }
+  $('#bd').innerHTML=h;
+  let s='';
+  for(const a in L){
+    const[p,q]=[xy(+a),xy(L[a])],dx=q[0]-p[0],dy=q[1]-p[1],len=Math.hypot(dx,dy),ox=-dy/len*1.4,oy=dx/len*1.4;
+    s+=`<g stroke="#d9a45b" stroke-linecap="round"><line x1="${p[0]+ox}" y1="${p[1]+oy}" x2="${q[0]+ox}" y2="${q[1]+oy}" stroke-width=".7"/><line x1="${p[0]-ox}" y1="${p[1]-oy}" x2="${q[0]-ox}" y2="${q[1]-oy}" stroke-width=".7"/><line x1="${p[0]}" y1="${p[1]}" x2="${q[0]}" y2="${q[1]}" stroke-width="2.6" stroke-dasharray=".5 2.2"/></g>`;
+  }
+  for(const a in S){
+    const[p,q]=[xy(+a),xy(S[a])],mx=(p[0]+q[0])/2+(p[1]-q[1])*.12,my=(p[1]+q[1])/2+(q[0]-p[0])*.12;
+    s+=`<path d="M${p[0]} ${p[1]} Q${mx} ${my} ${q[0]} ${q[1]}" fill="none" stroke="#6fd08c" stroke-width="1.7" stroke-linecap="round" opacity=".9"/><text x="${p[0]}" y="${p[1]+1.8}" font-size="5.5" text-anchor="middle">🐍</text>`;
+  }
+  $('#ov').innerHTML=s;
+}
+const pos={host:1,guest:1};
+function place(p,jump){
+  const el=$('#p-'+p),[x,y]=xy(pos[p]);
+  el.classList.toggle('jump',!!jump);
+  el.style.left=(x+(p==='host'?-2:2))+'%';el.style.top=y+'%';
+}
+
+// ---- alur ----
+let turn='host',busy=false,over=false,starter='guest';
+function reset(){
+  starter=other(starter);turn=starter;pos.host=pos.guest=1;busy=false;over=false;
+  place('host');place('guest');$('#ch').className='';$('#dice').textContent='🎲';
+  $('#roll').textContent='Lempar dadu';ui();
+}
+function ui(){
+  const mine=turn===me;
+  $('#roll').disabled=over?me!=='host'&&false:(!mine||busy);
+  if(!busy&&!over)$('#msg').textContent=mine?'Giliranmu, lempar dadunya!':'Giliran pasanganmu…';
+}
+async function doRoll(p,v){
+  busy=true;ui();
+  const d=$('#dice');d.classList.remove('roll');void d.offsetWidth;d.classList.add('roll');
+  await sleep(500);d.textContent=FACE[v-1];
+  const who=p===me?'Kamu':'Pasanganmu';
+  $('#ch').className='';
+  let t=pos[p]+v;
+  if(t>100){$('#msg').textContent=`${who} dapat ${v}, tapi harus tepat 100.`;await sleep(900)}
+  else{
+    $('#msg').textContent=`${who} maju ${v} langkah`;
+    while(pos[p]<t){pos[p]++;place(p);await sleep(190)}
+    const j=L[pos[p]]||S[pos[p]];
+    if(j){
+      const up=!!L[pos[p]];
+      $('#msg').textContent=up?`${who} naik tangga! 🪜`:`${who} digigit ular! 🐍`;
+      await sleep(450);pos[p]=j;place(p,true);await sleep(800);
+    }
+    if(CH[pos[p]]){
+      $('#ch').innerHTML=`<b>🎁 Tantangan untuk ${p===me?'kamu':'pasanganmu'}:</b><br>${CH[pos[p]]}`;
+      $('#ch').className='on';await sleep(1200);
+    }
+    if(pos[p]===100){
+      over=true;busy=false;
+      $('#msg').textContent=p===me?'Kamu menang! 🎉':'Pasanganmu menang! 🏆';
+      $('#roll').textContent='Main lagi';$('#roll').disabled=false;return;
+    }
+  }
+  if(v===6&&t<=100){$('#msg').textContent=`${who} dapat 6, giliran lagi!`;}
+  else turn=other(p);
+  busy=false;ui();
+}
+$('#roll').onclick=()=>{
+  if(over){send({t:'rs'});reset();return}
+  if(busy||turn!==me)return;
+  const v=Math.random()*6+1|0;
+  send({t:'roll',v});doRoll(me,v);
+};
+function onData(d){
+  if(d.t==='roll'&&Number.isInteger(d.v)&&d.v>=1&&d.v<=6&&!busy&&!over&&turn===other(me))doRoll(other(me),d.v);
+  else if(d.t==='rs')reset();
+}
+</script>
+</body>
+</html>

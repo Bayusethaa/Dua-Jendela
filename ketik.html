@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Adu Ketik Lidah Kusut · Dua Jendela</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⌨️</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<style>
+:root{--bg:#14172b;--bg2:#1d2140;--glow:#f6c768;--rose:#ff8fa3;--ink:#f3ecdf;--mute:#a7a9c4;--ok:#7fd8a6;--bad:#ff7a7a}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:radial-gradient(ellipse at 20% 0,#262b57 0,var(--bg) 55%) fixed;color:var(--ink);font:400 17px/1.55 Nunito,system-ui,sans-serif;min-height:100vh}
+main{max-width:600px;margin:0 auto;padding:28px 18px 64px}
+h1,h2{font-family:Fraunces,Georgia,serif;margin:0}
+h1{font-size:clamp(2rem,7vw,3rem);font-weight:800;line-height:1.05}
+h2{font-size:1.5rem;margin-bottom:8px}
+a{color:var(--glow)}
+.sub{color:var(--mute);margin:10px 0 22px}
+.box{background:var(--bg2);border-radius:20px;padding:22px 20px;margin-bottom:16px}
+.btn{background:var(--rose);color:#3a0d18;border:0;border-radius:12px;padding:13px 22px;font:700 17px Nunito,sans-serif;cursor:pointer;margin-top:10px}
+button:focus-visible,input:focus-visible{outline:3px solid var(--rose);outline-offset:2px}
+input[type=text]{width:100%;padding:11px 12px;border-radius:10px;border:2px solid #343968;background:var(--bg);color:var(--ink);font:inherit}
+input.up{text-transform:uppercase}
+.row{display:flex;gap:10px;align-items:stretch}
+.row>*{flex:1}
+.row .btn{margin-top:0;flex:0 0 auto}
+.code{font:800 2.6rem/1 Fraunces,Georgia,serif;letter-spacing:.15em;color:var(--glow);margin:8px 0}
+.note{color:var(--mute);font-size:14px}
+#st{min-height:1.5em;color:var(--rose);font-weight:700;margin-top:12px}
+.hide{display:none}
+#sc{display:flex;justify-content:space-around;text-align:center;margin-bottom:12px}
+#sc b{display:block;font:800 2.4rem/1 Fraunces,Georgia,serif;color:var(--glow)}
+#sc div:last-child b{color:var(--rose)}
+#msg{text-align:center;font-weight:700;min-height:1.6em;margin-bottom:10px}
+.ph{font:800 1.6rem/1.35 Fraunces,Georgia,serif;text-align:center;background:var(--bg);border:2px dashed var(--glow);border-radius:16px;padding:22px 14px;min-height:110px;display:grid;place-items:center}
+.ph.cd{font-size:3.4rem;color:var(--glow)}
+.pb{height:12px;border-radius:6px;background:#343968;margin:6px 0 12px;overflow:hidden}
+.pb i{display:block;height:100%;width:0;background:var(--glow);transition:width .12s}
+.pb.y i{background:var(--rose)}
+label.l{font-size:14px;color:var(--mute);display:flex;justify-content:space-between;margin-top:14px}
+.big{font:800 2.4rem/1.2 Fraunces,Georgia,serif;color:var(--glow);text-align:center}
+@media(prefers-reduced-motion:no-preference){.ph.cd{animation:pop .7s infinite}@keyframes pop{from{transform:scale(1.4);opacity:.2}}}
+</style>
+</head>
+<body>
+<main>
+<h1>Adu Ketik Lidah Kusut</h1>
+<p class="sub">Ketik kalimat lidah kusut secepat mungkin sebelum pasanganmu. Salah satu huruf, ulang. <a href="index.html">Kembali ke menu</a></p>
+
+<div class="box" id="lobby">
+<h2>Buat ruangan</h2>
+<button class="btn" id="mk">Buat kode ruangan</button>
+<div id="mine" class="hide"><div class="code" id="cd"></div><p class="note">Kirim kode ini ke pasanganmu, lalu tunggu dia masuk.</p></div>
+<h2 style="margin-top:26px">Masuk ruangan</h2>
+<div class="row">
+<input type="text" class="up" id="jc" maxlength="5" placeholder="Kode 5 huruf" autocomplete="off" aria-label="Kode ruangan">
+<button class="btn" id="jn">Masuk</button>
+</div>
+<div id="st" role="status"></div>
+</div>
+
+<div class="box hide" id="game">
+<div id="sc"><div><b id="s1">0</b>Kamu</div><div><b id="s2">0</b>Pasanganmu</div></div>
+<div id="msg"></div>
+<div class="ph" id="ph"></div>
+<label class="l"><span>Kamu</span><span id="r1"></span></label>
+<div class="pb"><i id="b1"></i></div>
+<input type="text" id="in" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" disabled aria-label="Ketik di sini" placeholder="Ketik kalimatnya di sini">
+<label class="l"><span>Pasanganmu</span><span id="r2"></span></label>
+<div class="pb y"><i id="b2"></i></div>
+<div style="text-align:center"><button class="btn" id="go">Mulai</button></div>
+</div>
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+let peer,conn,me,tries=0;
+const st=t=>$('#st').textContent=t;
+const send=o=>{if(conn&&conn.open)conn.send(o)};
+const rcode=()=>{const a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';return Array.from({length:5},()=>a[Math.random()*a.length|0]).join('')};
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const other=r=>r==='host'?'guest':'host';
+
+const P=[
+"kuku kaki kakak kakek kuning kunyit",
+"seekor sekor sapi di sisi sawah sisi",
+"bu bela beli bebek besar bermerek baru",
+"sembilan sembilu sembunyi di semak semut",
+"kakak kaka kaku kaca kaca kecil kita",
+"tukang tahu tukar tikar tua tadi tadi",
+"pak pono pergi pagi pakai payung putih",
+"ular lari lurus lalu lupa lewat lorong",
+"nenek nana nonton nyonya nyanyi nasi",
+"dua dadu dalam dus dibuang diam diam",
+"koki kecil kocok kopi kental kuat kuat",
+"gadis gagah gigit gigi gigi gajah gemuk"
+];
+const TOTAL=5;
+let order=[],n=0,sc={host:0,guest:0},phrase='',t0=0,fin={},ids=[],cdT=[],resT=null,nextT=null,active=false;
+
+// ---- koneksi ----
+function mkRoom(){
+  if(peer)peer.destroy();
+  const c=rcode();peer=new Peer('dj-kt-'+c);
+  peer.on('open',()=>{me='host';$('#cd').textContent=c;$('#mine').classList.remove('hide');st('')});
+  peer.on('connection',cn=>{if(conn&&conn.open){cn.close();return}conn=cn;wire()});
+  peer.on('error',e=>{if(e.type==='unavailable-id'&&tries++<5)mkRoom();else st('Gagal membuat ruangan ('+e.type+'). Coba lagi.')});
+}
+function joinRoom(){
+  const c=$('#jc').value.trim().toUpperCase();
+  if(c.length!==5){st('Masukkan kode 5 huruf.');return}
+  st('Menghubungkan…');
+  if(peer)peer.destroy();
+  peer=new Peer();
+  peer.on('open',()=>{me='guest';conn=peer.connect('dj-kt-'+c,{reliable:true});wire()});
+  peer.on('error',e=>st(e.type==='peer-unavailable'?'Kode tidak ditemukan. Cek lagi ya.':'Gagal terhubung ('+e.type+').'));
+}
+function wire(){
+  conn.on('open',()=>{
+    $('#lobby').classList.add('hide');$('#game').classList.remove('hide');
+    if(me==='guest'){$('#go').classList.add('hide');$('#msg').textContent='Menunggu pasanganmu menekan Mulai…'}
+    else $('#msg').textContent='Tekan Mulai kalau kalian sudah siap.';
+  });
+  conn.on('data',onData);
+  conn.on('close',()=>alert('Pasanganmu terputus. Muat ulang halaman untuk main lagi.'));
+}
+$('#mk').onclick=()=>{tries=0;mkRoom()};
+$('#jn').onclick=joinRoom;
+$('#jc').onkeydown=e=>{if(e.key==='Enter')joinRoom()};
+
+// ---- game ----
+const norm=s=>s.toLowerCase().replace(/\s+/g,' ').trim();
+const showScore=()=>{$('#s1').textContent=sc[me];$('#s2').textContent=sc[other(me)]};
+function startGame(o){
+  order=o;n=0;sc={host:0,guest:0};showScore();$('#go').classList.add('hide');
+  clearTimeout(nextT);
+  if(me==='host')nextT=setTimeout(nextRound,800);
+}
+function nextRound(){
+  if(n>=TOTAL){send({t:'end'});showEnd();return}
+  n++;send({t:'r',n,i:order[n-1]});begin(n,order[n-1]);
+}
+function begin(num,i){
+  n=num;phrase=P[i];fin={};active=false;
+  clearTimeout(resT);cdT.forEach(clearTimeout);cdT=[];
+  const inp=$('#in');inp.value='';inp.disabled=true;
+  $('#b1').style.width=$('#b2').style.width='0';$('#r1').textContent=$('#r2').textContent='';
+  $('#msg').textContent=`Putaran ${n} dari ${TOTAL}`;
+  const ph=$('#ph');
+  [3,2,1].forEach((k,j)=>cdT.push(setTimeout(()=>{ph.className='ph cd';ph.textContent=k},j*700)));
+  cdT.push(setTimeout(()=>{
+    ph.className='ph';ph.textContent=phrase;
+    inp.disabled=false;inp.focus();t0=performance.now();active=true;
+  },2100));
+}
+$('#in').oninput=()=>{
+  if(!active)return;
+  const v=norm($('#in').value);
+  let k=0;while(k<v.length&&k<phrase.length&&v[k]===phrase[k])k++;
+  const pct=Math.round(k/phrase.length*100);
+  $('#b1').style.width=pct+'%';send({t:'p',n,k:pct});
+  if(v===phrase)finish();
+};
+function finish(){
+  active=false;$('#in').disabled=true;
+  const ms=Math.round(performance.now()-t0);
+  fin[me]=ms;$('#r1').textContent=(ms/1000).toFixed(2)+' dtk';
+  send({t:'f',n,ms});check();
+}
+function check(){
+  const a=fin[me],b=fin[other(me)];
+  if(a!=null&&b!=null){clearTimeout(resT);resolve()}
+  else if(!resT||(a!=null||b!=null)){clearTimeout(resT);resT=setTimeout(resolve,12000)}
+}
+function resolve(){
+  clearTimeout(resT);resT=null;active=false;$('#in').disabled=true;
+  const a=fin[me],b=fin[other(me)];
+  let w=null;
+  if(a!=null&&b!=null)w=a<=b?me:other(me);
+  else if(a!=null)w=me;else if(b!=null)w=other(me);
+  if(w){sc[w==='host'?'host':'guest']++}
+  showScore();
+  const funny=['Jari kilat!','Lidahnya licin banget.','Kalah tipis, tapi gaya.','Kapan terakhir latihan?'];
+  $('#msg').textContent=w?(w===me?'Kamu lebih cepat! ':'Pasanganmu lebih cepat. ')+funny[Math.random()*funny.length|0]:'Tidak ada yang selesai. Seri putaran ini.';
+  if(me==='host'){clearTimeout(nextT);nextT=setTimeout(nextRound,3500)}
+}
+function showEnd(){
+  clearTimeout(resT);$('#in').disabled=true;
+  const a=sc[me],b=sc[other(me)];
+  $('#ph').className='ph';
+  $('#ph').innerHTML=`<div class="big">${a>b?'Kamu juara! 🏆':a<b?'Pasanganmu juara! 🏆':'Seri! 💞'}<br><span style="font-size:1.1rem;color:var(--mute)">${a<b?'Hukuman: bikin pasanganmu tertawa dalam 30 detik.':a>b?'Hadiah: pasanganmu harus memujimu 3 kali.':'Hadiah: saling kirim voice note manis.'}</span></div>`;
+  $('#msg').textContent='Selesai!';
+  if(me==='host'){$('#go').textContent='Main lagi';$('#go').classList.remove('hide')}
+}
+$('#go').onclick=()=>{const o=shuf([...P.keys()]).slice(0,TOTAL);send({t:'go',o});startGame(o)};
+function onData(d){
+  if(d.t==='go'&&Array.isArray(d.o))startGame(d.o);
+  else if(d.t==='r'&&P[d.i]!==undefined)begin(d.n,d.i);
+  else if(d.t==='p'&&d.n===n)$('#b2').style.width=Math.min(100,+d.k||0)+'%';
+  else if(d.t==='f'&&d.n===n){fin[other(me)]=+d.ms;$('#r2').textContent=(d.ms/1000).toFixed(2)+' dtk';check()}
+  else if(d.t==='end')showEnd();
+}
+</script>
+</body>
+</html>
