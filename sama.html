@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kita Sama Nggak? · Dua Jendela</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💞</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<style>
+:root{--bg:#14172b;--bg2:#1d2140;--glow:#f6c768;--rose:#ff8fa3;--ink:#f3ecdf;--mute:#a7a9c4;--ok:#7fd8a6;--bad:#ff7a7a}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:radial-gradient(ellipse at 20% 0,#262b57 0,var(--bg) 55%) fixed;color:var(--ink);font:400 17px/1.55 Nunito,system-ui,sans-serif;min-height:100vh}
+main{max-width:640px;margin:0 auto;padding:28px 18px 64px}
+h1,h2{font-family:Fraunces,Georgia,serif;margin:0}
+h1{font-size:clamp(2rem,7vw,3rem);font-weight:800;line-height:1.05}
+h2{font-size:1.5rem;margin-bottom:8px}
+a{color:var(--glow)}
+.sub{color:var(--mute);margin:10px 0 22px}
+.box{background:var(--bg2);border-radius:20px;padding:22px 20px;margin-bottom:16px}
+.btn{background:var(--rose);color:#3a0d18;border:0;border-radius:12px;padding:12px 20px;font:700 16px Nunito,sans-serif;cursor:pointer;margin-top:10px}
+button:focus-visible,input:focus-visible{outline:3px solid var(--rose);outline-offset:2px}
+input[type=text]{width:100%;padding:11px 12px;border-radius:10px;border:2px solid #343968;background:var(--bg);color:var(--ink);font:inherit;text-transform:uppercase}
+.row{display:flex;gap:10px;align-items:stretch}
+.row>*{flex:1}
+.row .btn{margin-top:0;flex:0 0 auto}
+.code{font:800 2.6rem/1 Fraunces,Georgia,serif;letter-spacing:.15em;color:var(--glow);margin:8px 0}
+.note{color:var(--mute);font-size:14px}
+#st{min-height:1.5em;color:var(--rose);font-weight:700;margin-top:12px}
+.hide{display:none}
+.bar{display:flex;gap:4px;margin-bottom:14px}
+.bar i{flex:1;height:8px;border-radius:4px;background:#343968}
+.bar i.d{background:var(--ok)}.bar i.x{background:var(--bad)}.bar i.c{background:var(--glow)}
+.q{font:800 1.5rem/1.3 Fraunces,Georgia,serif;margin:6px 0 16px}
+.opt{display:block;width:100%;text-align:left;margin:0 0 10px;padding:16px;border-radius:14px;border:2px solid #343968;background:var(--bg);color:var(--ink);font:700 17px Nunito,sans-serif;cursor:pointer}
+.opt.me{border-color:var(--glow);background:#f6c76822}
+.opt.you{border-color:var(--rose)}
+.opt.me.you{border-color:var(--ok);background:#7fd8a622}
+.tag{float:right;font-size:14px}
+.res{font-weight:700;margin:6px 0}
+.big{font:800 3.4rem/1 Fraunces,Georgia,serif;color:var(--glow)}
+</style>
+</head>
+<body>
+<main>
+<h1>Kita Sama Nggak?</h1>
+<p class="sub">Dua pilihan, jawab diam-diam, lalu lihat bareng apakah kalian sepikiran. <a href="index.html">Kembali ke menu</a></p>
+
+<div class="box" id="lobby">
+<h2>Buat ruangan</h2>
+<button class="btn" id="mk">Buat kode ruangan</button>
+<div id="mine" class="hide"><div class="code" id="cd"></div><p class="note">Kirim kode ini ke pasanganmu, lalu tunggu dia masuk.</p></div>
+<h2 style="margin-top:26px">Masuk ruangan</h2>
+<div class="row">
+<input type="text" id="jc" maxlength="5" placeholder="Kode 5 huruf" autocomplete="off" aria-label="Kode ruangan">
+<button class="btn" id="jn">Masuk</button>
+</div>
+<div id="st" role="status"></div>
+</div>
+
+<div id="game" class="hide">
+<div class="bar" id="bar"></div>
+<div class="box" id="pz"></div>
+</div>
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+let peer,conn,me,tries=0,order=[],idx=0,A=[],B=[];
+const st=t=>$('#st').textContent=t;
+const send=o=>{if(conn&&conn.open)conn.send(o)};
+const rcode=()=>{const a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';return Array.from({length:5},()=>a[Math.random()*a.length|0]).join('')};
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const N=10;
+
+const P=[
+["Kopi","Teh"],["Pantai","Gunung"],["Pagi","Malam"],["Nonton di rumah","Nonton di bioskop"],["Telepon","Chat"],
+["Kejutan","Rencana matang"],["Kucing","Anjing"],["Manis","Pedas"],["Liburan ke kota","Liburan ke alam"],["Hujan","Cerah"],
+["Masak bareng","Makan di luar"],["Ngobrol panjang","Diam bareng"],["Hadiah mahal sekali","Hadiah kecil tiap minggu"],["Dingin","Panas"],["Tidur larut","Bangun pagi"],
+["Roti","Nasi"],["Main game bareng","Jalan-jalan sore"],["Voice note","Video call"],["Foto banyak","Kenangan di kepala"],["Ketemu lebih jarang tapi lama","Ketemu sering tapi sebentar"],
+["Kota besar","Kampung halaman"],["Es krim","Cokelat panas"],["Pelukan","Genggam tangan"],["Lagu sedih","Lagu ceria"],["Jadi pendengar","Jadi pencerita"]
+];
+
+// ---- koneksi ----
+function mkRoom(){
+  if(peer)peer.destroy();
+  const c=rcode();peer=new Peer('dj-sm-'+c);
+  peer.on('open',()=>{me='host';$('#cd').textContent=c;$('#mine').classList.remove('hide');st('')});
+  peer.on('connection',cn=>{if(conn&&conn.open){cn.close();return}conn=cn;wire()});
+  peer.on('error',e=>{if(e.type==='unavailable-id'&&tries++<5)mkRoom();else st('Gagal membuat ruangan ('+e.type+'). Coba lagi.')});
+}
+function joinRoom(){
+  const c=$('#jc').value.trim().toUpperCase();
+  if(c.length!==5){st('Masukkan kode 5 huruf.');return}
+  st('Menghubungkan…');
+  if(peer)peer.destroy();
+  peer=new Peer();
+  peer.on('open',()=>{me='guest';conn=peer.connect('dj-sm-'+c,{reliable:true});wire()});
+  peer.on('error',e=>st(e.type==='peer-unavailable'?'Kode tidak ditemukan. Cek lagi ya.':'Gagal terhubung ('+e.type+').'));
+}
+function wire(){
+  conn.on('open',()=>{$('#lobby').classList.add('hide');$('#game').classList.remove('hide');if(me==='host')restart()});
+  conn.on('data',onData);
+  conn.on('close',()=>alert('Pasanganmu terputus. Muat ulang halaman untuk main lagi.'));
+}
+$('#mk').onclick=()=>{tries=0;mkRoom()};
+$('#jn').onclick=joinRoom;
+$('#jc').onkeydown=e=>{if(e.key==='Enter')joinRoom()};
+
+// ---- game ----
+function restart(){const o=shuf([...P.keys()]).slice(0,N);send({t:'start',o});begin(o)}
+function begin(o){order=o;idx=0;A=[];B=[];render()}
+function bar(){
+  $('#bar').innerHTML=order.map((_,k)=>{
+    const done=A[k]!=null&&B[k]!=null;
+    return `<i class="${done?(A[k]===B[k]?'d':'x'):k===idx?'c':''}"></i>`;
+  }).join('');
+}
+function render(){
+  bar();
+  const p=$('#pz');
+  if(idx>=N){
+    const m=A.filter((a,k)=>a===B[k]).length,pct=Math.round(m/N*100);
+    const msg=m>=8?'Kalian kembar jiwa. Serius.':m>=5?'Sepikiran di banyak hal, dan sisanya bahan ngobrol seru.':'Beda banget, dan itu bagus: banyak hal baru yang bisa dipelajari dari satu sama lain.';
+    p.innerHTML=`<h2>Hasil kalian</h2><div class="big">${pct}%</div><p class="res">Sama di ${m} dari ${N} pilihan</p><p>${msg}</p><p class="note">Pilih satu jawaban yang beda, lalu tanyakan alasannya ke pasanganmu.</p><button class="btn" id="again">Main lagi (pertanyaan baru)</button>`;
+    $('#again').onclick=restart;return;
+  }
+  const q=P[order[idx]],a=A[idx],b=B[idx],rev=a!=null&&b!=null;
+  p.innerHTML=`<p class="note">Pertanyaan ${idx+1} dari ${N}</p><div class="q">Pilih mana?</div>`+
+   q.map((o,i)=>{
+     let c='opt';if(rev){if(a===i)c+=' me';if(b===i)c+=' you'}else if(a===i)c+=' me';
+     const tag=rev?(a===i&&b===i?'<span class="tag">Kalian berdua 💞</span>':a===i?'<span class="tag">Kamu</span>':b===i?'<span class="tag">Dia</span>':''):(a===i?'<span class="tag">Pilihanmu</span>':'');
+     return `<button class="${c}" data-i="${i}" ${a!=null?'disabled':''}>${o}${tag}</button>`;
+   }).join('')+
+   (rev?`<p class="res">${a===b?'Sama! 🎉':'Beda pilihan. Tanyakan alasannya!'}</p><button class="btn" id="nx">${idx===N-1?'Lihat hasil':'Lanjut'}</button>`
+       :a!=null?'<p class="note">Menunggu pasanganmu memilih…</p>':'<p class="note">Jawabannya baru terlihat setelah kalian berdua memilih.</p>');
+  p.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;A[idx]=i;send({t:'a',q:idx,i});render()});
+  const nx=$('#nx');if(nx)nx.onclick=()=>{idx++;render()};
+}
+function onData(d){
+  if(d.t==='start')begin(d.o);
+  else if(d.t==='a'){B[d.q]=d.i;render()}
+}
+</script>
+</body>
+</html>
