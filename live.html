@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Main Live Berdua · Dua Jendela</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌙</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<style>
+:root{--bg:#14172b;--bg2:#1d2140;--glow:#f6c768;--rose:#ff8fa3;--ink:#f3ecdf;--mute:#a7a9c4;--ok:#7fd8a6;--bad:#ff7a7a}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:radial-gradient(ellipse at 20% 0,#262b57 0,var(--bg) 55%) fixed;color:var(--ink);font:400 17px/1.55 Nunito,system-ui,sans-serif;min-height:100vh}
+main{max-width:640px;margin:0 auto;padding:28px 18px 64px}
+h1,h2{font-family:Fraunces,Georgia,serif;margin:0}
+h1{font-size:clamp(2rem,7vw,3rem);font-weight:800;line-height:1.05}
+h2{font-size:1.5rem;margin-bottom:6px}
+a{color:var(--glow)}
+.sub{color:var(--mute);margin:10px 0 22px}
+.box{background:var(--bg2);border-radius:20px;padding:22px 20px;margin-bottom:16px}
+.btn{background:var(--rose);color:#3a0d18;border:0;border-radius:12px;padding:12px 20px;font:700 16px Nunito,sans-serif;cursor:pointer;margin-top:10px}
+.btn.alt{background:transparent;border:2px solid var(--glow);color:var(--glow)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--rose);outline-offset:2px}
+input[type=text]{width:100%;padding:11px 12px;border-radius:10px;border:2px solid #343968;background:var(--bg);color:var(--ink);font:inherit;text-transform:uppercase}
+input.g{text-transform:none}
+.row{display:flex;gap:10px;align-items:stretch}
+.row>*{flex:1}
+.row .btn{margin-top:0;flex:0 0 auto}
+.code{font:800 2.6rem/1 Fraunces,Georgia,serif;letter-spacing:.15em;color:var(--glow);margin:8px 0}
+.note{color:var(--mute);font-size:14px}
+#st{min-height:1.5em;color:var(--rose);font-weight:700;margin-top:12px}
+.hide{display:none}
+nav{display:flex;gap:8px;margin-bottom:16px}
+nav button{flex:1;padding:11px 8px;border-radius:12px;border:2px solid #343968;background:transparent;color:var(--mute);font:700 15px Nunito,sans-serif;cursor:pointer}
+nav button[aria-selected=true]{background:var(--glow);border-color:var(--glow);color:#2a2208}
+#bd{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:360px;margin:14px auto}
+#bd button{aspect-ratio:1;border-radius:16px;border:2px solid #343968;background:var(--bg);font:800 3rem Fraunces,Georgia,serif;cursor:pointer;color:var(--ink)}
+#bd button.X{color:var(--glow)}#bd button.O{color:var(--rose)}
+#bd button.w{border-color:var(--ok);background:#7fd8a622}
+#ttt-msg,#dr-msg{text-align:center;font-weight:700;min-height:1.6em}
+canvas{width:100%;aspect-ratio:3/2;background:#fffaf0;border-radius:14px;touch-action:none;display:block}
+.tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.sw{width:34px;height:34px;border-radius:50%;border:3px solid transparent;cursor:pointer;padding:0}
+.sw[aria-pressed=true]{border-color:var(--ink)}
+#log{margin:10px 0 0;padding:0;list-style:none;font-size:15px;color:var(--mute);max-height:110px;overflow:auto}
+#sc{text-align:center;font-weight:700;color:var(--glow);margin-bottom:8px}
+</style>
+</head>
+<body>
+<main>
+<h1>Main Live Berdua</h1>
+<p class="sub">Satu orang buat ruangan, satunya masuk pakai kode. <a href="index.html">Kembali ke menu</a></p>
+
+<div class="box" id="lobby">
+<h2>Buat ruangan</h2>
+<button class="btn" id="mk">Buat kode ruangan</button>
+<div id="mine" class="hide">
+<div class="code" id="cd"></div>
+<p class="note">Kirim kode ini ke pasanganmu, lalu tunggu dia masuk.</p>
+</div>
+<h2 style="margin-top:26px">Masuk ruangan</h2>
+<div class="row">
+<input type="text" id="jc" maxlength="5" placeholder="Kode 5 huruf" autocomplete="off" aria-label="Kode ruangan">
+<button class="btn" id="jn">Masuk</button>
+</div>
+<div id="st" role="status"></div>
+</div>
+
+<div id="game" class="hide">
+<nav role="tablist">
+<button role="tab" data-t="ttt" aria-selected="true">Tic-tac-toe</button>
+<button role="tab" data-t="dr" aria-selected="false">Tebak Gambar</button>
+</nav>
+
+<div class="box" id="ttt">
+<h2>Tic-tac-toe</h2>
+<div id="ttt-msg"></div>
+<div id="bd"></div>
+<div style="text-align:center"><button class="btn alt" id="rs">Main lagi</button></div>
+<p class="note" style="text-align:center">Kamu <b id="mk1"></b>, pasanganmu <b id="mk2"></b></p>
+</div>
+
+<div class="box hide" id="dr">
+<h2>Tebak Gambar</h2>
+<div id="sc"></div>
+<div id="dr-msg"></div>
+<canvas id="cv" width="600" height="400"></canvas>
+<div class="tools hide" id="tools">
+<button class="sw" style="background:#222" data-c="#222222" aria-pressed="true" aria-label="Hitam"></button>
+<button class="sw" style="background:#e63946" data-c="#e63946" aria-pressed="false" aria-label="Merah"></button>
+<button class="sw" style="background:#1d6fd1" data-c="#1d6fd1" aria-pressed="false" aria-label="Biru"></button>
+<button class="sw" style="background:#2a9d4a" data-c="#2a9d4a" aria-pressed="false" aria-label="Hijau"></button>
+<button class="sw" style="background:#f4a100" data-c="#f4a100" aria-pressed="false" aria-label="Kuning"></button>
+<button class="btn alt" id="clr" style="margin:0 0 0 auto">Hapus</button>
+<button class="btn alt" id="skip" style="margin:0">Ganti kata</button>
+</div>
+<div class="row hide" id="gs" style="margin-top:12px">
+<input type="text" class="g" id="gi" maxlength="30" placeholder="Tebakanmu…" autocomplete="off" aria-label="Tebakan">
+<button class="btn" id="gb">Tebak</button>
+</div>
+<ul id="log"></ul>
+</div>
+</div>
+</main>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+let peer,conn,me,tries=0;
+const st=t=>$('#st').textContent=t;
+const send=o=>{if(conn&&conn.open)conn.send(o)};
+const rcode=()=>{const a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';return Array.from({length:5},()=>a[Math.random()*a.length|0]).join('')};
+
+// ---- koneksi ----
+function mkRoom(){
+  if(peer)peer.destroy();
+  const c=rcode();
+  peer=new Peer('dj-'+c);
+  peer.on('open',()=>{me='host';$('#cd').textContent=c;$('#mine').classList.remove('hide');st('')});
+  peer.on('connection',cn=>{if(conn&&conn.open){cn.close();return}conn=cn;wire()});
+  peer.on('error',e=>{
+    if(e.type==='unavailable-id'&&tries++<5)mkRoom();
+    else st('Gagal membuat ruangan ('+e.type+'). Coba lagi.');
+  });
+}
+function joinRoom(){
+  const c=$('#jc').value.trim().toUpperCase();
+  if(c.length!==5){st('Masukkan kode 5 huruf.');return}
+  st('Menghubungkan…');
+  if(peer)peer.destroy();
+  peer=new Peer();
+  peer.on('open',()=>{me='guest';conn=peer.connect('dj-'+c,{reliable:true});wire()});
+  peer.on('error',e=>st(e.type==='peer-unavailable'?'Kode tidak ditemukan. Cek lagi ya.':'Gagal terhubung ('+e.type+').'));
+}
+function wire(){
+  conn.on('open',()=>{
+    $('#lobby').classList.add('hide');$('#game').classList.remove('hide');
+    $('#mk1').textContent=mark();$('#mk2').textContent=mark()==='X'?'O':'X';
+    tttReset(false);
+    if(me==='host')newRound();
+  });
+  conn.on('data',onData);
+  conn.on('close',()=>{alert('Pasanganmu terputus. Muat ulang halaman untuk main lagi.');});
+}
+$('#mk').onclick=()=>{tries=0;mkRoom()};
+$('#jn').onclick=joinRoom;
+$('#jc').onkeydown=e=>{if(e.key==='Enter')joinRoom()};
+$$('nav button').forEach(b=>b.onclick=()=>{
+  $$('nav button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  $('#ttt').classList.toggle('hide',b.dataset.t!=='ttt');
+  $('#dr').classList.toggle('hide',b.dataset.t!=='dr');
+});
+
+// ---- tic-tac-toe ----
+const mark=()=>me==='host'?'X':'O';
+const WIN=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+let board,turn,starter='O',over;
+const bd=$('#bd');
+bd.innerHTML=Array.from({length:9},(_,i)=>`<button data-i="${i}" aria-label="Kotak ${i+1}"></button>`).join('');
+function tttReset(fromClick){
+  starter=starter==='X'?'O':'X';
+  board=Array(9).fill('');turn=starter;over=false;
+  $$('#bd button').forEach(b=>{b.textContent='';b.className=''});
+  tttMsg();
+  if(fromClick)send({t:'r'});
+}
+function tttMsg(t){$('#ttt-msg').textContent=t||(turn===mark()?'Giliranmu':'Giliran pasanganmu')}
+function play(i,m){
+  board[i]=m;const b=bd.children[i];b.textContent=m==='X'?'💛':'🌸';b.className=m;
+  const w=WIN.find(l=>l.every(k=>board[k]===m));
+  if(w){over=true;w.forEach(k=>bd.children[k].classList.add('w'));tttMsg(m===mark()?'Kamu menang! 🎉':'Pasanganmu menang!');return}
+  if(board.every(Boolean)){over=true;tttMsg('Seri. Kalian sama kuat.');return}
+  turn=m==='X'?'O':'X';tttMsg();
+}
+bd.onclick=e=>{
+  const b=e.target.closest('button');if(!b)return;
+  const i=+b.dataset.i;
+  if(over||board[i]||turn!==mark())return;
+  play(i,mark());send({t:'m',i});
+};
+$('#rs').onclick=()=>tttReset(true);
+
+// ---- tebak gambar ----
+const WORDS=['rumah','kucing','pizza','bulan','hati','payung','sepeda','pesawat','es krim','bunga','kopi','gitar','kamera','pantai','gunung','hujan','kereta','balon','mahkota','ponsel','koper','bintang','surat','kue ulang tahun','pelukan','cincin','hujan','kupu-kupu'];
+let drawer='host',word='',score={me:0,you:0},color='#222222',last=null;
+const cv=$('#cv'),ctx=cv.getContext('2d');
+ctx.lineCap='round';ctx.lineJoin='round';
+const isD=()=>drawer===me;
+const norm=s=>s.toLowerCase().replace(/[^a-z0-9]/g,'');
+const other=r=>r==='host'?'guest':'host';
+function clearCv(){ctx.clearRect(0,0,cv.width,cv.height)}
+function line(a,c,w){
+  ctx.strokeStyle=c;ctx.lineWidth=w;ctx.beginPath();
+  ctx.moveTo(a[0]*cv.width,a[1]*cv.height);ctx.lineTo(a[2]*cv.width,a[3]*cv.height);ctx.stroke();
+}
+function role(){
+  const d=isD();
+  $('#tools').classList.toggle('hide',!d);
+  $('#gs').classList.toggle('hide',d);
+  $('#dr-msg').innerHTML=d?`Gambar: <span style="color:var(--glow)">${word}</span>`:'Tebak apa yang digambar pasanganmu';
+  $('#sc').textContent=`Kamu ${score.me} : ${score.you} Pasanganmu`;
+}
+function newRound(){
+  drawer=me;word=WORDS[Math.random()*WORDS.length|0];
+  clearCv();$('#log').innerHTML='';role();send({t:'round',d:me});
+}
+const pos=e=>{const r=cv.getBoundingClientRect();return[(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height]};
+cv.onpointerdown=e=>{if(!isD())return;cv.setPointerCapture(e.pointerId);last=pos(e)};
+cv.onpointermove=e=>{
+  if(!isD()||!last)return;
+  const p=pos(e),a=[last[0],last[1],p[0],p[1]];
+  line(a,color,5);send({t:'s',a,c:color});last=p;
+};
+cv.onpointerup=cv.onpointercancel=()=>{last=null};
+$$('.sw').forEach(b=>b.onclick=()=>{color=b.dataset.c;$$('.sw').forEach(x=>x.setAttribute('aria-pressed',x===b))});
+$('#clr').onclick=()=>{clearCv();send({t:'x'})};
+$('#skip').onclick=()=>{word=WORDS[Math.random()*WORDS.length|0];role()};
+function addLog(who,v){const li=document.createElement('li');li.textContent=who+': '+v;$('#log').prepend(li)}
+function guess(){
+  const v=$('#gi').value.trim();if(!v)return;
+  $('#gi').value='';addLog('Kamu',v);send({t:'g',v});
+}
+$('#gb').onclick=guess;
+$('#gi').onkeydown=e=>{if(e.key==='Enter')guess()};
+
+// ---- pesan masuk ----
+function onData(d){
+  switch(d.t){
+    case 'm':play(d.i,mark()==='X'?'O':'X');break;
+    case 'r':tttReset(false);break;
+    case 's':line(d.a,d.c,5);break;
+    case 'x':clearCv();break;
+    case 'round':drawer=d.d;word='';clearCv();$('#log').innerHTML='';role();break;
+    case 'g':
+      addLog('Pasanganmu',d.v);
+      if(isD()&&norm(d.v)===norm(word)){
+        send({t:'ok',w:word});score.you++;
+        $('#dr-msg').textContent='Ditebak! Katanya: '+word;
+        drawer=other(me);word='';role();
+      }
+      break;
+    case 'ok':
+      score.me++;
+      newRound();
+      $('#dr-msg').innerHTML='Benar! Sekarang gantian kamu yang menggambar: <span style="color:var(--glow)">'+word+'</span>';
+      break;
+  }
+}
+</script>
+</body>
+</html>

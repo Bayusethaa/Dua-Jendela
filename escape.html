@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kamar Terkunci · Escape Room Berdua</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔑</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<style>
+:root{--bg:#14172b;--bg2:#1d2140;--glow:#f6c768;--rose:#ff8fa3;--ink:#f3ecdf;--mute:#a7a9c4;--ok:#7fd8a6;--bad:#ff7a7a}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:radial-gradient(ellipse at 20% 0,#262b57 0,var(--bg) 55%) fixed;color:var(--ink);font:400 17px/1.55 Nunito,system-ui,sans-serif;min-height:100vh}
+main{max-width:640px;margin:0 auto;padding:28px 18px 64px}
+h1,h2{font-family:Fraunces,Georgia,serif;margin:0}
+h1{font-size:clamp(2rem,7vw,3rem);font-weight:800;line-height:1.05}
+h2{font-size:1.5rem;margin-bottom:8px}
+a{color:var(--glow)}
+.sub{color:var(--mute);margin:10px 0 22px}
+.box{background:var(--bg2);border-radius:20px;padding:22px 20px;margin-bottom:16px}
+.btn{background:var(--rose);color:#3a0d18;border:0;border-radius:12px;padding:12px 20px;font:700 16px Nunito,sans-serif;cursor:pointer;margin-top:10px}
+.btn.alt{background:transparent;border:2px solid var(--glow);color:var(--glow)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--rose);outline-offset:2px}
+input[type=text]{width:100%;padding:11px 12px;border-radius:10px;border:2px solid #343968;background:var(--bg);color:var(--ink);font:inherit}
+input.up{text-transform:uppercase}
+.row{display:flex;gap:10px;align-items:stretch}
+.row>*{flex:1}
+.row .btn{margin-top:0;flex:0 0 auto}
+.code{font:800 2.6rem/1 Fraunces,Georgia,serif;letter-spacing:.15em;color:var(--glow);margin:8px 0}
+.note{color:var(--mute);font-size:14px}
+#st{min-height:1.5em;color:var(--rose);font-weight:700;margin-top:12px}
+.hide{display:none}
+.clue{font:800 2rem/1.5 Fraunces,Georgia,serif;background:var(--bg);border:2px dashed var(--glow);border-radius:16px;padding:14px;margin:12px 0;text-align:center;letter-spacing:.08em}
+.clue.t{font-size:1.15rem;letter-spacing:0;font-weight:600}
+.bar{display:flex;gap:6px;margin-bottom:14px}
+.bar i{flex:1;height:8px;border-radius:4px;background:#343968}
+.bar i.d{background:var(--ok)}.bar i.c{background:var(--glow)}
+.pads{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.pads button{height:70px;border-radius:16px;border:0;font:700 17px Nunito,sans-serif;color:#fff;cursor:pointer;text-shadow:0 1px 3px #0006}
+.seq{display:flex;gap:8px;min-height:26px}
+.seq i{width:26px;height:26px;border-radius:50%}
+#fb{min-height:1.6em;font-weight:700;color:var(--rose);margin-top:8px}
+#chat{max-height:130px;overflow:auto;margin:0 0 8px;padding:0;list-style:none;font-size:15px;color:var(--mute)}
+.big{font:800 3rem/1 Fraunces,Georgia,serif;color:var(--glow)}
+</style>
+</head>
+<body>
+<main>
+<h1>Kamar Terkunci</h1>
+<p class="sub">Escape room untuk berdua. Kalian memegang petunjuk yang berbeda, jadi harus saling bercerita. Sambil video call lebih seru. <a href="index.html">Kembali ke menu</a></p>
+
+<div class="box" id="lobby">
+<h2>Buat ruangan</h2>
+<button class="btn" id="mk">Buat kode ruangan</button>
+<div id="mine" class="hide"><div class="code" id="cd"></div><p class="note">Kirim kode ini ke pasanganmu, lalu tunggu dia masuk.</p></div>
+<h2 style="margin-top:26px">Masuk ruangan</h2>
+<div class="row">
+<input type="text" class="up" id="jc" maxlength="5" placeholder="Kode 5 huruf" autocomplete="off" aria-label="Kode ruangan">
+<button class="btn" id="jn">Masuk</button>
+</div>
+<div id="st" role="status"></div>
+</div>
+
+<div id="game" class="hide">
+<div class="bar" id="bar"><i></i><i></i><i></i></div>
+<div class="box" id="pz"></div>
+<div class="box">
+<ul id="chat"></ul>
+<div class="row"><input type="text" id="ci" maxlength="120" placeholder="Kirim pesan ke pasanganmu…" autocomplete="off" aria-label="Pesan"><button class="btn alt" id="cb" style="margin:0">Kirim</button></div>
+</div>
+</div>
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+let peer,conn,me,tries=0,G,stage,seq=[],t0;
+const st=t=>$('#st').textContent=t;
+const send=o=>{if(conn&&conn.open)conn.send(o)};
+const rcode=()=>{const a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';return Array.from({length:5},()=>a[Math.random()*a.length|0]).join('')};
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+
+// ---- data teka-teki (di jaringan hanya angka indeks yang dikirim) ----
+const SY=['🌙','⭐','💛','🌸','🍀','🔥'];
+const CO=[['Merah','#d62839'],['Biru','#1d6fd1'],['Hijau','#2a9d4a'],['Kuning','#d99a00']];
+const W=[['RINDU','Perasaan yang paling sering kalian rasakan saat berjauhan.'],['PELUKAN','Hal pertama yang ingin kamu lakukan begitu kalian bertemu.'],['STASIUN','Tempat orang biasanya bertemu atau berpisah sebelum naik kereta.'],['PULANG','Tujuan akhir dari setiap perjalanan menuju dia.'],['KANGEN','Kata sehari-hari untuk rasa ingin bertemu.']];
+const gen=()=>({sy:shuf([0,1,2,3,4,5]).slice(0,4),dg:shuf([1,2,3,4,5,6,7,8,9]).slice(0,4),sq:shuf([0,1,2,3]),o:shuf([0,1,2,3]),w:Math.random()*W.length|0,sc:Math.random()});
+function scramble(w,r){let s=w,k=0;do{s=shuf(w.split('')).join('')}while(s===w&&k++<9);return s.split('').join(' ')}
+
+// ---- koneksi ----
+function mkRoom(){
+  if(peer)peer.destroy();
+  const c=rcode();peer=new Peer('dj-esc-'+c);
+  peer.on('open',()=>{me='host';$('#cd').textContent=c;$('#mine').classList.remove('hide');st('')});
+  peer.on('connection',cn=>{if(conn&&conn.open){cn.close();return}conn=cn;wire()});
+  peer.on('error',e=>{if(e.type==='unavailable-id'&&tries++<5)mkRoom();else st('Gagal membuat ruangan ('+e.type+'). Coba lagi.')});
+}
+function joinRoom(){
+  const c=$('#jc').value.trim().toUpperCase();
+  if(c.length!==5){st('Masukkan kode 5 huruf.');return}
+  st('Menghubungkan…');
+  if(peer)peer.destroy();
+  peer=new Peer();
+  peer.on('open',()=>{me='guest';conn=peer.connect('dj-esc-'+c,{reliable:true});wire()});
+  peer.on('error',e=>st(e.type==='peer-unavailable'?'Kode tidak ditemukan. Cek lagi ya.':'Gagal terhubung ('+e.type+').'));
+}
+function wire(){
+  conn.on('open',()=>{$('#lobby').classList.add('hide');$('#game').classList.remove('hide');if(me==='host')restart()});
+  conn.on('data',onData);
+  conn.on('close',()=>alert('Pasanganmu terputus. Muat ulang halaman untuk main lagi.'));
+}
+$('#mk').onclick=()=>{tries=0;mkRoom()};
+$('#jn').onclick=joinRoom;
+$('#jc').onkeydown=e=>{if(e.key==='Enter')joinRoom()};
+
+// ---- chat ----
+function addChat(w,v){const li=document.createElement('li');li.textContent=w+': '+v;$('#chat').append(li);$('#chat').scrollTop=1e5}
+function chat(){const v=$('#ci').value.trim();if(!v)return;$('#ci').value='';addChat('Kamu',v);send({t:'c',v})}
+$('#cb').onclick=chat;$('#ci').onkeydown=e=>{if(e.key==='Enter')chat()};
+
+// ---- alur game ----
+function restart(){const g=gen();send({t:'start',g});begin(g)}
+function begin(g){G=g;stage=0;seq=[];t0=Date.now();render()}
+function advance(from){if(stage!==from)return;stage++;seq=[];render()}
+function bar(){document.querySelectorAll('#bar i').forEach((b,i)=>b.className=i<stage?'d':i===stage?'c':'')}
+const fb=t=>{const e=$('#fb');if(e)e.textContent=t};
+
+function render(){
+  const h=me==='host',p=$('#pz');bar();
+  if(stage===0){
+    const legend=G.sy.map((s,i)=>SY[s]+' = '+G.dg[i]).join('<br>'),door=G.sq.map(i=>SY[G.sy[i]]).join('  ');
+    p.innerHTML=`<h2>1. Brankas di dinding</h2>`+(h
+      ?`<p>Kamu menemukan kertas berisi kamus simbol. Pintunya tidak terlihat dari sini.</p><div class="clue">${legend}</div>`
+      :`<p>Brankas punya 4 simbol berurutan. Kamus simbolnya ada di pasanganmu.</p><div class="clue">${door}</div>`)
+      +`<p class="note">Masukkan kode 4 angka sesuai urutan simbol di brankas.</p><div class="row"><input type="text" id="in" inputmode="numeric" maxlength="4" autocomplete="off" aria-label="Kode"><button class="btn" id="go">Buka</button></div><div id="fb"></div>`;
+    bind(()=>$('#in').value.trim()===G.sq.map(i=>G.dg[i]).join(''));
+  }else if(stage===1){
+    const o=G.o.map(i=>CO[i][0]);
+    p.innerHTML=`<h2>2. Panel lampu</h2><p>Empat lampu harus ditekan dalam urutan yang benar. Kalian masing-masing tahu sebagian aturannya.</p><div class="clue t">`+(h
+      ?`${o[0]} ditekan paling pertama.<br>${o[3]} ditekan paling terakhir.`
+      :`${o[1]} ditekan lebih dulu daripada ${o[2]}.<br>Keduanya ada di tengah.`)
+      +`</div><div class="pads">${CO.map((c,i)=>`<button data-i="${i}" style="background:${c[1]}">${c[0]}</button>`).join('')}</div><div class="seq" id="sq"></div><div id="fb"></div><p class="note">Siapa pun boleh menekan. Salah urutan akan mengulang dari awal.</p>`;
+    p.querySelectorAll('.pads button').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;send({t:'p',i});press(i)});
+    drawSeq();
+  }else if(stage===2){
+    const w=W[G.w];
+    p.innerHTML=`<h2>3. Kunci pintu terakhir</h2>`+(h
+      ?`<p>Gembok ini minta satu kata, tapi hurufnya teracak:</p><div class="clue">${scramble(w[0])}</div>`
+      :`<p>Gembok ini minta satu kata. Pasanganmu melihat hurufnya, kamu memegang petunjuknya:</p><div class="clue t">${w[1]}</div>`)
+      +`<div class="row"><input type="text" class="up" id="in" maxlength="12" autocomplete="off" aria-label="Kata"><button class="btn" id="go">Buka</button></div><div id="fb"></div>`;
+    bind(()=>$('#in').value.trim().toUpperCase()===w[0]);
+  }else{
+    const s=Math.round((Date.now()-t0)/1000);
+    p.innerHTML=`<h2>Pintu terbuka! 🎉</h2><p>Kalian keluar bersama dalam</p><div class="big">${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}</div><p class="note">Kalau ada yang bikin kalian ketawa selama main tadi, itu bonusnya.</p><button class="btn" id="again">Main lagi (teka-teki baru)</button>`;
+    $('#again').onclick=restart;
+  }
+}
+function bind(check){
+  const go=()=>{if(check()){send({t:'adv',s:stage});advance(stage)}else{fb('Belum tepat. Coba cek lagi bersama pasanganmu.');send({t:'bad'})}};
+  $('#go').onclick=go;$('#in').onkeydown=e=>{if(e.key==='Enter')go()};
+}
+function drawSeq(){const e=$('#sq');if(e)e.innerHTML=seq.map(i=>`<i style="background:${CO[i][1]}"></i>`).join('')}
+function press(i){
+  if(stage!==1)return;
+  seq.push(i);
+  if(seq[seq.length-1]!==G.o[seq.length-1]){seq=[];drawSeq();fb('Urutan salah. Mulai dari awal.');return}
+  drawSeq();fb('');
+  if(seq.length===4)setTimeout(()=>advance(1),400);
+}
+function onData(d){
+  if(d.t==='start')begin(d.g);
+  else if(d.t==='adv')advance(d.s);
+  else if(d.t==='p')press(d.i);
+  else if(d.t==='bad')fb('Pasanganmu mencoba kode dan belum tepat.');
+  else if(d.t==='c')addChat('Pasanganmu',d.v);
+}
+</script>
+</body>
+</html>
