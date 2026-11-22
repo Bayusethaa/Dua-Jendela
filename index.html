@@ -153,14 +153,14 @@ body.ready .g-item{animation:up .6s calc(var(--i) * 90ms) backwards}
 
 <div class="bar">
   <input type="search" id="q" placeholder="Cari game..." aria-label="Cari game">
-  <button class="btn-rnd" id="rnd">🎲 Acak</button>
+  <button type="button" class="btn-rnd" id="rnd">🎲 Acak</button>
 </div>
 
 <div class="chips" role="group" aria-label="Filter game">
-<button aria-pressed="true" data-f="all">Semua</button>
-<button aria-pressed="false" data-f="live">Live berdua</button>
-<button aria-pressed="false" data-f="santai">Santai</button>
-<button aria-pressed="false" data-f="fav">❤️ Favorit (<span id="fav-n">0</span>)</button>
+<button type="button" aria-pressed="true" data-f="all">Semua</button>
+<button type="button" aria-pressed="false" data-f="live">Live berdua</button>
+<button type="button" aria-pressed="false" data-f="santai">Santai</button>
+<button type="button" aria-pressed="false" data-f="fav">❤️ Favorit (<span id="fav-n">0</span>)</button>
 </div>
 
 <div class="grid" id="grid">
@@ -200,35 +200,33 @@ body.ready .g-item{animation:up .6s calc(var(--i) * 90ms) backwards}
 
 <script>
 (() => {
-  const intro = document.getElementById('intro');
-  const items = [...document.querySelectorAll('.g-item')];
-  items.forEach((g, i) => g.style.setProperty('--i', i));
+  const introEl = document.getElementById('intro');
+  const gameCards = [...document.querySelectorAll('.g-item')];
+  gameCards.forEach((g, i) => g.style.setProperty('--i', i));
 
-  const ready = () => document.body.classList.add('ready');
-  const finishIntro = () => {
-    ready();
-    if (!intro || intro.classList.contains('out')) return;
-    intro.classList.add('out');
+  const markReady = () => document.body.classList.add('ready');
+  const closeIntro = () => {
+    markReady();
+    if (!introEl || introEl.classList.contains('out')) return;
+    introEl.classList.add('out');
     try { sessionStorage.setItem('dj-intro', '1'); } catch (_) {}
-    setTimeout(() => intro.remove(), 900);
+    setTimeout(() => introEl.remove(), 900);
   };
 
-  if (!intro) {
-    ready();
-    return;
+  if (!introEl) {
+    markReady();
+  } else {
+    for (let i = 0; i < 26; i++) {
+      const x = document.createElement('span');
+      x.className = 'st';
+      x.style.cssText = `left:${Math.random() * 100}%;top:${Math.random() * 100}%;animation-delay:${Math.random() * 2.4}s;font-size:${8 + Math.random() * 12}px`;
+      x.textContent = '✦';
+      introEl.append(x);
+    }
+    introEl.addEventListener('click', closeIntro);
+    introEl.addEventListener('pointerdown', closeIntro);
+    setTimeout(closeIntro, 4300);
   }
-
-  for (let i = 0; i < 26; i++) {
-    const x = document.createElement('span');
-    x.className = 'st';
-    x.style.cssText = `left:${Math.random() * 100}%;top:${Math.random() * 100}%;animation-delay:${Math.random() * 2.4}s;font-size:${8 + Math.random() * 12}px`;
-    x.textContent = '✦';
-    intro.append(x);
-  }
-
-  intro.addEventListener('click', finishIntro);
-  intro.addEventListener('pointerdown', finishIntro);
-  setTimeout(finishIntro, 4300);
 })();
 </script>
 
@@ -244,7 +242,7 @@ body.ready .g-item{animation:up .6s calc(var(--i) * 90ms) backwards}
     tTimer = setTimeout(() => toastEl.classList.remove('show'), 2400);
   };
 
-  // Username pemain (terpisah dari skrip fitur.js)
+  // Username pemain
   const uInput = document.getElementById('dj-user-input');
   const uSave = document.getElementById('dj-user-save');
   const uStatus = document.getElementById('dj-user-status');
@@ -283,12 +281,12 @@ body.ready .g-item{animation:up .6s calc(var(--i) * 90ms) backwards}
     } catch (_) {}
   };
   if (cdSave) {
-    cdSave.onclick = () => {
+    cdSave.addEventListener('click', () => {
       if (!cdIn || !cdIn.value) return showToast('Pilih tanggal dulu ya');
       try { localStorage.setItem('dj-cd', cdIn.value); } catch (_) {}
       renderCd();
       showToast('Tanggal disimpan');
-    };
+    });
   }
   renderCd();
 
@@ -296,14 +294,14 @@ body.ready .g-item{animation:up .6s calc(var(--i) * 90ms) backwards}
   const moodBtns = [...document.querySelectorAll('#moods button')];
   let mood = moodBtns[0]?.dataset.m || '';
   moodBtns.forEach(b => {
-    b.onclick = () => {
-      moodBtns.forEach(x => x.setAttribute('aria-pressed', x === b));
+    b.addEventListener('click', () => {
+      moodBtns.forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
       mood = b.dataset.m || '';
-    };
+    });
   });
   const cdCopy = document.getElementById('cd-copy');
   if (cdCopy) {
-    cdCopy.onclick = async () => {
+    cdCopy.addEventListener('click', async () => {
       if (!mood) return;
       let name = '';
       try { name = (localStorage.getItem('dj-player-name') || '').trim(); } catch (_) {}
@@ -314,7 +312,7 @@ body.ready .g-item{animation:up .6s calc(var(--i) * 90ms) backwards}
       } catch (_) {
         showToast(text);
       }
-    };
+    });
   }
 
   // Terakhir dimainkan & Ajakan Discord
@@ -332,7 +330,7 @@ body.ready .g-item{animation:up .6s calc(var(--i) * 90ms) backwards}
   renderLast();
 
   if (dcInviteBtn) {
-    dcInviteBtn.onclick = async () => {
+    dcInviteBtn.addEventListener('click', async () => {
       const base = location.href.split('#')[0];
       const targetUrl = lastGame?.href ? new URL(lastGame.href, base).href : base;
       const label = lastGame?.title ? ` *${lastGame.title}*` : '';
@@ -346,32 +344,33 @@ body.ready .g-item{animation:up .6s calc(var(--i) * 90ms) backwards}
       } catch (_) {
         showToast(text);
       }
-    };
+    });
   }
 
   // Filter, cari, favorit
   let favs = [];
   try { favs = JSON.parse(localStorage.getItem('dj-favs') || '[]'); } catch (_) {}
-  let f = 'all';
+  let activeFilter = 'all';
   const qEl = document.getElementById('q');
   const favN = document.getElementById('fav-n');
+  const cards = [...document.querySelectorAll('.g-item')];
   const chipBtns = [...document.querySelectorAll('.chips button')];
 
   const applyFilter = () => {
     if (favN) favN.textContent = favs.length;
     const kw = (qEl?.value || '').trim().toLowerCase();
-    items.forEach(it => {
+    cards.forEach(it => {
       const id = it.dataset.id;
       const isFav = favs.includes(id);
       const favBtn = it.querySelector('.fav');
       if (favBtn) favBtn.textContent = isFav ? '❤️' : '🤍';
-      const okF = f === 'all' || (f === 'fav' && isFav) || it.dataset.k === f;
+      const okF = activeFilter === 'all' || (activeFilter === 'fav' && isFav) || it.dataset.k === activeFilter;
       const okQ = !kw || it.textContent.toLowerCase().includes(kw);
       it.classList.toggle('hide', !(okF && okQ));
     });
   };
 
-  items.forEach(it => {
+  cards.forEach(it => {
     const link = it.querySelector('a.g');
     const title = it.querySelector('h2')?.textContent?.trim() || '';
     if (link && title) {
@@ -383,41 +382,45 @@ body.ready .g-item{animation:up .6s calc(var(--i) * 90ms) backwards}
     }
 
     const favBtn = it.querySelector('.fav');
-    if (!favBtn) return;
-    favBtn.onclick = e => {
-      e.preventDefault();
-      const id = it.dataset.id;
-      favs = favs.includes(id) ? favs.filter(x => x !== id) : [...favs, id];
-      try { localStorage.setItem('dj-favs', JSON.stringify(favs)); } catch (_) {}
-      applyFilter();
-    };
+    if (favBtn) {
+      favBtn.addEventListener('click', e => {
+        e.preventDefault();
+        const id = it.dataset.id;
+        favs = favs.includes(id) ? favs.filter(x => x !== id) : [...favs, id];
+        try { localStorage.setItem('dj-favs', JSON.stringify(favs)); } catch (_) {}
+        applyFilter();
+      });
+    }
   });
 
   chipBtns.forEach(b => {
-    b.onclick = () => {
-      chipBtns.forEach(x => x.setAttribute('aria-pressed', x === b));
-      f = b.dataset.f;
+    b.addEventListener('click', () => {
+      chipBtns.forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+      activeFilter = b.dataset.f || 'all';
       applyFilter();
-    };
+    });
   });
 
-  if (qEl) qEl.oninput = applyFilter;
+  if (qEl) {
+    qEl.addEventListener('input', applyFilter);
+    qEl.addEventListener('search', applyFilter);
+  }
   applyFilter();
 
   // Acak game
   const rndBtn = document.getElementById('rnd');
   if (rndBtn) {
-    rndBtn.onclick = () => {
-      const vis = items.filter(x => !x.classList.contains('hide'));
-      if (!vis.length) return;
+    rndBtn.addEventListener('click', () => {
+      const vis = cards.filter(x => !x.classList.contains('hide'));
+      if (!vis.length) return showToast('Tidak ada game yang cocok');
       document.querySelectorAll('.g').forEach(g => g.classList.remove('picked'));
-      const g = vis[Math.random() * vis.length | 0].querySelector('.g');
+      const g = vis[Math.floor(Math.random() * vis.length)].querySelector('.g');
       if (!g) return;
       g.classList.add('picked');
       g.scrollIntoView({ behavior: 'smooth', block: 'center' });
       const title = g.querySelector('h2')?.textContent || 'Game';
       showToast('Pilihan: ' + title);
-    };
+    });
   }
 
   // Ide kencan
@@ -431,10 +434,10 @@ body.ready .g-item{animation:up .6s calc(var(--i) * 90ms) backwards}
   const ideaBtn = document.getElementById('idea-n');
   const ideaText = document.getElementById('idea-t');
   if (ideaBtn && ideaText) {
-    ideaBtn.onclick = () => {
+    ideaBtn.addEventListener('click', () => {
       iIdx = (iIdx + 1) % ideas.length;
       ideaText.textContent = ideas[iIdx];
-    };
+    });
   }
 })();
 </script>
