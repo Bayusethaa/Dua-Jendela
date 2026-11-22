@@ -71,7 +71,7 @@ details ol{margin:10px 0 0;padding-left:20px}
 
 /* intro */
 #intro{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;cursor:pointer;transition:opacity .8s,visibility .8s;overflow:hidden;padding:20px;text-align:center}
-#intro.out{opacity:0;visibility:hidden}
+#intro.out{opacity:0;visibility:hidden;pointer-events:none}
 .iw{display:flex;gap:22px}
 .iw i{--lc:var(--glow);width:76px;height:106px;border-radius:40px 40px 8px 8px;background:#2a2f5c;position:relative;animation:lit 1s .4s forwards}
 .iw i+i{--lc:var(--rose);animation-delay:1.2s}
@@ -165,92 +165,178 @@ body.ready .g-item{animation:up .6s calc(var(--i) * 90ms) backwards}
 </details>
 </main>
 <div id="toast" role="status"></div>
+
 <script>
-const toastEl=document.getElementById('toast');
-let tTimer;
-const showToast=m=>{toastEl.textContent=m;toastEl.classList.add('show');clearTimeout(tTimer);tTimer=setTimeout(()=>toastEl.classList.remove('show'),2400)};
+(() => {
+  const intro = document.getElementById('intro');
+  const items = [...document.querySelectorAll('.g-item')];
+  items.forEach((g, i) => g.style.setProperty('--i', i));
 
-// Hitung mundur
-const cdIn=document.getElementById('cd-in'),cdVal=document.getElementById('cd-val');
-const renderCd=()=>{
-  const s=localStorage.getItem('dj-cd');if(!s)return;
-  cdIn.value=s;
-  const diff=Math.ceil((new Date(s+'T00:00:00')-new Date().setHours(0,0,0,0))/864e5);
-  cdVal.textContent=diff>0?`${diff} hari lagi`:diff===0?'Hari ini ketemu! 🎉':`Lewat ${Math.abs(diff)} hari`;
-};
-document.getElementById('cd-save').onclick=()=>{
-  if(!cdIn.value)return showToast('Pilih tanggal dulu ya');
-  localStorage.setItem('dj-cd',cdIn.value);renderCd();showToast('Tanggal disimpan');
-};
-renderCd();
+  const ready = () => document.body.classList.add('ready');
+  const finishIntro = () => {
+    ready();
+    if (!intro || intro.classList.contains('out')) return;
+    intro.classList.add('out');
+    try { sessionStorage.setItem('dj-intro', '1'); } catch (_) {}
+    setTimeout(() => intro.remove(), 900);
+  };
 
-// Mood
-let mood=document.querySelector('#moods button').dataset.m;
-document.querySelectorAll('#moods button').forEach(b=>b.onclick=()=>{
-  document.querySelectorAll('#moods button').forEach(x=>x.setAttribute('aria-pressed',x===b));
-  mood=b.dataset.m;
-});
-document.getElementById('cd-copy').onclick=async()=>{
-  try{await navigator.clipboard.writeText(mood);showToast('Status disalin')}catch(e){showToast(mood)}
-};
+  if (!intro) {
+    ready();
+    return;
+  }
 
-// Filter, cari, favorit
-let favs=JSON.parse(localStorage.getItem('dj-favs')||'[]'),f='all';
-const qEl=document.getElementById('q'),favN=document.getElementById('fav-n'),items=[...document.querySelectorAll('.g-item')];
-const applyFilter=()=>{
-  favN.textContent=favs.length;
-  const kw=qEl.value.trim().toLowerCase();
-  items.forEach(it=>{
-    const fav=favs.includes(it.dataset.id);
-    it.querySelector('.fav').textContent=fav?'❤️':'🤍';
-    const okF=f==='all'||(f==='fav'&&fav)||it.dataset.k===f;
-    const okQ=!kw||it.textContent.toLowerCase().includes(kw);
-    it.classList.toggle('hide',!(okF&&okQ));
+  for (let i = 0; i < 26; i++) {
+    const x = document.createElement('span');
+    x.className = 'st';
+    x.style.cssText = `left:${Math.random() * 100}%;top:${Math.random() * 100}%;animation-delay:${Math.random() * 2.4}s;font-size:${8 + Math.random() * 12}px`;
+    x.textContent = '✦';
+    intro.append(x);
+  }
+
+  intro.addEventListener('click', finishIntro);
+  intro.addEventListener('pointerdown', finishIntro);
+  setTimeout(finishIntro, 4300);
+})();
+</script>
+
+<script>
+(() => {
+  const toastEl = document.getElementById('toast');
+  let tTimer;
+  const showToast = m => {
+    if (!toastEl) return;
+    toastEl.textContent = m;
+    toastEl.classList.add('show');
+    clearTimeout(tTimer);
+    tTimer = setTimeout(() => toastEl.classList.remove('show'), 2400);
+  };
+
+  // Hitung mundur
+  const cdIn = document.getElementById('cd-in');
+  const cdVal = document.getElementById('cd-val');
+  const cdSave = document.getElementById('cd-save');
+  const renderCd = () => {
+    if (!cdIn || !cdVal) return;
+    try {
+      const s = localStorage.getItem('dj-cd');
+      if (!s) return;
+      cdIn.value = s;
+      const diff = Math.ceil((new Date(s + 'T00:00:00') - new Date().setHours(0, 0, 0, 0)) / 864e5);
+      cdVal.textContent = diff > 0 ? `${diff} hari lagi` : diff === 0 ? 'Hari ini ketemu! 🎉' : `Lewat ${Math.abs(diff)} hari`;
+    } catch (_) {}
+  };
+  if (cdSave) {
+    cdSave.onclick = () => {
+      if (!cdIn || !cdIn.value) return showToast('Pilih tanggal dulu ya');
+      try { localStorage.setItem('dj-cd', cdIn.value); } catch (_) {}
+      renderCd();
+      showToast('Tanggal disimpan');
+    };
+  }
+  renderCd();
+
+  // Mood
+  const moodBtns = [...document.querySelectorAll('#moods button')];
+  let mood = moodBtns[0]?.dataset.m || '';
+  moodBtns.forEach(b => {
+    b.onclick = () => {
+      moodBtns.forEach(x => x.setAttribute('aria-pressed', x === b));
+      mood = b.dataset.m || '';
+    };
   });
-};
-items.forEach(it=>it.querySelector('.fav').onclick=e=>{
-  e.preventDefault();
-  const id=it.dataset.id;
-  favs=favs.includes(id)?favs.filter(x=>x!==id):[...favs,id];
-  localStorage.setItem('dj-favs',JSON.stringify(favs));applyFilter();
-});
-document.querySelectorAll('.chips button').forEach(b=>b.onclick=()=>{
-  document.querySelectorAll('.chips button').forEach(x=>x.setAttribute('aria-pressed',x===b));
-  f=b.dataset.f;applyFilter();
-});
-qEl.oninput=applyFilter;applyFilter();
+  const cdCopy = document.getElementById('cd-copy');
+  if (cdCopy) {
+    cdCopy.onclick = async () => {
+      if (!mood) return;
+      try {
+        await navigator.clipboard.writeText(mood);
+        showToast('Status disalin');
+      } catch (_) {
+        showToast(mood);
+      }
+    };
+  }
 
-// Acak game
-document.getElementById('rnd').onclick=()=>{
-  const vis=items.filter(x=>!x.classList.contains('hide'));if(!vis.length)return;
-  document.querySelectorAll('.g').forEach(g=>g.classList.remove('picked'));
-  const g=vis[Math.random()*vis.length|0].querySelector('.g');
-  g.classList.add('picked');g.scrollIntoView({behavior:'smooth',block:'center'});
-  showToast('Pilihan: '+g.querySelector('h2').textContent);
-};
+  // Filter, cari, favorit
+  let favs = [];
+  try { favs = JSON.parse(localStorage.getItem('dj-favs') || '[]'); } catch (_) {}
+  let f = 'all';
+  const qEl = document.getElementById('q');
+  const favN = document.getElementById('fav-n');
+  const items = [...document.querySelectorAll('.g-item')];
+  const chipBtns = [...document.querySelectorAll('.chips button')];
 
-// Ide kencan
-const ideas=[
-  'Nonton film yang sama sambil hitung mundur 3-2-1 biar play-nya barengan.',
-  'Pesanin camilan atau minuman kesukaan masing-masing, lalu ngobrol sambil call.',
-  'Bikin daftar 5 lagu yang paling ngingetin sama pasangan.',
-  'Main tebak harga atau sambung kata lewat call.'
-];
-let iIdx=0;
-document.getElementById('idea-n').onclick=()=>{
-  iIdx=(iIdx+1)%ideas.length;document.getElementById('idea-t').textContent=ideas[iIdx];
-};
+  const applyFilter = () => {
+    if (favN) favN.textContent = favs.length;
+    const kw = (qEl?.value || '').trim().toLowerCase();
+    items.forEach(it => {
+      const id = it.dataset.id;
+      const isFav = favs.includes(id);
+      const favBtn = it.querySelector('.fav');
+      if (favBtn) favBtn.textContent = isFav ? '❤️' : '🤍';
+      const okF = f === 'all' || (f === 'fav' && isFav) || it.dataset.k === f;
+      const okQ = !kw || it.textContent.toLowerCase().includes(kw);
+      it.classList.toggle('hide', !(okF && okQ));
+    });
+  };
 
-// Intro asli
-const intro=document.getElementById('intro');
-items.forEach((g,i)=>g.style.setProperty('--i',i));
-const ready=()=>document.body.classList.add('ready');
-if(!intro)ready();
-else{
-  for(let i=0;i<26;i++){const x=document.createElement('span');x.className='st';x.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*2.4}s;font-size:${8+Math.random()*12}px`;x.textContent='✦';intro.append(x)}
-  const end=()=>{if(intro.classList.contains('out'))return;intro.classList.add('out');try{sessionStorage.setItem('dj-intro','1')}catch(e){}ready();setTimeout(()=>intro.remove(),900)};
-  intro.onclick=end;setTimeout(end,4300);
-}
+  items.forEach(it => {
+    const favBtn = it.querySelector('.fav');
+    if (!favBtn) return;
+    favBtn.onclick = e => {
+      e.preventDefault();
+      const id = it.dataset.id;
+      favs = favs.includes(id) ? favs.filter(x => x !== id) : [...favs, id];
+      try { localStorage.setItem('dj-favs', JSON.stringify(favs)); } catch (_) {}
+      applyFilter();
+    };
+  });
+
+  chipBtns.forEach(b => {
+    b.onclick = () => {
+      chipBtns.forEach(x => x.setAttribute('aria-pressed', x === b));
+      f = b.dataset.f;
+      applyFilter();
+    };
+  });
+
+  if (qEl) qEl.oninput = applyFilter;
+  applyFilter();
+
+  // Acak game
+  const rndBtn = document.getElementById('rnd');
+  if (rndBtn) {
+    rndBtn.onclick = () => {
+      const vis = items.filter(x => !x.classList.contains('hide'));
+      if (!vis.length) return;
+      document.querySelectorAll('.g').forEach(g => g.classList.remove('picked'));
+      const g = vis[Math.random() * vis.length | 0].querySelector('.g');
+      if (!g) return;
+      g.classList.add('picked');
+      g.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const title = g.querySelector('h2')?.textContent || 'Game';
+      showToast('Pilihan: ' + title);
+    };
+  }
+
+  // Ide kencan
+  const ideas = [
+    'Nonton film yang sama sambil hitung mundur 3-2-1 biar play-nya barengan.',
+    'Pesanin camilan atau minuman kesukaan masing-masing, lalu ngobrol sambil call.',
+    'Bikin daftar 5 lagu yang paling ngingetin sama pasangan.',
+    'Main tebak harga atau sambung kata lewat call.'
+  ];
+  let iIdx = 0;
+  const ideaBtn = document.getElementById('idea-n');
+  const ideaText = document.getElementById('idea-t');
+  if (ideaBtn && ideaText) {
+    ideaBtn.onclick = () => {
+      iIdx = (iIdx + 1) % ideas.length;
+      ideaText.textContent = ideas[iIdx];
+    };
+  }
+})();
 </script>
 </body>
 </html>
