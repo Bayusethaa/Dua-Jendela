@@ -85,7 +85,7 @@ details ol{margin:10px 0 0;padding-left:20px}
 #toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 
 /* intro */
-#intro{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;cursor:pointer;transition:opacity .8s,visibility .8s;overflow:hidden;padding:20px;text-align:center}
+#intro{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;cursor:pointer;transition:opacity .45s ease,visibility .45s ease;overflow:hidden;padding:20px;text-align:center}
 #intro.out{opacity:0;visibility:hidden;pointer-events:none}
 .iw{display:flex;gap:22px}
 .iw i{--lc:var(--glow);width:76px;height:106px;border-radius:40px 40px 8px 8px;background:#2a2f5c;position:relative;animation:lit 1s .4s forwards}
@@ -94,9 +94,9 @@ details ol{margin:10px 0 0;padding-left:20px}
 @keyframes lit{to{background:var(--lc);box-shadow:0 0 70px var(--lc)}}
 .it{font:800 clamp(2.4rem,9vw,3.6rem)/1 Fraunces,Georgia,serif;opacity:0;animation:rise .9s 2s forwards}
 .is{color:var(--mute);opacity:0;animation:rise .9s 2.6s forwards}
-.sk{position:absolute;bottom:26px;font-size:13px;color:var(--mute);opacity:0;animation:rise .6s 1s forwards}
+.sk{margin-top:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:var(--ink);border-radius:999px;padding:8px 18px;font:700 13px Nunito,sans-serif;cursor:pointer;opacity:0;animation:rise .6s .6s forwards}
 @keyframes rise{from{transform:translateY(14px)}to{opacity:1;transform:none}}
-.st{position:absolute;color:var(--glow);opacity:0;animation:tw 2.4s infinite}
+.st{position:absolute;color:var(--glow);opacity:0;animation:tw 2.4s infinite;pointer-events:none}
 @keyframes tw{0%,100%{opacity:0;transform:scale(.6)}50%{opacity:.9;transform:scale(1.1)}}
 body.ready .g-item{animation:up .6s calc(var(--i) * 90ms) backwards}
 @keyframes up{from{opacity:0;transform:translateY(18px)}}
@@ -107,8 +107,54 @@ body.ready .g-item{animation:up .6s calc(var(--i) * 90ms) backwards}
 </style>
 </head>
 <body>
-<div id="intro" aria-hidden="true"><div class="iw"><i></i><i></i></div><div class="it">Dua Jendela</div><div class="is">Jarak boleh jauh, mainnya tetap bareng</div><div class="sk">Ketuk untuk lewati</div></div>
-<script>try{if(sessionStorage.getItem('dj-intro')||matchMedia('(prefers-reduced-motion:reduce)').matches)document.getElementById('intro').remove()}catch(e){}</script>
+<div id="intro">
+  <div class="iw"><i></i><i></i></div>
+  <div class="it">Dua Jendela</div>
+  <div class="is">Jarak boleh jauh, mainnya tetap bareng</div>
+  <button type="button" class="sk" id="skip-intro">Ketuk untuk lewati</button>
+</div>
+<script>
+(() => {
+  const intro = document.getElementById('intro');
+  const skipBtn = document.getElementById('skip-intro');
+  const ready = () => document.body.classList.add('ready');
+
+  const closeIntro = e => {
+    if (e) e.preventDefault();
+    ready();
+    if (!intro) return;
+    intro.classList.add('out');
+    intro.style.display = 'none';
+    try { sessionStorage.setItem('dj-intro', '1'); } catch (_) {}
+  };
+
+  try {
+    if (sessionStorage.getItem('dj-intro') || matchMedia('(prefers-reduced-motion:reduce)').matches) {
+      if (intro) intro.remove();
+      ready();
+      return;
+    }
+  } catch (_) {}
+
+  if (intro) {
+    for (let i = 0; i < 20; i++) {
+      const x = document.createElement('span');
+      x.className = 'st';
+      x.style.cssText = `left:${Math.random() * 100}%;top:${Math.random() * 100}%;animation-delay:${Math.random() * 2.4}s;font-size:${8 + Math.random() * 12}px`;
+      x.textContent = '✦';
+      intro.append(x);
+    }
+    intro.addEventListener('click', closeIntro);
+    intro.addEventListener('touchstart', closeIntro, { passive: false });
+  }
+  if (skipBtn) {
+    skipBtn.addEventListener('click', closeIntro);
+    skipBtn.addEventListener('touchstart', closeIntro, { passive: false });
+  }
+  setTimeout(closeIntro, 3800);
+})();
+</script>
+
 <main>
 <div class="win" aria-hidden="true"><i></i><i></i></div>
 <h1>Dua Jendela</h1>
@@ -174,4 +220,243 @@ body.ready .g-item{animation:up .6s calc(var(--i) * 90ms) backwards}
 <div class="g-item" data-k="live" data-id="escape"><a class="g" href="escape.html" style="--c:#7fd8a6"><span class="ic">🔑</span><div><h2>Kamar Terkunci</h2><p>Escape room kerja sama. Petunjuk kalian berbeda, jadi harus saling cerita.</p><em>Live · 10–15 menit</em></div></a><button class="fav" aria-label="Favoritkan Kamar Terkunci">🤍</button></div>
 <div class="g-item" data-k="live" data-id="live"><a class="g" href="live.html" style="--c:#ff8fa3"><span class="ic">✏️</span><div><h2>Tic-tac-toe &amp; Tebak Gambar</h2><p>Dua klasik dalam satu ruangan. Gambar tampil langsung di layar pasangan.</p><em>Live · bebas lama</em></div></a><button class="fav" aria-label="Favoritkan Tic-tac-toe & Tebak Gambar">🤍</button></div>
 <div class="g-item" data-k="live" data-id="sama"><a class="g" href="sama.html" style="--c:#b69cff"><span class="ic">💞</span><div><h2>Kita Sama Nggak?</h2><p>Pilih mana, jawab diam-diam, lalu lihat apakah kalian sepikiran.</p><em>Live · 5 menit</em></div></a><button class="fav" aria-label="Favoritkan Kita Sama Nggak?">🤍</button></div>
-<div class="g-item" data
+<div class="g-item" data-k="santai" data-id="santai"><a class="g" href="santai.html" style="--c:#6ec6ff"><span class="ic">🌙</span><div><h2>Game Santai</h2><p>Tebak Aku (kuis lewat link), kartu obrolan, dan hitung mundur ketemu. Tidak perlu online bersamaan.</p><em>Santai · kapan saja</em></div></a><button class="fav" aria-label="Favoritkan Game Santai">🤍</button></div>
+</div>
+
+<div class="idea">
+  <div>
+    <small>✨ Ide Kencan</small>
+    <p id="idea-t">Nonton film yang sama sambil hitung mundur 3-2-1 biar play-nya barengan.</p>
+  </div>
+  <button class="btn-s" id="idea-n">Ganti</button>
+</div>
+
+<details>
+<summary>Cara main game live</summary>
+<ol>
+<li>Satu orang buka game dan tekan <b>Buat kode ruangan</b>.</li>
+<li>Kirim kode 5 huruf itu ke pasanganmu lewat chat Discord.</li>
+<li>Pasangan membuka game yang sama dan mengisi kode di <b>Masuk ruangan</b>.</li>
+<li>Sambil call di Discord jauh lebih seru.</li>
+</ol>
+</details>
+</main>
+<div id="toast" role="status"></div>
+
+<script>
+(() => {
+  const items = [...document.querySelectorAll('.g-item')];
+  items.forEach((g, i) => g.style.setProperty('--i', i));
+
+  const toastEl = document.getElementById('toast');
+  let tTimer;
+  const showToast = m => {
+    if (!toastEl) return;
+    toastEl.textContent = m;
+    toastEl.classList.add('show');
+    clearTimeout(tTimer);
+    tTimer = setTimeout(() => toastEl.classList.remove('show'), 2400);
+  };
+
+  // Username pemain
+  const userIn = document.getElementById('user-in');
+  const userSave = document.getElementById('user-save');
+  const userDisplay = document.getElementById('user-display');
+  const heroSub = document.getElementById('hero-sub');
+  let username = '';
+  try { username = (localStorage.getItem('dj-username') || '').trim(); } catch (_) {}
+
+  const renderUser = () => {
+    const label = username || 'Tamu';
+    if (userDisplay) userDisplay.innerHTML = `Pemain aktif: <b>${label}</b>`;
+    if (userIn && document.activeElement !== userIn) userIn.value = username;
+    if (heroSub) {
+      heroSub.textContent = username
+        ? `Hai ${username}! Jarak boleh jauh, mainnya tetap bareng. Pilih game, lalu mainkan berdua.`
+        : 'Jarak boleh jauh, mainnya tetap bareng. Pilih game, lalu mainkan berdua.';
+    }
+  };
+
+  const saveUser = () => {
+    const nextName = (userIn?.value || '').trim().replace(/\s+/g, ' ');
+    username = nextName;
+    try {
+      if (nextName) localStorage.setItem('dj-username', nextName);
+      else localStorage.removeItem('dj-username');
+    } catch (_) {}
+    renderUser();
+    showToast(nextName ? `Username disimpan: ${nextName}` : 'Username direset ke Tamu');
+  };
+
+  if (userSave) userSave.onclick = saveUser;
+  if (userIn) userIn.onkeydown = e => { if (e.key === 'Enter') saveUser(); };
+  renderUser();
+
+  // Hitung mundur
+  const cdIn = document.getElementById('cd-in');
+  const cdVal = document.getElementById('cd-val');
+  const cdSave = document.getElementById('cd-save');
+  const renderCd = () => {
+    if (!cdIn || !cdVal) return;
+    try {
+      const s = localStorage.getItem('dj-cd');
+      if (!s) return;
+      cdIn.value = s;
+      const diff = Math.ceil((new Date(s + 'T00:00:00') - new Date().setHours(0, 0, 0, 0)) / 864e5);
+      cdVal.textContent = diff > 0 ? `${diff} hari lagi` : diff === 0 ? 'Hari ini ketemu! 🎉' : `Lewat ${Math.abs(diff)} hari`;
+    } catch (_) {}
+  };
+  if (cdSave) {
+    cdSave.onclick = () => {
+      if (!cdIn || !cdIn.value) return showToast('Pilih tanggal dulu ya');
+      try { localStorage.setItem('dj-cd', cdIn.value); } catch (_) {}
+      renderCd();
+      showToast('Tanggal disimpan');
+    };
+  }
+  renderCd();
+
+  // Mood
+  const moodBtns = [...document.querySelectorAll('#moods button')];
+  let mood = moodBtns[0]?.dataset.m || '';
+  moodBtns.forEach(b => {
+    b.onclick = () => {
+      moodBtns.forEach(x => x.setAttribute('aria-pressed', x === b));
+      mood = b.dataset.m || '';
+    };
+  });
+  const cdCopy = document.getElementById('cd-copy');
+  if (cdCopy) {
+    cdCopy.onclick = async () => {
+      if (!mood) return;
+      const payload = username ? `${username}: ${mood}` : mood;
+      try {
+        await navigator.clipboard.writeText(payload);
+        showToast('Status disalin');
+      } catch (_) {
+        showToast(payload);
+      }
+    };
+  }
+
+  // Terakhir dimainkan & Ajakan Discord
+  const lastEl = document.getElementById('last-played');
+  const dcInviteBtn = document.getElementById('dc-invite');
+  let lastGame = null;
+  try { lastGame = JSON.parse(localStorage.getItem('dj-last') || 'null'); } catch (_) {}
+
+  const renderLast = () => {
+    if (!lastEl) return;
+    lastEl.innerHTML = lastGame?.title
+      ? `Terakhir main: <b>${lastGame.title}</b>`
+      : 'Terakhir main: <b>Belum ada</b>';
+  };
+  renderLast();
+
+  if (dcInviteBtn) {
+    dcInviteBtn.onclick = async () => {
+      const base = location.href.split('#')[0];
+      const targetUrl = lastGame?.href ? new URL(lastGame.href, base).href : base;
+      const label = lastGame?.title ? ` *${lastGame.title}*` : '';
+      const sender = username ? `${username} ngajak` : 'Yuk';
+      const text = `${sender} call di Discord sambil main${label} di Dua Jendela: ${targetUrl}`;
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast('Ajakan Discord + link disalin');
+      } catch (_) {
+        showToast(text);
+      }
+    };
+  }
+
+  // Filter, cari, favorit
+  let favs = [];
+  try { favs = JSON.parse(localStorage.getItem('dj-favs') || '[]'); } catch (_) {}
+  let f = 'all';
+  const qEl = document.getElementById('q');
+  const favN = document.getElementById('fav-n');
+  const chipBtns = [...document.querySelectorAll('.chips button')];
+
+  const applyFilter = () => {
+    if (favN) favN.textContent = favs.length;
+    const kw = (qEl?.value || '').trim().toLowerCase();
+    items.forEach(it => {
+      const id = it.dataset.id;
+      const isFav = favs.includes(id);
+      const favBtn = it.querySelector('.fav');
+      if (favBtn) favBtn.textContent = isFav ? '❤️' : '🤍';
+      const okF = f === 'all' || (f === 'fav' && isFav) || it.dataset.k === f;
+      const okQ = !kw || it.textContent.toLowerCase().includes(kw);
+      it.classList.toggle('hide', !(okF && okQ));
+    });
+  };
+
+  items.forEach(it => {
+    const link = it.querySelector('a.g');
+    const title = it.querySelector('h2')?.textContent?.trim() || '';
+    if (link && title) {
+      link.addEventListener('click', () => {
+        lastGame = { title, href: link.getAttribute('href') };
+        try { localStorage.setItem('dj-last', JSON.stringify(lastGame)); } catch (_) {}
+        renderLast();
+      });
+    }
+
+    const favBtn = it.querySelector('.fav');
+    if (!favBtn) return;
+    favBtn.onclick = e => {
+      e.preventDefault();
+      const id = it.dataset.id;
+      favs = favs.includes(id) ? favs.filter(x => x !== id) : [...favs, id];
+      try { localStorage.setItem('dj-favs', JSON.stringify(favs)); } catch (_) {}
+      applyFilter();
+    };
+  });
+
+  chipBtns.forEach(b => {
+    b.onclick = () => {
+      chipBtns.forEach(x => x.setAttribute('aria-pressed', x === b));
+      f = b.dataset.f;
+      applyFilter();
+    };
+  });
+
+  if (qEl) qEl.oninput = applyFilter;
+  applyFilter();
+
+  // Acak game
+  const rndBtn = document.getElementById('rnd');
+  if (rndBtn) {
+    rndBtn.onclick = () => {
+      const vis = items.filter(x => !x.classList.contains('hide'));
+      if (!vis.length) return;
+      document.querySelectorAll('.g').forEach(g => g.classList.remove('picked'));
+      const g = vis[Math.random() * vis.length | 0].querySelector('.g');
+      if (!g) return;
+      g.classList.add('picked');
+      g.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const title = g.querySelector('h2')?.textContent || 'Game';
+      showToast('Pilihan: ' + title);
+    };
+  }
+
+  // Ide kencan
+  const ideas = [
+    'Nonton film yang sama sambil hitung mundur 3-2-1 biar play-nya barengan.',
+    'Pesanin camilan atau minuman kesukaan masing-masing, lalu ngobrol sambil call Discord.',
+    'Bikin daftar 5 lagu yang paling ngingetin sama pasangan.',
+    'Main tebak harga atau sambung kata lewat call Discord.'
+  ];
+  let iIdx = 0;
+  const ideaBtn = document.getElementById('idea-n');
+  const ideaText = document.getElementById('idea-t');
+  if (ideaBtn && ideaText) {
+    ideaBtn.onclick = () => {
+      iIdx = (iIdx + 1) % ideas.length;
+      ideaText.textContent = ideas[iIdx];
+    };
+  }
+})();
+</script>
+</body>
+</html>
