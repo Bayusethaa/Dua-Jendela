@@ -20,12 +20,12 @@ h1{font-size:clamp(2.2rem,8vw,3.4rem);font-weight:800;line-height:1.05}
 .win i+i{background:var(--rose);box-shadow:0 0 36px #ff8fa366}
 .win i::after{content:"";position:absolute;inset:0;background:linear-gradient(#0003 0 0) center/3px 100% no-repeat,linear-gradient(#0003 0 0) center 55%/100% 3px no-repeat}
 
-/* Box Username Pemain */
-.user-box{background:var(--bg2);border-radius:18px;padding:14px 16px;margin-bottom:14px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
-.user-label{font-size:14px;color:var(--mute)}
-.user-label b{color:var(--glow)}
-.user-form{display:flex;gap:8px;flex:1;min-width:220px;max-width:360px}
-.user-form input{flex:1;background:var(--bg);border:2px solid #343968;color:var(--ink);padding:8px 12px;border-radius:10px;font:600 14px Nunito,sans-serif}
+/* Username Box */
+.u-box{background:var(--bg2);border-radius:18px;padding:14px 16px;margin-bottom:14px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.u-lbl{font-size:14px;color:var(--mute)}
+.u-lbl b{color:var(--glow)}
+.u-frm{display:flex;gap:8px;flex:1;min-width:210px;max-width:340px}
+.u-frm input{flex:1;background:var(--bg);border:2px solid #343968;color:var(--ink);padding:7px 12px;border-radius:10px;font:600 14px Nunito,sans-serif}
 
 /* Panel LDR */
 .ldr{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
@@ -85,7 +85,7 @@ details ol{margin:10px 0 0;padding-left:20px}
 #toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 
 /* intro */
-#intro{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;cursor:pointer;transition:opacity .45s ease,visibility .45s ease;overflow:hidden;padding:20px;text-align:center}
+#intro{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;cursor:pointer;transition:opacity .8s,visibility .8s;overflow:hidden;padding:20px;text-align:center}
 #intro.out{opacity:0;visibility:hidden;pointer-events:none}
 .iw{display:flex;gap:22px}
 .iw i{--lc:var(--glow);width:76px;height:106px;border-radius:40px 40px 8px 8px;background:#2a2f5c;position:relative;animation:lit 1s .4s forwards}
@@ -94,9 +94,9 @@ details ol{margin:10px 0 0;padding-left:20px}
 @keyframes lit{to{background:var(--lc);box-shadow:0 0 70px var(--lc)}}
 .it{font:800 clamp(2.4rem,9vw,3.6rem)/1 Fraunces,Georgia,serif;opacity:0;animation:rise .9s 2s forwards}
 .is{color:var(--mute);opacity:0;animation:rise .9s 2.6s forwards}
-.sk{margin-top:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:var(--ink);border-radius:999px;padding:8px 18px;font:700 13px Nunito,sans-serif;cursor:pointer;opacity:0;animation:rise .6s .6s forwards}
+.sk{position:absolute;bottom:26px;font-size:13px;color:var(--mute);opacity:0;animation:rise .6s 1s forwards}
 @keyframes rise{from{transform:translateY(14px)}to{opacity:1;transform:none}}
-.st{position:absolute;color:var(--glow);opacity:0;animation:tw 2.4s infinite;pointer-events:none}
+.st{position:absolute;color:var(--glow);opacity:0;animation:tw 2.4s infinite}
 @keyframes tw{0%,100%{opacity:0;transform:scale(.6)}50%{opacity:.9;transform:scale(1.1)}}
 body.ready .g-item{animation:up .6s calc(var(--i) * 90ms) backwards}
 @keyframes up{from{opacity:0;transform:translateY(18px)}}
@@ -107,64 +107,18 @@ body.ready .g-item{animation:up .6s calc(var(--i) * 90ms) backwards}
 </style>
 </head>
 <body>
-<div id="intro">
-  <div class="iw"><i></i><i></i></div>
-  <div class="it">Dua Jendela</div>
-  <div class="is">Jarak boleh jauh, mainnya tetap bareng</div>
-  <button type="button" class="sk" id="skip-intro">Ketuk untuk lewati</button>
-</div>
-<script>
-(() => {
-  const intro = document.getElementById('intro');
-  const skipBtn = document.getElementById('skip-intro');
-  const ready = () => document.body.classList.add('ready');
-
-  const closeIntro = e => {
-    if (e) e.preventDefault();
-    ready();
-    if (!intro) return;
-    intro.classList.add('out');
-    intro.style.display = 'none';
-    try { sessionStorage.setItem('dj-intro', '1'); } catch (_) {}
-  };
-
-  try {
-    if (sessionStorage.getItem('dj-intro') || matchMedia('(prefers-reduced-motion:reduce)').matches) {
-      if (intro) intro.remove();
-      ready();
-      return;
-    }
-  } catch (_) {}
-
-  if (intro) {
-    for (let i = 0; i < 20; i++) {
-      const x = document.createElement('span');
-      x.className = 'st';
-      x.style.cssText = `left:${Math.random() * 100}%;top:${Math.random() * 100}%;animation-delay:${Math.random() * 2.4}s;font-size:${8 + Math.random() * 12}px`;
-      x.textContent = '✦';
-      intro.append(x);
-    }
-    intro.addEventListener('click', closeIntro);
-    intro.addEventListener('touchstart', closeIntro, { passive: false });
-  }
-  if (skipBtn) {
-    skipBtn.addEventListener('click', closeIntro);
-    skipBtn.addEventListener('touchstart', closeIntro, { passive: false });
-  }
-  setTimeout(closeIntro, 3800);
-})();
-</script>
-
+<div id="intro" aria-hidden="true"><div class="iw"><i></i><i></i></div><div class="it">Dua Jendela</div><div class="is">Jarak boleh jauh, mainnya tetap bareng</div><div class="sk">Ketuk untuk lewati</div></div>
+<script>try{if(sessionStorage.getItem('dj-intro')||matchMedia('(prefers-reduced-motion:reduce)').matches)document.getElementById('intro').remove()}catch(e){}</script>
 <main>
 <div class="win" aria-hidden="true"><i></i><i></i></div>
 <h1>Dua Jendela</h1>
-<p class="sub" id="hero-sub">Jarak boleh jauh, mainnya tetap bareng. Pilih game, lalu mainkan berdua.</p>
+<p class="sub" id="sub-txt">Jarak boleh jauh, mainnya tetap bareng. Pilih game, lalu mainkan berdua.</p>
 
-<div class="user-box" aria-label="Username pemain">
-  <div class="user-label" id="user-display">Pemain aktif: <b>Tamu</b></div>
-  <div class="user-form">
-    <input type="text" id="user-in" maxlength="24" placeholder="Masukkan username pemain..." aria-label="Username pemain" autocomplete="off">
-    <button class="btn-s" id="user-save">Simpan</button>
+<div class="u-box" aria-label="Username pemain">
+  <div class="u-lbl" id="u-lbl">Pemain: <b>Tamu</b></div>
+  <div class="u-frm">
+    <input type="text" id="u-in" maxlength="24" placeholder="Username kamu..." aria-label="Username kamu" autocomplete="off">
+    <button class="btn-s" id="u-sv">Simpan</button>
   </div>
 </div>
 
@@ -242,12 +196,44 @@ body.ready .g-item{animation:up .6s calc(var(--i) * 90ms) backwards}
 </details>
 </main>
 <div id="toast" role="status"></div>
+<script src="fitur.js"></script>
 
 <script>
 (() => {
+  const intro = document.getElementById('intro');
   const items = [...document.querySelectorAll('.g-item')];
   items.forEach((g, i) => g.style.setProperty('--i', i));
 
+  const ready = () => document.body.classList.add('ready');
+  const finishIntro = () => {
+    ready();
+    if (!intro || intro.classList.contains('out')) return;
+    intro.classList.add('out');
+    try { sessionStorage.setItem('dj-intro', '1'); } catch (_) {}
+    setTimeout(() => intro.remove(), 900);
+  };
+
+  if (!intro) {
+    ready();
+    return;
+  }
+
+  for (let i = 0; i < 26; i++) {
+    const x = document.createElement('span');
+    x.className = 'st';
+    x.style.cssText = `left:${Math.random() * 100}%;top:${Math.random() * 100}%;animation-delay:${Math.random() * 2.4}s;font-size:${8 + Math.random() * 12}px`;
+    x.textContent = '✦';
+    intro.append(x);
+  }
+
+  intro.addEventListener('click', finishIntro);
+  intro.addEventListener('pointerdown', finishIntro);
+  setTimeout(finishIntro, 4300);
+})();
+</script>
+
+<script>
+(() => {
   const toastEl = document.getElementById('toast');
   let tTimer;
   const showToast = m => {
@@ -259,37 +245,33 @@ body.ready .g-item{animation:up .6s calc(var(--i) * 90ms) backwards}
   };
 
   // Username pemain
-  const userIn = document.getElementById('user-in');
-  const userSave = document.getElementById('user-save');
-  const userDisplay = document.getElementById('user-display');
-  const heroSub = document.getElementById('hero-sub');
-  let username = '';
-  try { username = (localStorage.getItem('dj-username') || '').trim(); } catch (_) {}
+  const uIn = document.getElementById('u-in');
+  const uSv = document.getElementById('u-sv');
+  const uLbl = document.getElementById('u-lbl');
+  const subTxt = document.getElementById('sub-txt');
+  let uname = '';
+  try { uname = (localStorage.getItem('dj-username') || '').trim(); } catch (_) {}
 
   const renderUser = () => {
-    const label = username || 'Tamu';
-    if (userDisplay) userDisplay.innerHTML = `Pemain aktif: <b>${label}</b>`;
-    if (userIn && document.activeElement !== userIn) userIn.value = username;
-    if (heroSub) {
-      heroSub.textContent = username
-        ? `Hai ${username}! Jarak boleh jauh, mainnya tetap bareng. Pilih game, lalu mainkan berdua.`
+    if (uLbl) uLbl.innerHTML = `Pemain: <b>${uname || 'Tamu'}</b>`;
+    if (uIn && document.activeElement !== uIn) uIn.value = uname;
+    if (subTxt) {
+      subTxt.textContent = uname
+        ? `Hai ${uname}! Jarak boleh jauh, mainnya tetap bareng. Pilih game, lalu mainkan berdua.`
         : 'Jarak boleh jauh, mainnya tetap bareng. Pilih game, lalu mainkan berdua.';
     }
   };
-
   const saveUser = () => {
-    const nextName = (userIn?.value || '').trim().replace(/\s+/g, ' ');
-    username = nextName;
+    uname = (uIn?.value || '').trim().replace(/\s+/g, ' ');
     try {
-      if (nextName) localStorage.setItem('dj-username', nextName);
+      if (uname) localStorage.setItem('dj-username', uname);
       else localStorage.removeItem('dj-username');
     } catch (_) {}
     renderUser();
-    showToast(nextName ? `Username disimpan: ${nextName}` : 'Username direset ke Tamu');
+    showToast(uname ? `Username disimpan: ${uname}` : 'Username direset');
   };
-
-  if (userSave) userSave.onclick = saveUser;
-  if (userIn) userIn.onkeydown = e => { if (e.key === 'Enter') saveUser(); };
+  if (uSv) uSv.onclick = saveUser;
+  if (uIn) uIn.onkeydown = e => { if (e.key === 'Enter') saveUser(); };
   renderUser();
 
   // Hitung mundur
@@ -329,12 +311,12 @@ body.ready .g-item{animation:up .6s calc(var(--i) * 90ms) backwards}
   if (cdCopy) {
     cdCopy.onclick = async () => {
       if (!mood) return;
-      const payload = username ? `${username}: ${mood}` : mood;
+      const msg = uname ? `${uname}: ${mood}` : mood;
       try {
-        await navigator.clipboard.writeText(payload);
+        await navigator.clipboard.writeText(msg);
         showToast('Status disalin');
       } catch (_) {
-        showToast(payload);
+        showToast(msg);
       }
     };
   }
@@ -358,8 +340,8 @@ body.ready .g-item{animation:up .6s calc(var(--i) * 90ms) backwards}
       const base = location.href.split('#')[0];
       const targetUrl = lastGame?.href ? new URL(lastGame.href, base).href : base;
       const label = lastGame?.title ? ` *${lastGame.title}*` : '';
-      const sender = username ? `${username} ngajak` : 'Yuk';
-      const text = `${sender} call di Discord sambil main${label} di Dua Jendela: ${targetUrl}`;
+      const prefix = uname ? `${uname} ngajak` : 'Yuk';
+      const text = `${prefix} call di Discord sambil main${label} di Dua Jendela: ${targetUrl}`;
       try {
         await navigator.clipboard.writeText(text);
         showToast('Ajakan Discord + link disalin');
@@ -375,6 +357,7 @@ body.ready .g-item{animation:up .6s calc(var(--i) * 90ms) backwards}
   let f = 'all';
   const qEl = document.getElementById('q');
   const favN = document.getElementById('fav-n');
+  const items = [...document.querySelectorAll('.g-item')];
   const chipBtns = [...document.querySelectorAll('.chips button')];
 
   const applyFilter = () => {
@@ -442,7 +425,7 @@ body.ready .g-item{animation:up .6s calc(var(--i) * 90ms) backwards}
 
   // Ide kencan
   const ideas = [
-    'Nonton film yang sama sambil hitung mundur 3-2-1 biar play-nya barengan.',
+    'Nonton film yang sama sambil hitung mundur 3-2-1 biar play-nya barengan di Discord.',
     'Pesanin camilan atau minuman kesukaan masing-masing, lalu ngobrol sambil call Discord.',
     'Bikin daftar 5 lagu yang paling ngingetin sama pasangan.',
     'Main tebak harga atau sambung kata lewat call Discord.'
