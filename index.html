@@ -20,12 +20,12 @@ h1{font-size:clamp(2.2rem,8vw,3.4rem);font-weight:800;line-height:1.05}
 .win i+i{background:var(--rose);box-shadow:0 0 36px #ff8fa366}
 .win i::after{content:"";position:absolute;inset:0;background:linear-gradient(#0003 0 0) center/3px 100% no-repeat,linear-gradient(#0003 0 0) center 55%/100% 3px no-repeat}
 
-/* Username Box */
-.u-box{background:var(--bg2);border-radius:18px;padding:14px 16px;margin-bottom:14px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
-.u-lbl{font-size:14px;color:var(--mute)}
-.u-lbl b{color:var(--glow)}
-.u-frm{display:flex;gap:8px;flex:1;min-width:210px;max-width:340px}
-.u-frm input{flex:1;background:var(--bg);border:2px solid #343968;color:var(--ink);padding:7px 12px;border-radius:10px;font:600 14px Nunito,sans-serif}
+/* Username Pemain */
+.dj-user-bar{background:var(--bg2);border-radius:16px;padding:12px 16px;margin-bottom:14px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.dj-user-status{font-size:14px;color:var(--mute)}
+.dj-user-status b{color:var(--glow)}
+.dj-user-controls{display:flex;gap:8px;flex:1;min-width:200px;max-width:340px}
+.dj-user-controls input{flex:1;background:var(--bg);border:2px solid #343968;color:var(--ink);padding:7px 12px;border-radius:10px;font:600 14px Nunito,sans-serif}
 
 /* Panel LDR */
 .ldr{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
@@ -112,13 +112,13 @@ body.ready .g-item{animation:up .6s calc(var(--i) * 90ms) backwards}
 <main>
 <div class="win" aria-hidden="true"><i></i><i></i></div>
 <h1>Dua Jendela</h1>
-<p class="sub" id="sub-txt">Jarak boleh jauh, mainnya tetap bareng. Pilih game, lalu mainkan berdua.</p>
+<p class="sub">Jarak boleh jauh, mainnya tetap bareng. Pilih game, lalu mainkan berdua.</p>
 
-<div class="u-box" aria-label="Username pemain">
-  <div class="u-lbl" id="u-lbl">Pemain: <b>Tamu</b></div>
-  <div class="u-frm">
-    <input type="text" id="u-in" maxlength="24" placeholder="Username kamu..." aria-label="Username kamu" autocomplete="off">
-    <button class="btn-s" id="u-sv">Simpan</button>
+<div class="dj-user-bar" aria-label="Username pemain">
+  <div class="dj-user-status" id="dj-user-status">Username: <b>Tamu</b></div>
+  <div class="dj-user-controls">
+    <input type="text" id="dj-user-input" maxlength="24" placeholder="Masukkan username..." aria-label="Username pemain" autocomplete="off">
+    <button type="button" class="btn-s" id="dj-user-save">Simpan</button>
   </div>
 </div>
 
@@ -244,35 +244,29 @@ body.ready .g-item{animation:up .6s calc(var(--i) * 90ms) backwards}
     tTimer = setTimeout(() => toastEl.classList.remove('show'), 2400);
   };
 
-  // Username pemain
-  const uIn = document.getElementById('u-in');
-  const uSv = document.getElementById('u-sv');
-  const uLbl = document.getElementById('u-lbl');
-  const subTxt = document.getElementById('sub-txt');
-  let uname = '';
-  try { uname = (localStorage.getItem('dj-username') || '').trim(); } catch (_) {}
-
-  const renderUser = () => {
-    if (uLbl) uLbl.innerHTML = `Pemain: <b>${uname || 'Tamu'}</b>`;
-    if (uIn && document.activeElement !== uIn) uIn.value = uname;
-    if (subTxt) {
-      subTxt.textContent = uname
-        ? `Hai ${uname}! Jarak boleh jauh, mainnya tetap bareng. Pilih game, lalu mainkan berdua.`
-        : 'Jarak boleh jauh, mainnya tetap bareng. Pilih game, lalu mainkan berdua.';
-    }
+  // Username pemain (terpisah dari skrip fitur.js)
+  const uInput = document.getElementById('dj-user-input');
+  const uSave = document.getElementById('dj-user-save');
+  const uStatus = document.getElementById('dj-user-status');
+  const syncUser = () => {
+    let name = '';
+    try { name = (localStorage.getItem('dj-player-name') || '').trim(); } catch (_) {}
+    if (uStatus) uStatus.innerHTML = `Username: <b>${name || 'Tamu'}</b>`;
+    if (uInput && document.activeElement !== uInput) uInput.value = name;
   };
-  const saveUser = () => {
-    uname = (uIn?.value || '').trim().replace(/\s+/g, ' ');
+  const commitUser = () => {
+    if (!uInput) return;
+    const clean = uInput.value.trim().replace(/\s+/g, ' ');
     try {
-      if (uname) localStorage.setItem('dj-username', uname);
-      else localStorage.removeItem('dj-username');
+      if (clean) localStorage.setItem('dj-player-name', clean);
+      else localStorage.removeItem('dj-player-name');
     } catch (_) {}
-    renderUser();
-    showToast(uname ? `Username disimpan: ${uname}` : 'Username direset');
+    syncUser();
+    showToast(clean ? `Username tersimpan: ${clean}` : 'Username direset');
   };
-  if (uSv) uSv.onclick = saveUser;
-  if (uIn) uIn.onkeydown = e => { if (e.key === 'Enter') saveUser(); };
-  renderUser();
+  if (uSave) uSave.addEventListener('click', commitUser);
+  if (uInput) uInput.addEventListener('keydown', e => { if (e.key === 'Enter') commitUser(); });
+  syncUser();
 
   // Hitung mundur
   const cdIn = document.getElementById('cd-in');
@@ -311,12 +305,14 @@ body.ready .g-item{animation:up .6s calc(var(--i) * 90ms) backwards}
   if (cdCopy) {
     cdCopy.onclick = async () => {
       if (!mood) return;
-      const msg = uname ? `${uname}: ${mood}` : mood;
+      let name = '';
+      try { name = (localStorage.getItem('dj-player-name') || '').trim(); } catch (_) {}
+      const text = name ? `${name}: ${mood}` : mood;
       try {
-        await navigator.clipboard.writeText(msg);
+        await navigator.clipboard.writeText(text);
         showToast('Status disalin');
       } catch (_) {
-        showToast(msg);
+        showToast(text);
       }
     };
   }
@@ -340,8 +336,10 @@ body.ready .g-item{animation:up .6s calc(var(--i) * 90ms) backwards}
       const base = location.href.split('#')[0];
       const targetUrl = lastGame?.href ? new URL(lastGame.href, base).href : base;
       const label = lastGame?.title ? ` *${lastGame.title}*` : '';
-      const prefix = uname ? `${uname} ngajak` : 'Yuk';
-      const text = `${prefix} call di Discord sambil main${label} di Dua Jendela: ${targetUrl}`;
+      let name = '';
+      try { name = (localStorage.getItem('dj-player-name') || '').trim(); } catch (_) {}
+      const opener = name ? `${name} ngajak` : 'Yuk';
+      const text = `${opener} call di Discord sambil main${label} di Dua Jendela: ${targetUrl}`;
       try {
         await navigator.clipboard.writeText(text);
         showToast('Ajakan Discord + link disalin');
@@ -357,7 +355,6 @@ body.ready .g-item{animation:up .6s calc(var(--i) * 90ms) backwards}
   let f = 'all';
   const qEl = document.getElementById('q');
   const favN = document.getElementById('fav-n');
-  const items = [...document.querySelectorAll('.g-item')];
   const chipBtns = [...document.querySelectorAll('.chips button')];
 
   const applyFilter = () => {
