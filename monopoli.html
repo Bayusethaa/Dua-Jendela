@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monopoli · Dua Jendela</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎩</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="nama.js"></script>
+<style>
+:root{--bg:#14172b;--bg2:#1d2140;--glow:#f6c768;--rose:#ff8fa3;--ink:#f3ecdf;--mute:#a7a9c4;--ok:#7fd8a6;--bad:#ff7a7a}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:radial-gradient(ellipse at 20% 0,#262b57 0,var(--bg) 55%) fixed;color:var(--ink);font:400 16px/1.5 Nunito,system-ui,sans-serif;min-height:100vh}
+main{max-width:620px;margin:0 auto;padding:24px 12px 64px}
+h1,h2{font-family:Fraunces,Georgia,serif;margin:0}
+h1{font-size:clamp(2rem,7vw,3rem);font-weight:800;line-height:1.05}
+h2{font-size:1.4rem;margin-bottom:8px}
+a{color:var(--glow)}
+.sub{color:var(--mute);margin:10px 0 18px}
+.box{background:var(--bg2);border-radius:18px;padding:18px 16px;margin-bottom:14px}
+.btn{background:var(--rose);color:#3a0d18;border:0;border-radius:12px;padding:12px 18px;font:700 16px Nunito,sans-serif;cursor:pointer;margin:6px 6px 0 0}
+.btn.alt{background:transparent;border:2px solid var(--glow);color:var(--glow)}
+.btn.ok{background:var(--ok);color:#0d2e1d}
+.btn:disabled{opacity:.45;cursor:default}
+button:focus-visible,input:focus-visible{outline:3px solid var(--rose);outline-offset:2px}
+input[type=text]{width:100%;padding:11px 12px;border-radius:10px;border:2px solid #343968;background:var(--bg);color:var(--ink);font:inherit;text-transform:uppercase}
+.row{display:flex;gap:10px;align-items:stretch}
+.row>*{flex:1}
+.row .btn{margin:0;flex:0 0 auto}
+.code{font:800 2.6rem/1 Fraunces,Georgia,serif;letter-spacing:.15em;color:var(--glow);margin:8px 0}
+.note{color:var(--mute);font-size:14px}
+#st{min-height:1.5em;color:var(--rose);font-weight:700;margin-top:12px}
+.hide{display:none}
+.tk{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tk button{padding:10px 4px;border-radius:14px;border:2px solid #343968;background:var(--bg);color:var(--ink);font:700 13px Nunito,sans-serif;cursor:pointer}
+.tk button span{display:block;font-size:2rem;line-height:1.1}
+.tk button.sel{border-color:var(--glow);background:#f6c76822}
+.tk button:disabled{opacity:.3}
+#pl{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.pc{display:flex;gap:10px;align-items:center;background:var(--bg2);border-radius:14px;padding:8px 10px;border:2px solid transparent;border-left:6px solid var(--oc)}
+.pc.on{border-color:var(--glow);border-left-color:var(--oc)}
+.pc .tkn{font-size:2rem;line-height:1}
+.pc b{display:block;font:800 1.05rem/1.2 Fraunces,Georgia,serif;color:var(--glow)}
+.pc small{color:var(--mute);font-size:12px;display:block}
+.who{font-size:12px;font-weight:700;color:var(--mute);display:block}
+#bd{display:grid;grid-template-columns:repeat(11,1fr);grid-template-rows:repeat(11,1fr);aspect-ratio:1;background:#2b4a35;gap:1px;border:2px solid #2b4a35;border-radius:8px;overflow:hidden}
+.c{position:relative;background:#e4f2e1;color:#1a2b20;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;overflow:hidden;cursor:pointer;font:800 clamp(5px,1.6vw,9px)/1.05 Nunito,sans-serif;text-align:center}
+.c .bar{height:24%;min-height:5px;width:100%;font-size:clamp(5px,1.4vw,8px);line-height:1;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.c .n{padding:1px 1px 0;word-break:break-all}
+.c .ic{font-size:clamp(9px,3.2vw,18px);line-height:1}
+.c .pr{font-weight:600;opacity:.8}
+.c .tkn{position:absolute;left:0;right:0;bottom:0;font-size:clamp(9px,3vw,17px);line-height:1;display:flex;justify-content:center;flex-wrap:wrap;text-shadow:0 1px 2px #fff}
+#ct{grid-area:2/2/11/11;background:#cfe8d0;color:#1a2b20;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:6px;text-align:center}
+#ct .logo{font:800 clamp(1.2rem,6.5vw,2.4rem)/1 Fraunces,Georgia,serif;background:#d9282a;color:#fff;padding:4px 10px;border:3px solid #fff;outline:2px solid #d9282a;transform:rotate(-8deg);letter-spacing:.05em}
+#ct .dc{font-size:clamp(2rem,10vw,3.6rem);line-height:1}
+#ct .ms{font-size:clamp(10px,2.9vw,15px);font-weight:700;max-width:92%}
+#act{margin-top:10px;text-align:center}
+#act .big{font:800 1.4rem/1.2 Fraunces,Georgia,serif;color:var(--glow)}
+#bl{text-align:center}
+#bl .btn{font-size:13px;padding:8px 12px}
+#info{font-size:14px;color:var(--mute);margin-top:12px}
+#info b{color:var(--ink)}
+#lg{margin:0;padding:0;list-style:none;font-size:14px;color:var(--mute)}
+#lg b{color:var(--ink)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+<h1>Monopoli</h1>
+<p class="sub">Beli kota, tagih sewa, bangun rumah, dan buat pasanganmu bangkrut. <a href="index.html">Kembali ke menu</a></p>
+
+<div class="box" id="lobby">
+<h2>Buat ruangan</h2>
+<button class="btn" id="mk" style="margin:0">Buat kode ruangan</button>
+<div id="mine" class="hide"><div class="code" id="cd"></div><p class="note">Kirim kode ini ke pasanganmu, lalu tunggu dia masuk.</p></div>
+<h2 style="margin-top:24px">Masuk ruangan</h2>
+<div class="row">
+<input type="text" id="jc" maxlength="5" placeholder="Kode 5 huruf" autocomplete="off" aria-label="Kode ruangan">
+<button class="btn" id="jn">Masuk</button>
+</div>
+<div id="st" role="status"></div>
+</div>
+
+<div class="box hide" id="pick">
+<h2>Pilih bidakmu</h2>
+<div class="tk" id="tk"></div>
+<p class="note" id="pk" style="margin-top:10px"></p>
+</div>
+
+<div class="hide" id="game">
+<div id="pl"></div>
+<div id="bd"></div>
+<div id="act"></div>
+<div id="bl"></div>
+<div class="box" id="info">Ketuk kotak di papan untuk melihat detailnya.</div>
+<div class="box"><ul id="lg"></ul></div>
+<p class="note">Mulai dengan Rp1.500 jt. Lewat MULAI dapat Rp200 jt. Satu set warna membuat sewa 2x, dan rumah menaikkan sewa lebih jauh. Kalau uang kurang, aset dijual otomatis setengah harga. Yang kehabisan aset kalah.</p>
+</div>
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+let peer,conn,me,myi=0,tries=0;
+const st=t=>$('#st').textContent=t;
+const send=o=>{if(conn&&conn.open)conn.send(o)};
+const rcode=()=>{const a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';return Array.from({length:5},()=>a[Math.random()*a.length|0]).join('')};
+const m=n=>'Rp'+n+' jt';
+
+// ===== DATA PAPAN =====
+// [nama, tipe, harga, grup, sewa dasar]
+const B=[
+['MULAI','go'],['Sabang','p',60,0,2],['Dana Umum','dana'],['Banda Aceh','p',60,0,4],['Pajak Penghasilan','tax',200],['Stasiun Gambir','st',200],
+['Padang','p',100,1,6],['Kesempatan','ch'],['Pekanbaru','p',100,1,6],['Jambi','p',120,1,8],
+['Penjara','jail'],
+['Palembang','p',140,2,10],['Listrik PLN','ut',150],['Lampung','p',140,2,10],['Bengkulu','p',160,2,12],['Stasiun Bandung','st',200],
+['Bogor','p',180,3,14],['Dana Umum','dana'],['Depok','p',180,3,14],['Bekasi','p',200,3,16],
+['Parkir Bebas','park'],
+['Semarang','p',220,4,18],['Kesempatan','ch'],['Solo','p',220,4,18],['Yogyakarta','p',240,4,20],['Stasiun Gubeng','st',200],
+['Malang','p',260,5,22],['Surabaya','p',260,5,22],['Air PDAM','ut',150],['Denpasar','p',280,5,24],
+['Masuk Penjara','gotojail'],
+['Makassar','p',300,6,26],['Manado','p',300,6,26],['Dana Umum','dana'],['Balikpapan','p',320,6,28],['Stasiun Medan','st',200],
+['Kesempatan','ch'],['Bandung','p',350,7,35],['Pajak Mewah','tax',100],['Jakarta','p',400,7,50]
+];
+const GC=['#8b5a2b','#8fd3f4','#e86bb0','#f59e42','#e34b4b','#f2d94e','#3aa655','#3a5bd9'];
+const GN=['Cokelat','Biru muda','Merah muda','Oranye','Merah','Kuning','Hijau','Biru tua'];
+const HC=[50,50,100,100,150,150,200,200];
+const RM=[1,5,15,45,80,125];
+const IC={go:'🏁',dana:'📦',ch:'❓',tax:'💸',st:'🚉',jail:'⛓️',park:'🅿️',gotojail:'👮'};
+const OC=['#e63946','#1d6fd1'];
+const TK=[['🎩','Topi'],['🏎️','Mobil'],['🐕','Anjing'],['🥾','Sepatu'],['🚢','Kapal'],['🐈','Kucing'],['🐧','Penguin'],['🦆','Bebek'],['🦖','T-rex']];
+const KES=[
+ {x:'Maju ke MULAI dan terima Rp200 jt',go:0},{x:'Maju ke Jakarta',go:39},{x:'Maju ke Yogyakarta',go:24},
+ {x:'Mundur 3 langkah',back:3},{x:'Masuk penjara',jail:1},{x:'Dividen saham, terima Rp50 jt',cash:50},
+ {x:'Kena tilang, bayar Rp15 jt',cash:-15},{x:'Pasangan ulang tahun, kasih kado Rp50 jt',give:50}
+];
+const DAN=[
+ {x:'Warisan, terima Rp100 jt',cash:100},{x:'Bayar dokter Rp50 jt',cash:-50},{x:'Hari jadian! Pasangan memberi Rp50 jt',recv:50},
+ {x:'Bayar arisan Rp30 jt',cash:-30},{x:'Bonus akhir tahun Rp150 jt',cash:150},{x:'Jual barang bekas, terima Rp20 jt',cash:20},
+ {x:'Masuk penjara',jail:1},{x:'Mundur 3 langkah',back:3}
+];
+
+// ===== MESIN GAME (hanya dijalankan oleh host) =====
+// ENGINE START
+let S=null,tok=[null,null];
+const pub=()=>{send({t:'st',s:S});setState(S)};
+function log(pl,x){S.log.push({p:pl,x});if(S.log.length>8)S.log.shift()}
+function group(g){return B.map((s,i)=>s[1]==='p'&&s[3]===g?i:-1).filter(i=>i>=0)}
+function full(ow,g){return group(g).every(i=>S.own[i]===ow)}
+function count(ow,t){return B.filter((s,i)=>s[1]===t&&S.own[i]===ow).length}
+function rent(i){
+  const s=B[i],ow=S.own[i];
+  if(s[1]==='p'){const h=S.h[i]||0;return h>0?s[4]*RM[h]:full(ow,s[3])?s[4]*2:s[4]}
+  if(s[1]==='st')return [25,50,100,200][count(ow,'st')-1];
+  return (S.dice[0]+S.dice[1])*(count(ow,'ut')===2?10:4);
+}
+function newGame(){
+  S={p:[0,1].map(i=>({pos:0,cash:1500,jail:-1,tok:tok[i]})),own:{},h:{},turn:0,ph:'roll',dice:[1,1],dbl:0,log:[],winner:-1};
+  log(0,'memulai permainan. Selamat bermain!');pub();
+}
+function liq(pl){
+  const p=S.p[pl],mine=Object.keys(S.own).filter(i=>S.own[i]===pl).map(Number);
+  for(const i of mine){while((S.h[i]||0)>0&&p.cash<0){p.cash+=HC[B[i][3]]/2;S.h[i]--}}
+  for(const i of mine.sort((a,b)=>B[a][2]-B[b][2])){
+    if(p.cash>=0)break;
+    p.cash+=B[i][2]/2;delete S.own[i];S.h[i]=0;
+  }
+  if(mine.length)log(pl,'menjual aset untuk melunasi utang');
+}
+function pay(pl,amt,to){
+  const p=S.p[pl];p.cash-=amt;if(to!=null)S.p[to].cash+=amt;
+  if(p.cash<0){liq(pl);if(p.cash<0){S.ph='over';S.winner=to!=null?to:1-pl;log(pl,'bangkrut!')}}
+}
+function after(pl){
+  if(S.ph==='over')return;
+  if(S.dbl>0&&S.p[pl].jail<0){S.ph='roll';log(pl,'dapat dobel, lempar lagi!')}else S.ph='end';
+}
+function goJail(pl){const p=S.p[pl];p.pos=10;p.jail=0;S.dbl=0;S.ph='end';log(pl,'masuk penjara')}
+function move(pl,n){
+  const p=S.p[pl],o=p.pos;p.pos=(o+n)%40;
+  if(p.pos<o){p.cash+=200;log(pl,'melewati MULAI, terima '+m(200))}
+  land(pl);
+}
+function land(pl){
+  const p=S.p[pl],s=B[p.pos],t=s[1],other=1-pl;
+  if(t==='p'||t==='st'||t==='ut'){
+    const ow=S.own[p.pos];
+    if(ow==null){
+      if(p.cash>=s[2]){S.ph='buy';log(pl,'mendarat di '+s[0]);return}
+      log(pl,'mendarat di '+s[0]+' tapi uangnya tidak cukup');return after(pl);
+    }
+    if(ow!==pl){const r=rent(p.pos);log(pl,`mendarat di ${s[0]} dan membayar sewa ${m(r)}`);pay(pl,r,ow);return after(pl)}
+    log(pl,'mendarat di '+s[0]+' (miliknya sendiri)');return after(pl);
+  }
+  if(t==='tax'){log(pl,`membayar ${s[0]} ${m(s[2])}`);pay(pl,s[2],null);return after(pl)}
+  if(t==='gotojail')return goJail(pl);
+  if(t==='dana'||t==='ch'){
+    const L=t==='ch'?KES:DAN,c=L[Math.random()*L.length|0];
+    log(pl,(t==='ch'?'Kesempatan: ':'Dana Umum: ')+c.x);
+    if(c.cash!=null){c.cash>0?p.cash+=c.cash:pay(pl,-c.cash,null);return after(pl)}
+    if(c.give){pay(pl,c.give,other);return after(pl)}
+    if(c.recv){pay(other,c.recv,pl);return after(pl)}
+    if(c.jail)return goJail(pl);
+    if(c.back){p.pos=(p.pos+37)%40;return land(pl)}
+    if(c.go!=null){if(c.go<p.pos){p.cash+=200}p.pos=c.go;return land(pl)}
+  }
+  log(pl,'mendarat di '+s[0]);after(pl);
+}
+function doRoll(pl){
+  const p=S.p[pl],a=1+Math.random()*6|0,b=1+Math.random()*6|0,d=a===b;
+  S.dice=[a,b];log(pl,`melempar dadu ${a}+${b}`);
+  if(p.jail>=0){
+    if(d){p.jail=-1;S.dbl=0;log(pl,'dapat dobel dan bebas dari penjara');return move(pl,a+b)}
+    p.jail++;
+    if(p.jail>=3){pay(pl,50,null);if(S.ph==='over')return;p.jail=-1;log(pl,'membayar '+m(50)+' untuk keluar penjara');return move(pl,a+b)}
+    log(pl,'masih di penjara');S.ph='end';return;
+  }
+  if(d){S.dbl++;if(S.dbl>=3){log(pl,'dobel tiga kali!');return goJail(pl)}}else S.dbl=0;
+  move(pl,a+b);
+}
+function canBuild(pl,i){
+  const s=B[i];if(s[1]!=='p'||S.own[i]!==pl||!full(pl,s[3]))return false;
+  const h=S.h[i]||0;
+  return h<5&&h<=Math.min(...group(s[3]).map(k=>S.h[k]||0))&&S.p[pl].cash>=HC[s[3]];
+}
+function act(pl,a,i){
+  if(a==='again'){if(S&&S.ph==='over')newGame();return}
+  if(!S||S.ph==='over'||S.turn!==pl)return;
+  const p=S.p[pl];
+  if(a==='roll'&&S.ph==='roll')doRoll(pl);
+  else if(a==='jail'&&S.ph==='roll'&&p.jail>=0&&p.cash>=50){p.cash-=50;p.jail=-1;log(pl,'membayar '+m(50)+' untuk keluar penjara')}
+  else if(a==='buy'&&S.ph==='buy'){const s=B[p.pos];if(p.cash>=s[2]){p.cash-=s[2];S.own[p.pos]=pl;log(pl,`membeli ${s[0]} (${m(s[2])})`);after(pl)}}
+  else if(a==='skip'&&S.ph==='buy'){log(pl,'tidak membeli '+B[p.pos][0]);after(pl)}
+  else if(a==='end'&&S.ph==='end'){S.turn=1-S.turn;S.dbl=0;S.ph='roll'}
+  else if(a==='build'&&(S.ph==='roll'||S.ph==='end')&&canBuild(pl,i)){p.cash-=HC[B[i][3]];S.h[i]=(S.h[i]||0)+1;log(pl,`membangun di ${B[i][0]} (${m(HC[B[i][3]])})`)}
+  else return;
+  pub();
+}
+// ENGINE END
+
+// ===== KONEKSI =====
+function mkRoom(){
+  if(peer)peer.destroy();
+  const c=rcode();peer=new Peer('dj-mn-'+c);
+  peer.on('open',()=>{me='host';$('#cd').textContent=c;$('#mine').classList.remove('hide');st('')});
+  peer.on('connection',cn=>{if(conn&&conn.open){cn.close();return}conn=cn;wire()});
+  peer.on('error',e=>{if(e.type==='unavailable-id'&&tries++<5)mkRoom();else st('Gagal membuat ruangan ('+e.type+'). Coba lagi.')});
+}
+function joinRoom(){
+  const c=$('#jc').value.trim().toUpperCase();
+  if(c.length!==5){st('Masukkan kode 5 huruf.');return}
+  st('Menghubungkan…');
+  if(peer)peer.destroy();
+  peer=new Peer();
+  peer.on('open',()=>{me='guest';conn=peer.connect('dj-mn-'+c,{reliable:true});wire()});
+  peer.on('error',e=>st(e.type==='peer-unavailable'?'Kode tidak ditemukan. Cek lagi ya.':'Gagal terhubung ('+e.type+').'));
+}
+function wire(){
+  conn.on('open',()=>{myi=me==='host'?0:1;$('#lobby').classList.add('hide');$('#pick').classList.remove('hide');renderPick()});
+  conn.on('data',onData);
+  conn.on('close',()=>alert('Pasanganmu terputus. Muat ulang halaman untuk main lagi.'));
+}
+$('#mk').onclick=()=>{tries=0;mkRoom()};
+$('#jn').onclick=joinRoom;
+$('#jc').onkeydown=e=>{if(e.key==='Enter')joinRoom()};
+
+// ===== PILIH BIDAK =====
+function renderPick(){
+  $('#tk').innerHTML=TK.map((t,i)=>`<button data-i="${i}" class="${tok[myi]===i?'sel':''}" ${tok[1-myi]===i?'disabled':''}><span>${t[0]}</span>${t[1]}</button>`).join('');
+  $('#pk').textContent=tok[myi]==null?'Pilih satu bidak.':tok[1-myi]==null?'Menunggu pasanganmu memilih…':'Siap!';
+}
+$('#tk').onclick=e=>{
+  const b=e.target.closest('button');if(!b||b.disabled)return;
+  tok[myi]=+b.dataset.i;send({t:'tok',i:tok[myi]});renderPick();tryStart();
+};
+function tryStart(){if(me==='host'&&tok[0]!=null&&tok[1]!=null&&tok[0]!==tok[1]&&!S)newGame()}
+
+// ===== TAMPILAN =====
+let dpos=[0,0],anim=[false,false],sel=-1,showBuild=false;
+const FACE=['⚀','⚁','⚂','⚃','⚄','⚅'];
+const rc=i=>i<=10?[10,10-i]:i<=20?[10-(i-10),0]:i<=30?[0,i-20]:[i-30,10];
+const who=p=>`<b>${p===myi?'Kamu':'Pasanganmu'}</b>`;
+function setState(ns){
+  S=ns;$('#pick').classList.add('hide');$('#game').classList.remove('hide');
+  S.p.forEach((p,i)=>{if(dpos[i]!==p.pos&&!anim[i])startAnim(i)});
+  render();
+}
+function startAnim(i){
+  const dist=()=>(S.p[i].pos-dpos[i]+40)%40;
+  if(dist()>12||dist()===0){dpos[i]=S.p[i].pos;return}
+  anim[i]=true;
+  (function step(){
+    if(dist()===0||dist()>12){dpos[i]=S.p[i].pos;anim[i]=false;render();return}
+    dpos[i]=(dpos[i]+1)%40;render();setTimeout(step,130);
+  })();
+}
+function cell(i){
+  const s=B[i],t=s[1],[r,c]=rc(i),ow=S.own[i],h=S.h[i]||0;
+  let bar,lab,pr='';
+  if(t==='p'){bar=`<div class="bar" style="background:${GC[s[3]]}">${h===5?'🏨':'🏠'.repeat(h)}</div>`;lab=`<span class="n">${s[0].length>7?s[0].slice(0,6)+'.':s[0]}</span>`;pr=`<span class="pr">${s[2]}</span>`}
+  else{bar='<div class="bar"></div>';lab=`<span class="ic">${t==='ut'?(i===12?'💡':'🚰'):IC[t]}</span>`;if(s[2])pr=`<span class="pr">${s[2]}</span>`}
+  const toks=S.p.map((p,k)=>dpos[k]===i?TK[p.tok][0]:'').join('');
+  return `<div class="c" data-i="${i}" title="${s[0]}" style="grid-row:${r+1};grid-column:${c+1};${ow!=null?`box-shadow:inset 0 0 0 3px ${OC[ow]}`:''}">${bar}${lab}${pr}<div class="tkn">${toks}</div></div>`;
+}
+function info(i){
+  const s=B[i],t=s[1],ow=S.own[i];let h=`<b>${s[0]}</b>`;
+  if(t==='p')h+=` · kota ${GN[s[3]].toLowerCase()}<br>Harga ${m(s[2])}. Sewa dasar ${m(s[4])}, 2x kalau satu set. Dengan 1 sampai 5 rumah: ${RM.slice(1).map(x=>m(s[4]*x)).join(', ')}. Biaya rumah ${m(HC[s[3]])}.`;
+  else if(t==='st')h+=`<br>Harga ${m(s[2])}. Sewa 25, 50, 100, atau 200 jt sesuai jumlah stasiun yang dimiliki.`;
+  else if(t==='ut')h+=`<br>Harga ${m(s[2])}. Sewa 4x angka dadu, atau 10x kalau memiliki kedua utilitas.`;
+  else if(t==='tax')h+=`<br>Bayar ${m(s[2])}.`;
+  else if(t==='go')h+='<br>Lewati untuk menerima Rp200 jt.';
+  else if(t==='gotojail')h+='<br>Langsung masuk penjara.';
+  else if(t==='jail')h+='<br>Hanya berkunjung, kecuali kamu dikirim ke sini.';
+  else if(t==='park')h+='<br>Istirahat, tidak terjadi apa-apa.';
+  else h+='<br>Ambil satu kartu acak.';
+  if(ow!=null)h+=`<br>Pemilik: <b>${ow===myi?'Kamu':'Pasanganmu'}</b>${t==='p'?` · rumah: ${(S.h[i]||0)===5?'hotel':(S.h[i]||0)}`:''}`;
+  return h;
+}
+function render(){
+  if(!S)return;
+  const mineTurn=S.turn===myi&&S.ph!=='over',moving=anim.some(Boolean);
+  $('#pl').innerHTML=S.p.map((p,i)=>`<div class="pc${S.turn===i&&S.ph!=='over'?' on':''}" style="--oc:${OC[i]}"><span class="tkn">${TK[p.tok][0]}</span><div><span class="who">${i===myi?'Kamu':'Pasanganmu'}</span><b>${m(p.cash)}</b><small>${Object.values(S.own).filter(v=>v===i).length} properti${p.jail>=0?' · di penjara':''}</small></div></div>`).join('');
+  const last=S.log[S.log.length-1];
+  $('#bd').innerHTML=`<div id="ct"><div class="logo">MONOPOLI</div><div class="dc">${FACE[S.dice[0]-1]} ${FACE[S.dice[1]-1]}</div><div class="ms">${last?who(last.p)+' '+last.x:''}</div></div>`+B.map((_,i)=>cell(i)).join('');
+  let a='';
+  if(S.ph==='over'){
+    a=`<div class="big">${S.winner===myi?'Kamu menang! 🏆':'Pasanganmu menang! 🏆'}</div><button class="btn" data-a="again">Main lagi</button>`;
+  }else if(!mineTurn){
+    a='<p class="note">Giliran pasanganmu…</p>';
+  }else if(moving){
+    a='<p class="note">Bidak berjalan…</p>';
+  }else if(S.ph==='roll'){
+    const p=S.p[myi];
+    a=p.jail>=0?`<button class="btn" data-a="roll">🎲 Coba dobel (${3-p.jail} kesempatan)</button><button class="btn alt" data-a="jail" ${p.cash<50?'disabled':''}>Bayar ${m(50)}</button>`:`<button class="btn" data-a="roll">🎲 Lempar dadu</button>`;
+  }else if(S.ph==='buy'){
+    const s=B[S.p[myi].pos];
+    a=`<p style="margin:0">Beli <b>${s[0]}</b> seharga ${m(s[2])}?</p><button class="btn ok" data-a="buy">Beli</button><button class="btn alt" data-a="skip">Lewati</button>`;
+  }else if(S.ph==='end'){
+    a='<button class="btn" data-a="end">Akhiri giliran</button>';
+  }
+  $('#act').innerHTML=a;
+  const bl=mineTurn&&!moving&&(S.ph==='roll'||S.ph==='end')?B.map((_,i)=>i).filter(i=>canBuild(myi,i)):[];
+  $('#bl').innerHTML=bl.length?`<button class="btn alt" id="tb" style="margin-top:8px">🏗️ Bangun rumah (${bl.length})</button>${showBuild?'<div>'+bl.map(i=>`<button class="btn alt" data-a="build" data-i="${i}">${B[i][0]} · ${m(HC[B[i][3]])}</button>`).join('')+'</div>':''}`:'';
+  if(sel>=0)$('#info').innerHTML=info(sel);
+  $('#lg').innerHTML=S.log.slice().reverse().slice(0,6).map(l=>`<li>${who(l.p)} ${l.x}</li>`).join('');
+}
+$('#bd').onclick=e=>{const c=e.target.closest('.c');if(c){sel=+c.dataset.i;$('#info').innerHTML=info(sel)}};
+function onAct(e){
+  const b=e.target.closest('[data-a]');if(!b||b.disabled)return;
+  const a=b.dataset.a,i=b.dataset.i!=null?+b.dataset.i:null;
+  if(me==='host')act(0,a,i);else send({t:'act',a,i});
+}
+$('#act').onclick=onAct;
+$('#bl').onclick=e=>{
+  if(e.target.id==='tb'){showBuild=!showBuild;render();return}
+  onAct(e);
+};
+
+// ===== PESAN MASUK =====
+function onData(d){
+  if(d.t==='tok'&&Number.isInteger(d.i)&&TK[d.i]){
+    if(me==='host'&&tok[0]===d.i){send({t:'taken'});return}
+    tok[1-myi]=d.i;renderPick();tryStart();
+  }else if(d.t==='taken'){tok[myi]=null;renderPick()}
+  else if(d.t==='st'&&d.s&&Array.isArray(d.s.p)&&d.s.p.length===2)setState(d.s);
+  else if(d.t==='act'&&me==='host'&&typeof d.a==='string')act(1,d.a,d.i);
+}
+</script>
+</body>
+</html>
