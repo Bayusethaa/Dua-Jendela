@@ -52,11 +52,18 @@ html[data-theme] body{background:radial-gradient(ellipse at 20% 0,var(--bg3) 0,v
 
   // ---------- kartu game baru: Ruang Kangen ----------
   const grid = $('#grid');
-  if (grid && !$('[data-id="rindu"]')) {
-    const d = document.createElement('div');
-    d.className = 'g-item'; d.dataset.k = 'live'; d.dataset.id = 'rindu';
-    d.innerHTML = '<a class="g" href="rindu.html" style="--c:#ff7aa0"><span class="ic">💓</span><div><h2>Ruang Kangen</h2><p>Kirim peluk, cium, dan bisikan langsung ke layar pasangan. Ketuk bareng untuk sinkron!</p><em>Live · kapan saja</em></div></a><button class="fav" aria-label="Favoritkan Ruang Kangen">🤍</button>';
-    grid.prepend(d);
+  const NEW = [
+    ['rindu', 'rindu.html', '#ff7aa0', '💓', 'Ruang Kangen', 'Kirim peluk, cium, dan bisikan langsung ke layar pasangan. Ketuk bareng untuk sinkron!', 'Live · kapan saja'],
+    ['monopoli', 'monopoli.html', '#d9282a', '🎩', 'Monopoli', 'Beli kota, tagih sewa, bangun rumah. Pilih bidak klasik: topi, mobil, anjing, dan lainnya.', 'Live · 20–40 menit']
+  ];
+  if (grid) {
+    NEW.slice().reverse().forEach(([id, href, c, ic, title, desc, tag]) => {
+      if ($(`[data-id="${id}"]`)) return;
+      const d = document.createElement('div');
+      d.className = 'g-item'; d.dataset.k = 'live'; d.dataset.id = id;
+      d.innerHTML = `<a class="g" href="${href}" style="--c:${c}"><span class="ic">${ic}</span><div><h2>${title}</h2><p>${desc}</p><em>${tag}</em></div></a><button class="fav" aria-label="Favoritkan ${title}">🤍</button>`;
+      grid.prepend(d);
+    });
   }
 
   // ---------- tema warna ----------
