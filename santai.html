@@ -57,6 +57,7 @@ textarea{resize:vertical;min-height:70px}
 <main>
 <div class="win" aria-hidden="true"><i></i><i></i></div>
 <h1>Game Santai</h1>
+<p class="note" id="hi" style="margin:6px 0 0"></p>
 <p class="sub">Jarak boleh jauh, mainnya tetap bareng. Tiga game kecil untuk kalian berdua.</p>
 <p class="sub" style="margin-top:-10px"><a href="index.html" style="color:var(--glow);font-weight:700">Kembali ke menu game</a></p>
 
@@ -137,8 +138,13 @@ qList.innerHTML=Q.map((q,i)=>`<div class="q"><p>${i+1}. ${q[0]}</p><div class="o
 function enc(o){return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
 function dec(s){s=s.replace(/-/g,'+').replace(/_/g,'/');return JSON.parse(decodeURIComponent(escape(atob(s))))}
 
+// Username dari menu utama
+let uname='';
+try{uname=(localStorage.getItem('dj-player-name')||'').trim().slice(0,20)}catch(e){}
+const esc=x=>String(x).replace(/[<>&"]/g,'');
+if(uname){$('#hi').textContent='Halo, '+uname+'! 💛';if(!$('#nm').value)$('#nm').value=uname}
 $('#mk').onclick=()=>{
-  const name=$('#nm').value.trim()||'Pasanganmu';
+  const name=$('#nm').value.trim()||uname||'Pasanganmu';
   const a=Q.map((_,i)=>{const c=document.querySelector(`input[name=q${i}]:checked`);return c?+c.value:-1});
   if(a.includes(-1)){alert('Jawab semua soal dulu ya.');return}
   const base=location.href.split('#')[0];
@@ -173,7 +179,7 @@ function playQuiz(d){
       });
     }
     const msg=s>=7?'Kamu hafal banget sama dia.':s>=4?'Lumayan! Masih banyak yang bisa diceritakan.':'Saatnya video call panjang dan saling cerita.';
-    $('#res').innerHTML=`<p class="big">${s}/${Q.length}</p><p>${msg}</p><button class="btn alt" onclick="location.hash='';location.reload()">Buat kuis versiku</button>`;
+    $('#res').innerHTML=`<p class="note">${uname?esc(uname)+' menebak':'Kamu menebak'} jawaban ${n}</p><p class="big">${s}/${Q.length}</p><p>${msg}</p><button class="btn alt" onclick="location.hash='';location.reload()">Buat kuis versiku</button>`;
     $('#chk').classList.add('hide');
     $('#res').scrollIntoView({behavior:'smooth',block:'center'});
   };
