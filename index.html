@@ -7,7 +7,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌙</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#14172b;--bg2:#1d2140;--bg3:#252a50;--glow:#f6c768;--rose:#ff8fa3;--mint:#7fd8a6;--ink:#f3ecdf;--mute:#a7a9c4}
+:root{--bg:#14172b;--bg2:#1d2140;--bg3:#262b54;--glow:#f6c768;--rose:#ff8fa3;--ink:#f3ecdf;--mute:#a7a9c4}
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:radial-gradient(ellipse at 20% 0,#262b57 0,var(--bg) 55%) fixed;color:var(--ink);font:400 17px/1.55 Nunito,system-ui,sans-serif;min-height:100vh}
@@ -15,80 +15,61 @@ main{max-width:680px;margin:0 auto;padding:32px 18px 64px}
 h1,h2,h3{font-family:Fraunces,Georgia,serif;margin:0}
 h1{font-size:clamp(2.2rem,8vw,3.4rem);font-weight:800;line-height:1.05}
 .sub{color:var(--mute);margin:10px 0 22px}
-
-/* Jendela Utama */
 .win{display:flex;gap:14px;margin:0 0 22px}
-.win i{flex:1;height:64px;border-radius:30px 30px 6px 6px;background:var(--glow);box-shadow:0 0 36px #f6c76866;position:relative;animation:glow 3s ease-in-out infinite}
-.win i+i{background:var(--rose);box-shadow:0 0 36px #ff8fa366;animation-delay:1.5s}
+.win i{flex:1;height:64px;border-radius:30px 30px 6px 6px;background:var(--glow);box-shadow:0 0 36px #f6c76866;position:relative}
+.win i+i{background:var(--rose);box-shadow:0 0 36px #ff8fa366}
 .win i::after{content:"";position:absolute;inset:0;background:linear-gradient(#0003 0 0) center/3px 100% no-repeat,linear-gradient(#0003 0 0) center 55%/100% 3px no-repeat}
-@keyframes glow{50%{filter:brightness(1.25)}}
 
-/* Panel Fitur LDR (Countdown & Mood) */
-.ldr-panel{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
-@media(max-width:540px){.ldr-panel{grid-template-columns:1fr}}
-.card-box{background:var(--bg2);border-radius:18px;padding:16px;border:1px solid #343968;display:flex;flex-direction:column;justify-content:space-between;gap:10px}
-.card-box h3{font-size:1.05rem;color:var(--glow);display:flex;align-items:center;gap:6px}
-.card-box.rose h3{color:var(--rose)}
-.cd-display{font-size:1.35rem;font-weight:700;color:var(--ink)}
-.cd-form{display:flex;gap:6px}
-.cd-form input{background:var(--bg);border:1px solid #343968;color:var(--ink);padding:6px 10px;border-radius:10px;font:inherit;font-size:14px;flex:1}
-.btn-sm{background:var(--bg3);border:1px solid #444b85;color:var(--ink);padding:6px 12px;border-radius:10px;font:700 13px Nunito,sans-serif;cursor:pointer;transition:.2s}
-.btn-sm:hover{background:var(--glow);color:#2a2208;border-color:var(--glow)}
-.mood-pills{display:flex;flex-wrap:wrap;gap:6px}
-.mood-pills button{background:var(--bg);border:1px solid #343968;color:var(--mute);padding:5px 10px;border-radius:999px;font:600 13px Nunito,sans-serif;cursor:pointer;transition:.2s}
-.mood-pills button.active{background:var(--rose);color:#2b0a12;border-color:var(--rose)}
+/* Panel LDR */
+.ldr{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+@media(max-width:540px){.ldr{grid-template-columns:1fr}}
+.box{background:var(--bg2);border-radius:18px;padding:16px;display:flex;flex-direction:column;justify-content:space-between;gap:10px}
+.box h3{font-size:1.05rem;color:var(--glow)}
+.box.rose h3{color:var(--rose)}
+.cd-val{font-size:1.25rem;font-weight:700}
+.cd-row{display:flex;gap:6px}
+.cd-row input{flex:1;background:var(--bg);border:2px solid #343968;color:var(--ink);padding:7px 10px;border-radius:10px;font:inherit;font-size:14px}
+.btn-s{background:var(--bg3);border:2px solid #343968;color:var(--ink);padding:7px 12px;border-radius:10px;font:700 13px Nunito,sans-serif;cursor:pointer}
+.btn-s:hover{background:var(--glow);border-color:var(--glow);color:#2a2208}
+.moods{display:flex;flex-wrap:wrap;gap:6px}
+.moods button{background:var(--bg);border:1px solid #343968;color:var(--mute);padding:5px 10px;border-radius:999px;font:600 13px Nunito,sans-serif;cursor:pointer}
+.moods button[aria-pressed=true]{background:var(--rose);border-color:var(--rose);color:#2b0a12}
 
-/* Jam Kembar */
-.clock-bar{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:var(--bg2);border:1px solid #343968;border-radius:16px;padding:12px 16px;margin-bottom:22px}
-.clock-item{display:flex;flex-direction:column;gap:2px}
-.clock-item:last-child{text-align:right;border-left:1px solid #343968;padding-left:12px}
-.clock-label{font-size:12px;color:var(--mute);display:flex;align-items:center;gap:4px}
-.clock-item:last-child .clock-label{justify-content:flex-end}
-.clock-time{font:800 1.3rem Fraunces,serif;color:var(--ink)}
-.tz-select{background:transparent;border:none;color:var(--glow);font:700 12px Nunito,sans-serif;cursor:pointer;padding:0}
-.tz-select option{background:var(--bg2);color:var(--ink)}
-
-/* Toolbar Pencarian, Filter & Acak */
-.toolbar{display:flex;flex-direction:column;gap:12px;margin-bottom:18px}
-.search-row{display:flex;gap:8px}
-.search-input{flex:1;background:var(--bg2);border:2px solid #343968;border-radius:999px;padding:9px 16px;color:var(--ink);font:400 15px Nunito,sans-serif}
-.search-input:focus{outline:none;border-color:var(--glow)}
-.btn-random{background:linear-gradient(135deg,var(--glow),#ffae42);color:#2a2208;border:none;border-radius:999px;padding:9px 16px;font:700 14px Nunito,sans-serif;cursor:pointer;white-space:nowrap;transition:transform .15s}
-.btn-random:active{transform:scale(.96)}
-
-.chips{display:flex;gap:8px;flex-wrap:wrap}
-.chips button{padding:8px 15px;border-radius:999px;border:2px solid #343968;background:transparent;color:var(--mute);font:700 14px Nunito,sans-serif;cursor:pointer;transition:.2s}
+/* Pencarian, Acak & Filter */
+.bar{display:flex;gap:8px;margin-bottom:12px}
+.bar input{flex:1;background:var(--bg2);border:2px solid #343968;border-radius:999px;padding:9px 16px;color:var(--ink);font:400 15px Nunito,sans-serif}
+.btn-rnd{background:var(--glow);color:#2a2208;border:2px solid var(--glow);border-radius:999px;padding:9px 16px;font:700 14px Nunito,sans-serif;cursor:pointer;white-space:nowrap}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.chips button{padding:9px 16px;border-radius:999px;border:2px solid #343968;background:transparent;color:var(--mute);font:700 15px Nunito,sans-serif;cursor:pointer}
 .chips button[aria-pressed=true]{background:var(--glow);border-color:var(--glow);color:#2a2208}
-button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--rose);outline-offset:3px}
+button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--rose);outline-offset:3px}
 
 /* Grid Game */
 .grid{display:grid;gap:12px}
-.g-wrap{position:relative;display:flex;align-items:stretch}
-.g{flex:1;display:flex;gap:16px;align-items:center;padding:18px 46px 18px 18px;border-radius:20px;background:var(--bg2);color:inherit;text-decoration:none;border:2px solid transparent;border-left:8px solid var(--c);transition:transform .2s,border-color .2s,box-shadow .2s}
-.g:hover{border-color:var(--c);transform:translateY(-2px)}
-.g.picked{border-color:var(--glow);box-shadow:0 0 25px #f6c76866;transform:scale(1.02)}
-.g .ic{font-size:2.5rem;line-height:1;flex:none}
-.g h2{font-size:1.22rem;margin-bottom:2px}
-.g p{margin:0;color:var(--mute);font-size:14.5px;line-height:1.4}
+.g-item{position:relative;display:flex}
+.g{flex:1;display:flex;gap:16px;align-items:center;padding:18px 46px 18px 18px;border-radius:20px;background:var(--bg2);color:inherit;text-decoration:none;border:2px solid transparent;border-left:8px solid var(--c)}
+.g:hover{border-color:var(--c);border-left-width:8px}
+.g.picked{border-color:var(--glow);box-shadow:0 0 24px #f6c76866}
+.g .ic{font-size:2.6rem;line-height:1;flex:none}
+.g h2{font-size:1.25rem;margin-bottom:2px}
+.g p{margin:0;color:var(--mute);font-size:15px;line-height:1.4}
 .g em{display:inline-block;margin-top:6px;font:700 13px Nunito,sans-serif;font-style:normal;color:var(--c)}
-.fav-btn{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:1.35rem;cursor:pointer;padding:6px;border-radius:50%;line-height:1;transition:transform .15s}
-.fav-btn:hover{transform:translateY(-50%) scale(1.2)}
-.hide{display:none!important}
+.fav{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:0;font-size:1.3rem;cursor:pointer;padding:6px;line-height:1}
 
-/* Ide Kencan Virtual */
-.date-box{margin-top:22px;background:linear-gradient(135deg,#22274d,#1a1e3b);border:1px solid #3a4075;border-radius:18px;padding:18px;display:flex;align-items:center;justify-content:space-between;gap:14px}
-.date-box p{margin:4px 0 0;font-size:15px;color:var(--ink)}
-.date-box small{color:var(--mint);font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-size:12px}
+/* Ide Kencan */
+.idea{margin-top:20px;background:var(--bg2);border-radius:16px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.idea small{color:var(--glow);font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+.idea p{margin:4px 0 0;font-size:15px}
 
 details{margin-top:16px;background:var(--bg2);border-radius:16px;padding:14px 18px;color:var(--mute);font-size:15px}
 summary{cursor:pointer;font-weight:700;color:var(--ink)}
 details ol{margin:10px 0 0;padding-left:20px}
+.hide{display:none!important}
 
-/* Toast Notification */
-#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--glow);color:#2a2208;padding:10px 20px;border-radius:999px;font-weight:700;font-size:14px;box-shadow:0 8px 24px #0006;opacity:0;transition:.3s;z-index:100;pointer-events:none}
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--glow);color:#2a2208;padding:10px 18px;border-radius:999px;font-weight:700;font-size:14px;opacity:0;transition:.3s;z-index:100;pointer-events:none}
 #toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 
-/* Intro */
+/* intro */
 #intro{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;cursor:pointer;transition:opacity .8s,visibility .8s;overflow:hidden;padding:20px;text-align:center}
 #intro.out{opacity:0;visibility:hidden}
 .iw{display:flex;gap:22px}
@@ -102,78 +83,174 @@ details ol{margin:10px 0 0;padding-left:20px}
 @keyframes rise{from{transform:translateY(14px)}to{opacity:1;transform:none}}
 .st{position:absolute;color:var(--glow);opacity:0;animation:tw 2.4s infinite}
 @keyframes tw{0%,100%{opacity:0;transform:scale(.6)}50%{opacity:.9;transform:scale(1.1)}}
-body.ready .g-wrap{animation:up .6s calc(var(--i) * 70ms) backwards}
+body.ready .g-item{animation:up .6s calc(var(--i) * 90ms) backwards}
 @keyframes up{from{opacity:0;transform:translateY(18px)}}
-@media(prefers-reduced-motion:reduce){#intro,.win i,body.ready .g-wrap{animation:none}}
+.win i{animation:glow 3s ease-in-out infinite}
+.win i+i{animation-delay:1.5s}
+@keyframes glow{50%{filter:brightness(1.25)}}
+@media(prefers-reduced-motion:reduce){#intro,.win i,body.ready .g-item{animation:none}}
 </style>
 </head>
 <body>
 <div id="intro" aria-hidden="true"><div class="iw"><i></i><i></i></div><div class="it">Dua Jendela</div><div class="is">Jarak boleh jauh, mainnya tetap bareng</div><div class="sk">Ketuk untuk lewati</div></div>
 <script>try{if(sessionStorage.getItem('dj-intro')||matchMedia('(prefers-reduced-motion:reduce)').matches)document.getElementById('intro').remove()}catch(e){}</script>
-
 <main>
 <div class="win" aria-hidden="true"><i></i><i></i></div>
 <h1>Dua Jendela</h1>
 <p class="sub">Jarak boleh jauh, mainnya tetap bareng. Pilih game, lalu mainkan berdua.</p>
 
-<!-- Panel Countdown & Mood Pasangan -->
-<section class="ldr-panel" aria-label="Status Pasangan">
-  <div class="card-box">
+<section class="ldr" aria-label="Catatan singkat pasangan">
+  <div class="box">
     <h3>🗓️ Hitung Mundur Ketemu</h3>
-    <div class="cd-display" id="cd-text">Belum diatur</div>
-    <div class="cd-form">
-      <input type="date" id="cd-input" aria-label="Tanggal ketemu">
-      <button class="btn-sm" id="cd-save">Simpan</button>
+    <div class="cd-val" id="cd-val">Belum diatur</div>
+    <div class="cd-row">
+      <input type="date" id="cd-in" aria-label="Tanggal ketemu">
+      <button class="btn-s" id="cd-save">Simpan</button>
     </div>
   </div>
-  <div class="card-box rose">
+  <div class="box rose">
     <h3>💌 Kabar Jendelamu</h3>
-    <div class="mood-pills" id="mood-list">
-      <button data-mood="🥺 Kangen banget, yuk mabar!">🥺 Kangen</button>
-      <button data-mood="☕ Lagi santai, siap main">☕ Santai</button>
-      <button data-mood="🎧 Lagi capek, pengen ditemenin">🎧 Capek</button>
-      <button data-mood="🔥 Mode kompetitif aktif!">🔥 Gas Mabar</button>
+    <div class="moods" id="moods">
+      <button aria-pressed="true" data-m="🥺 Kangen banget, yuk mabar!">🥺 Kangen</button>
+      <button aria-pressed="false" data-m="☕ Lagi santai, siap main">☕ Santai</button>
+      <button aria-pressed="false" data-m="🎧 Lagi capek, pengen ditemenin">🎧 Capek</button>
+      <button aria-pressed="false" data-m="🔥 Mode kompetitif aktif!">🔥 Gas Mabar</button>
     </div>
-    <button class="btn-sm" id="copy-mood" style="align-self:flex-start">📋 Salin & Kirim ke Chat</button>
+    <button class="btn-s" id="cd-copy" style="align-self:flex-start">📋 Salin Status</button>
   </div>
 </section>
 
-<!-- Jam Kembar -->
-<div class="clock-bar" aria-label="Perbedaan waktu">
-  <div class="clock-item">
-    <span class="clock-label">📍 Waktumu</span>
-    <span class="clock-time" id="time-local">--:--</span>
-  </div>
-  <div class="clock-item">
-    <span class="clock-label">
-      🌙 Waktu Pasangan · 
-      <select class="tz-select" id="tz-partner" aria-label="Zona waktu pasangan">
-        <option value="Asia/Jakarta">WIB</option>
-        <option value="Asia/Makassar" selected>WITA</option>
-        <option value="Asia/Jayapura">WIT</option>
-        <option value="Asia/Tokyo">Jepang (JST)</option>
-        <option value="Europe/London">Inggris (GMT)</option>
-        <option value="America/New_York">AS Timur (EST)</option>
-      </select>
-    </span>
-    <span class="clock-time" id="time-partner">--:--</span>
-  </div>
+<div class="bar">
+  <input type="search" id="q" placeholder="Cari game..." aria-label="Cari game">
+  <button class="btn-rnd" id="rnd">🎲 Acak</button>
 </div>
 
-<!-- Pencarian, Filter & Pemilih Acak -->
-<div class="toolbar">
-  <div class="search-row">
-    <input type="search" id="search-box" class="search-input" placeholder="Cari game (misal: harga, sambung, dadu, kuis)..." aria-label="Cari game">
-    <button class="btn-random" id="btn-pick">🎲 Acak Game</button>
-  </div>
-  <div class="chips" role="group" aria-label="Filter game">
-    <button aria-pressed="true" data-f="all">Semua</button>
-    <button aria-pressed="false" data-f="live">Live berdua</button>
-    <button aria-pressed="false" data-f="santai">Santai &amp; Call</button>
-    <button aria-pressed="false" data-f="fav">❤️ Favorit (<span id="fav-count">0</span>)</button>
-  </div>
+<div class="chips" role="group" aria-label="Filter game">
+<button aria-pressed="true" data-f="all">Semua</button>
+<button aria-pressed="false" data-f="live">Live berdua</button>
+<button aria-pressed="false" data-f="santai">Santai</button>
+<button aria-pressed="false" data-f="fav">❤️ Favorit (<span id="fav-n">0</span>)</button>
 </div>
 
 <div class="grid" id="grid">
-  <!-- KARTU BARU UNTUK SERU.HTML -->
-  <div class="g-wrap" data-k="santai" data-id="seru"><a class="g" href="seru.html" style="--c:#ff9e7d"><span class="ic">🎪</span><div><h2>Paket Game Receh &amp; Call</h2><p>6 game seru dalam satu tempat: Tebak Kata, Sandi Emoji, Siapa Paling..., Tebak Harga, Sambung Kata,
+<div class="g-item" data-k="santai" data-id="seru"><a class="g" href="seru.html" style="--c:#ff9e7d"><span class="ic">🎪</span><div><h2>Paket Game Receh &amp; Call</h2><p>6 game seru dalam satu tempat: Tebak Kata, Tebak Harga, Sambung Kata, Sandi Emoji, Siapa Paling..., &amp; Tantangan Receh.</p><em>Santai · bebas lama</em></div></a><button class="fav" aria-label="Favoritkan Paket Game Receh">🤍</button></div>
+<div class="g-item" data-k="live" data-id="cerdas"><a class="g" href="cerdas.html" style="--c:#7aa2ff"><span class="ic">🧠</span><div><h2>Cerdas Cermat</h2><p>Adu pintar 10 soal sejarah, budaya, geografi, sains, dan dunia. Yang benar dan tercepat dapat poin lebih.</p><em>Live · 5–8 menit</em></div></a><button class="fav" aria-label="Favoritkan Cerdas Cermat">🤍</button></div>
+<div class="g-item" data-k="live" data-id="ular"><a class="g" href="ular.html" style="--c:#8bd17c"><span class="ic">🐍</span><div><h2>Ular Tangga</h2><p>Lempar dadu bergantian, naik tangga, hindari ular. Ada kotak 🎁 berisi tantangan kecil.</p><em>Live · 10–15 menit</em></div></a><button class="fav" aria-label="Favoritkan Ular Tangga">🤍</button></div>
+<div class="g-item" data-k="live" data-id="ketik"><a class="g" href="ketik.html" style="--c:#ff6b9a"><span class="ic">⌨️</span><div><h2>Adu Ketik Lidah Kusut</h2><p>Ketik kalimat berlidah kusut paling cepat. Lucu, kompetitif, dan ada hukuman buat yang kalah.</p><em>Live · 3 menit</em></div></a><button class="fav" aria-label="Favoritkan Adu Ketik Lidah Kusut">🤍</button></div>
+<div class="g-item" data-k="live" data-id="truth"><a class="g" href="truth.html" style="--c:#4dd0c8"><span class="ic">🎲</span><div><h2>Truth or Dare</h2><p>Bergantian memilihkan pertanyaan atau tantangan untuk pasangan. Ada tingkat Santai, Seru, Berani.</p><em>Live · bebas lama</em></div></a><button class="fav" aria-label="Favoritkan Truth or Dare">🤍</button></div>
+<div class="g-item" data-k="live" data-id="tangkap"><a class="g" href="tangkap.html" style="--c:#f6c768"><span class="ic">⭐</span><div><h2>Tangkap Bintang</h2><p>Duel reaksi cepat. Tekan bintang sebelum pasanganmu, hindari bom.</p><em>Live · 2–3 menit</em></div></a><button class="fav" aria-label="Favoritkan Tangkap Bintang">🤍</button></div>
+<div class="g-item" data-k="live" data-id="empat"><a class="g" href="empat.html" style="--c:#ffb86b"><span class="ic">🔴</span><div><h2>4 Sejajar</h2><p>Jatuhkan hati 💛 dan 🌸 bergantian, buat empat sejajar lebih dulu.</p><em>Live · 5–10 menit</em></div></a><button class="fav" aria-label="Favoritkan 4 Sejajar">🤍</button></div>
+<div class="g-item" data-k="live" data-id="escape"><a class="g" href="escape.html" style="--c:#7fd8a6"><span class="ic">🔑</span><div><h2>Kamar Terkunci</h2><p>Escape room kerja sama. Petunjuk kalian berbeda, jadi harus saling cerita.</p><em>Live · 10–15 menit</em></div></a><button class="fav" aria-label="Favoritkan Kamar Terkunci">🤍</button></div>
+<div class="g-item" data-k="live" data-id="live"><a class="g" href="live.html" style="--c:#ff8fa3"><span class="ic">✏️</span><div><h2>Tic-tac-toe &amp; Tebak Gambar</h2><p>Dua klasik dalam satu ruangan. Gambar tampil langsung di layar pasangan.</p><em>Live · bebas lama</em></div></a><button class="fav" aria-label="Favoritkan Tic-tac-toe & Tebak Gambar">🤍</button></div>
+<div class="g-item" data-k="live" data-id="sama"><a class="g" href="sama.html" style="--c:#b69cff"><span class="ic">💞</span><div><h2>Kita Sama Nggak?</h2><p>Pilih mana, jawab diam-diam, lalu lihat apakah kalian sepikiran.</p><em>Live · 5 menit</em></div></a><button class="fav" aria-label="Favoritkan Kita Sama Nggak?">🤍</button></div>
+<div class="g-item" data-k="santai" data-id="santai"><a class="g" href="santai.html" style="--c:#6ec6ff"><span class="ic">🌙</span><div><h2>Game Santai</h2><p>Tebak Aku (kuis lewat link), kartu obrolan, dan hitung mundur ketemu. Tidak perlu online bersamaan.</p><em>Santai · kapan saja</em></div></a><button class="fav" aria-label="Favoritkan Game Santai">🤍</button></div>
+</div>
+
+<div class="idea">
+  <div>
+    <small>✨ Ide Kencan</small>
+    <p id="idea-t">Nonton film yang sama sambil hitung mundur 3-2-1 biar play-nya barengan.</p>
+  </div>
+  <button class="btn-s" id="idea-n">Ganti</button>
+</div>
+
+<details>
+<summary>Cara main game live</summary>
+<ol>
+<li>Satu orang buka game dan tekan <b>Buat kode ruangan</b>.</li>
+<li>Kirim kode 5 huruf itu ke pasanganmu lewat chat.</li>
+<li>Pasangan membuka game yang sama dan mengisi kode di <b>Masuk ruangan</b>.</li>
+<li>Sambil call jauh lebih seru.</li>
+</ol>
+</details>
+</main>
+<div id="toast" role="status"></div>
+<script>
+const toastEl=document.getElementById('toast');
+let tTimer;
+const showToast=m=>{toastEl.textContent=m;toastEl.classList.add('show');clearTimeout(tTimer);tTimer=setTimeout(()=>toastEl.classList.remove('show'),2400)};
+
+// Hitung mundur
+const cdIn=document.getElementById('cd-in'),cdVal=document.getElementById('cd-val');
+const renderCd=()=>{
+  const s=localStorage.getItem('dj-cd');if(!s)return;
+  cdIn.value=s;
+  const diff=Math.ceil((new Date(s+'T00:00:00')-new Date().setHours(0,0,0,0))/864e5);
+  cdVal.textContent=diff>0?`${diff} hari lagi`:diff===0?'Hari ini ketemu! 🎉':`Lewat ${Math.abs(diff)} hari`;
+};
+document.getElementById('cd-save').onclick=()=>{
+  if(!cdIn.value)return showToast('Pilih tanggal dulu ya');
+  localStorage.setItem('dj-cd',cdIn.value);renderCd();showToast('Tanggal disimpan');
+};
+renderCd();
+
+// Mood
+let mood=document.querySelector('#moods button').dataset.m;
+document.querySelectorAll('#moods button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#moods button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+  mood=b.dataset.m;
+});
+document.getElementById('cd-copy').onclick=async()=>{
+  try{await navigator.clipboard.writeText(mood);showToast('Status disalin')}catch(e){showToast(mood)}
+};
+
+// Filter, cari, favorit
+let favs=JSON.parse(localStorage.getItem('dj-favs')||'[]'),f='all';
+const qEl=document.getElementById('q'),favN=document.getElementById('fav-n'),items=[...document.querySelectorAll('.g-item')];
+const applyFilter=()=>{
+  favN.textContent=favs.length;
+  const kw=qEl.value.trim().toLowerCase();
+  items.forEach(it=>{
+    const fav=favs.includes(it.dataset.id);
+    it.querySelector('.fav').textContent=fav?'❤️':'🤍';
+    const okF=f==='all'||(f==='fav'&&fav)||it.dataset.k===f;
+    const okQ=!kw||it.textContent.toLowerCase().includes(kw);
+    it.classList.toggle('hide',!(okF&&okQ));
+  });
+};
+items.forEach(it=>it.querySelector('.fav').onclick=e=>{
+  e.preventDefault();
+  const id=it.dataset.id;
+  favs=favs.includes(id)?favs.filter(x=>x!==id):[...favs,id];
+  localStorage.setItem('dj-favs',JSON.stringify(favs));applyFilter();
+});
+document.querySelectorAll('.chips button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.chips button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+  f=b.dataset.f;applyFilter();
+});
+qEl.oninput=applyFilter;applyFilter();
+
+// Acak game
+document.getElementById('rnd').onclick=()=>{
+  const vis=items.filter(x=>!x.classList.contains('hide'));if(!vis.length)return;
+  document.querySelectorAll('.g').forEach(g=>g.classList.remove('picked'));
+  const g=vis[Math.random()*vis.length|0].querySelector('.g');
+  g.classList.add('picked');g.scrollIntoView({behavior:'smooth',block:'center'});
+  showToast('Pilihan: '+g.querySelector('h2').textContent);
+};
+
+// Ide kencan
+const ideas=[
+  'Nonton film yang sama sambil hitung mundur 3-2-1 biar play-nya barengan.',
+  'Pesanin camilan atau minuman kesukaan masing-masing, lalu ngobrol sambil call.',
+  'Bikin daftar 5 lagu yang paling ngingetin sama pasangan.',
+  'Main tebak harga atau sambung kata lewat call.'
+];
+let iIdx=0;
+document.getElementById('idea-n').onclick=()=>{
+  iIdx=(iIdx+1)%ideas.length;document.getElementById('idea-t').textContent=ideas[iIdx];
+};
+
+// Intro asli
+const intro=document.getElementById('intro');
+items.forEach((g,i)=>g.style.setProperty('--i',i));
+const ready=()=>document.body.classList.add('ready');
+if(!intro)ready();
+else{
+  for(let i=0;i<26;i++){const x=document.createElement('span');x.className='st';x.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*2.4}s;font-size:${8+Math.random()*12}px`;x.textContent='✦';intro.append(x)}
+  const end=()=>{if(intro.classList.contains('out'))return;intro.classList.add('out');try{sessionStorage.setItem('dj-intro','1')}catch(e){}ready();setTimeout(()=>intro.remove(),900)};
+  intro.onclick=end;setTimeout(end,4300);
+}
+</script>
+</body>
+</html>
