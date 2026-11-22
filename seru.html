@@ -65,6 +65,10 @@ h1{font-size:clamp(1.9rem,6vw,2.7rem);font-weight:800}
 .dare-result{font:700 1.2rem/1.45 Nunito,sans-serif;color:var(--ink);margin:14px 0 6px;min-height:56px;display:flex;align-items:center;justify-content:center}
 .custom-row{display:flex;gap:8px;margin-top:16px}
 .custom-row input{flex:1;background:var(--bg);border:1px solid #3c4278;border-radius:12px;padding:10px 14px;color:var(--ink);font:inherit}
+.names{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.names input{background:var(--bg);border:2px solid #343968;border-radius:10px;color:var(--ink);padding:8px 12px;font:600 14px Nunito,sans-serif;min-width:0}
+.names input:focus-visible{outline:3px solid var(--rose);outline-offset:2px}
+#turn-ind{color:var(--glow);font-weight:700;font-size:14px;margin:0 0 14px}
 </style>
 </head>
 <body>
@@ -77,9 +81,15 @@ h1{font-size:clamp(1.9rem,6vw,2.7rem);font-weight:800}
   <h1>Paket Game Receh &amp; Call</h1>
   <p class="sub">Pilih dari 6 game santai di bawah ini—mainkan bergantian sambil call.</p>
 
+  <div class="names">
+    <input id="in1" maxlength="20" placeholder="💛 Namamu" aria-label="Nama pemain 1" autocomplete="off">
+    <input id="in2" maxlength="20" placeholder="🌸 Nama pasangan" aria-label="Nama pemain 2" autocomplete="off">
+  </div>
+  <p id="turn-ind" role="status"></p>
+
   <div class="score-strip">
     <div class="p-box">
-      <span class="p-name">💛 Pemain 1</span>
+      <span class="p-name">💛 <span class="nm1">Pemain 1</span></span>
       <div>
         <span class="p-pts" id="s1">0</span>
         <button class="btn-mini" onclick="addScore(1, 1)">+1</button>
@@ -87,7 +97,7 @@ h1{font-size:clamp(1.9rem,6vw,2.7rem);font-weight:800}
     </div>
     <span style="color:var(--mute);font-weight:700">VS</span>
     <div class="p-box">
-      <span class="p-name">🌸 Pemain 2</span>
+      <span class="p-name">🌸 <span class="nm2">Pemain 2</span></span>
       <div>
         <span class="p-pts" id="s2">0</span>
         <button class="btn-mini" onclick="addScore(2, 1)">+1</button>
@@ -201,8 +211,8 @@ h1{font-size:clamp(1.9rem,6vw,2.7rem);font-weight:800}
 
     <div class="actions">
       <button class="btn btn-primary" id="btn-next-siapa">Pertanyaan Berikutnya</button>
-      <button class="btn btn-ghost" onclick="addScore(1, 1)">💛 Poin Pemain 1</button>
-      <button class="btn btn-rose" onclick="addScore(2, 1)">🌸 Poin Pemain 2</button>
+      <button class="btn btn-ghost" onclick="addScore(1, 1)">💛 Poin <span class="nm1">Pemain 1</span></button>
+      <button class="btn btn-rose" onclick="addScore(2, 1)">🌸 Poin <span class="nm2">Pemain 2</span></button>
     </div>
   </section>
 
@@ -227,6 +237,23 @@ h1{font-size:clamp(1.9rem,6vw,2.7rem);font-weight:800}
 <script>
 // Skor & Tab
 let s1 = 0, s2 = 0, turn = 1;
+
+// Username pemain (dibagi dengan menu utama lewat localStorage)
+const lsGet = k => { try { return (localStorage.getItem(k) || '').trim(); } catch (e) { return ''; } };
+const lsSet = (k, v) => { try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); } catch (e) {} };
+let name1 = lsGet('dj-player-name').slice(0, 20), name2 = lsGet('dj-partner-name').slice(0, 20);
+const nm = p => p === 1 ? (name1 || 'Pemain 1') : (name2 || 'Pemain 2');
+function showNames() {
+  document.querySelectorAll('.nm1').forEach(e => e.textContent = nm(1));
+  document.querySelectorAll('.nm2').forEach(e => e.textContent = nm(2));
+  document.getElementById('turn-ind').textContent = 'Giliran: ' + (turn === 1 ? '💛 ' : '🌸 ') + nm(turn);
+}
+function flipTurn() { turn = turn === 1 ? 2 : 1; showNames(); }
+const in1 = document.getElementById('in1'), in2 = document.getElementById('in2');
+in1.value = name1; in2.value = name2;
+in1.oninput = () => { name1 = in1.value.trim().slice(0, 20); lsSet('dj-player-name', name1); showNames(); };
+in2.oninput = () => { name2 = in2.value.trim().slice(0, 20); lsSet('dj-partner-name', name2); showNames(); };
+showNames();
 window.addScore = (p, d) => {
   if (p === 1) { s1 = Math.max(0, s1 + d); document.getElementById('s1').textContent = s1; }
   else { s2 = Math.max(0, s2 + d); document.getElementById('s2').textContent = s2; }
@@ -272,7 +299,7 @@ document.getElementById('btn-start-aksi').onclick = () => {
   }, 1000);
 };
 document.getElementById('btn-win-aksi').onclick = () => {
-  clearInterval(timerId); addScore(turn, 1); timerEl.textContent = `YEAY! +1 UNTUK PEMAIN ${turn} 🎉`; turn = turn === 1 ? 2 : 1;
+  clearInterval(timerId); addScore(turn, 1); timerEl.textContent = `YEAY! +1 UNTUK ${nm(turn).toUpperCase()} 🎉`; flipTurn();
 };
 document.getElementById('btn-next-aksi').onclick = () => { pickPrompt(); clearInterval(timerId); timeLeft = 45; timerEl.textContent = '45d'; timerEl.classList.remove('warn'); };
 document.getElementById('btn-stop-aksi').onclick = () => clearInterval(timerId);
@@ -311,9 +338,9 @@ const checkHarga = () => {
   const diff = Math.abs(val - curHarga.price);
   if (diff <= 2000) {
     hFeedback.style.color = 'var(--mint)';
-    hFeedback.textContent = `🎉 TEPAT / SANGAT DEKAT! Harga aslinya ${fmtRp(curHarga.price)} (${triesHarga}x tebak). +1 Poin!`;
+    hFeedback.textContent = `🎉 TEPAT / SANGAT DEKAT! Harga aslinya ${fmtRp(curHarga.price)} (${triesHarga}x tebak). +1 Poin untuk ${nm(turn)}!`;
     addScore(turn, 1);
-    turn = turn === 1 ? 2 : 1;
+    flipTurn();
   } else if (val < curHarga.price) {
     hFeedback.style.color = 'var(--sky)';
     hFeedback.textContent = `⬆️ ${fmtRp(val)} masih TERLALU MURAH! Naikin lagi!`;
@@ -420,7 +447,7 @@ const pickEmoji = () => {
 pickEmoji();
 document.getElementById('btn-next-emoji').onclick = pickEmoji;
 document.getElementById('btn-reveal-emoji').onclick = () => emojiAnsEl.classList.toggle('show');
-document.getElementById('btn-win-emoji').onclick = () => { addScore(turn, 1); emojiAnsEl.classList.add('show'); turn = turn === 1 ? 2 : 1; };
+document.getElementById('btn-win-emoji').onclick = () => { addScore(turn, 1); emojiAnsEl.classList.add('show'); flipTurn(); };
 
 // ================= GAME 5: SIAPA PALING =================
 const siapaList = [
