@@ -4,92 +4,107 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Paket Game Receh &amp; Call · Dua Jendela</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,800;1,9..144,500&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#14172b;--bg2:#1d2140;--bg3:#272d57;--glow:#f6c768;--rose:#ff8fa3;--mint:#7fd8a6;--sky:#6ec6ff;--ink:#f3ecdf;--mute:#a7a9c4}
+:root{--bg:#0f1024;--glow:#ffd9b8;--bg2:#1b1d3a;--bg3:#262a52;--ink:#f6f0fb;--mute:#b6afd0;--lav:#c9b8ff;--rose:#ffb3cf;--peach:#ffd9b8;--mint:#b6f0d6;--sky:#a8d8ff;--glass:rgba(255,255,255,.065);--line:rgba(255,255,255,.14);--ok:#b6f0d6;--bad:#ff9aa8}
 *{box-sizing:border-box}
-body{margin:0;background:radial-gradient(ellipse at 20% 0,#262b57 0,var(--bg) 55%) fixed;color:var(--ink);font:400 16px/1.55 Nunito,system-ui,sans-serif;min-height:100vh}
-main{max-width:680px;margin:0 auto;padding:28px 18px 64px}
-h1,h2,h3{font-family:Fraunces,Georgia,serif;margin:0}
-h1{font-size:clamp(1.9rem,6vw,2.7rem);font-weight:800}
-.sub{color:var(--mute);margin:6px 0 20px}
-.top-nav{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
-.back{color:var(--glow);text-decoration:none;font-weight:700}
-.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
-.tab{padding:9px 14px;border-radius:999px;border:2px solid #343968;background:var(--bg2);color:var(--mute);font:700 13.5px Nunito,sans-serif;cursor:pointer;transition:.2s}
-.tab.active{background:var(--rose);border-color:var(--rose);color:#2b0a12}
+html,body{margin:0}
+body{color:var(--ink);font:400 16.5px/1.6 Nunito,system-ui,sans-serif;min-height:100vh;background:var(--bg);position:relative;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:-20%;z-index:-2;background:radial-gradient(40% 35% at 15% 10%,rgba(201,184,255,.28),transparent 70%),radial-gradient(35% 30% at 90% 25%,rgba(255,179,207,.22),transparent 70%),radial-gradient(45% 40% at 70% 95%,rgba(255,217,184,.16),transparent 70%),radial-gradient(40% 40% at 5% 85%,rgba(168,216,255,.14),transparent 70%)}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.75;background-image:radial-gradient(1px 1px at 20% 30%,#fffa 50%,transparent 51%),radial-gradient(1px 1px at 70% 12%,#fff8 50%,transparent 51%),radial-gradient(1.6px 1.6px at 85% 60%,#fffa 50%,transparent 51%),radial-gradient(1px 1px at 35% 80%,#fff7 50%,transparent 51%),radial-gradient(1px 1px at 55% 45%,#fff6 50%,transparent 51%),radial-gradient(1.4px 1.4px at 8% 55%,#fff9 50%,transparent 51%)}
+@media(prefers-reduced-motion:no-preference){body::before{animation:drift 24s ease-in-out infinite alternate}@keyframes drift{to{transform:translate(3%,2%) scale(1.07)}}.fadein{animation:fade .45s ease both}@keyframes fade{from{opacity:0;transform:translateY(8px)}}}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;margin:0;font-weight:600;letter-spacing:-.01em;line-height:1.2}
+.sub a{text-decoration:none;font-weight:700;color:var(--peach)}
+h1{font-weight:800;line-height:1.05;background:linear-gradient(95deg,var(--peach),var(--rose) 55%,var(--lav));-webkit-background-clip:text;background-clip:text;color:transparent}
+h2 em,.sub em{font-style:italic;color:var(--peach)}
+.sub{color:var(--mute)}
+.i{width:1.15em;height:1.15em;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.2em;flex:none}
+.dot{display:inline-block;width:.62em;height:.62em;border-radius:50%;margin-right:.45em;vertical-align:.05em}
+.dot.p1{background:var(--peach);box-shadow:0 0 10px var(--peach)}
+.dot.p2{background:var(--rose);box-shadow:0 0 10px var(--rose)}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,label:focus-within{outline:2px solid var(--lav);outline-offset:3px}
+input,textarea{color:var(--ink);font:inherit}
+input::placeholder,textarea::placeholder{color:#b6afd099}
+.hide{display:none!important}
 
-.panel{display:none;background:var(--bg2);border:1px solid #343968;border-radius:22px;padding:22px}
+main{max-width:700px;margin:0 auto;padding:26px 18px 70px}
+.top-nav{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
+.back{display:inline-flex;gap:8px;align-items:center;color:var(--peach);text-decoration:none;font-weight:700;font-size:14px;padding:7px 15px 7px 11px;border-radius:999px;border:1px solid var(--line);background:var(--glass)}
+.btn-mini{background:var(--glass);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:6px 13px;font:700 12.5px Nunito,sans-serif;cursor:pointer}
+.btn-mini:hover{border-color:var(--peach);color:var(--peach)}
+h1{font-size:clamp(2rem,7vw,2.9rem);line-height:1.1}
+.sub{margin:8px 0 18px}
+.names{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.names input{background:var(--glass);border:1px solid var(--line);border-radius:14px;padding:10px 14px;font:600 14px Nunito,sans-serif;min-width:0}
+#in1{border-left:4px solid var(--peach)}#in2{border-left:4px solid var(--rose)}
+#turn-ind{color:var(--peach);font-weight:700;font-size:14px;margin:0 0 14px}
+.score-strip{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);padding:12px 16px;border-radius:20px;margin-bottom:18px;color:var(--mute);font-weight:700;font-size:13px;letter-spacing:.1em}
+.p-box{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.p-box>div{display:flex;align-items:center;gap:10px}
+.p-name{white-space:nowrap}
+.p-name{font-weight:700;font-size:15px;color:var(--ink);letter-spacing:0}
+.p-pts{font:700 1.5rem Fraunces,serif;color:var(--peach);margin:0 6px}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 12px;margin:0 -2px 12px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;display:inline-flex;gap:8px;align-items:center;padding:9px 16px;border-radius:999px;border:1px solid var(--line);background:var(--glass);color:var(--mute);font:700 13.5px Nunito,sans-serif;cursor:pointer;transition:.2s}
+.tab:hover{color:var(--ink);border-color:#ffffff40}
+.tab.active{background:linear-gradient(95deg,var(--peach),var(--rose));color:#35122a;border-color:transparent;box-shadow:0 10px 26px -10px #ffb3cfcc}
+.panel{display:none;background:var(--glass);border:1px solid var(--line);border-radius:28px;padding:26px 22px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 24px 60px -28px #000c,inset 0 1px 0 #ffffff14}
 .panel.active{display:block}
-
-/* Skor cepat */
-.score-strip{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;background:var(--bg);padding:12px 16px;border-radius:16px;margin-bottom:18px}
-.p-box{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.p-box:last-child{flex-direction:row-reverse}
-.p-name{font-weight:700;font-size:15px}
-.p-pts{font:800 1.3rem Fraunces,serif;color:var(--glow)}
-.btn-mini{background:var(--bg3);color:var(--ink);border:1px solid #454d8a;border-radius:8px;padding:4px 10px;font-weight:700;cursor:pointer}
-.btn-mini:hover{background:var(--glow);color:#2a2208}
-
-/* Stage umum */
-.stage{background:var(--bg);border:2px dashed #3d437a;border-radius:20px;padding:24px 18px;text-align:center;margin:16px 0}
-.badge{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:800;background:#2a315e;color:var(--sky);margin-bottom:10px}
-.word-big{font:800 clamp(1.4rem,5vw,2.05rem)/1.25 Fraunces,serif;color:var(--glow);margin:6px 0 10px}
-.emoji-clue{font-size:clamp(2.2rem,8vw,3.2rem);letter-spacing:6px;margin:8px 0 12px}
+@media(prefers-reduced-motion:no-preference){.panel.active{animation:fade .45s ease both}}
+.panel h2{font-size:1.55rem}
+.panel .sub{font-size:15px}
+.stage{background:linear-gradient(160deg,#ffffff10,#ffffff03);border:1px solid var(--line);border-radius:24px;padding:28px 18px;text-align:center;margin:18px 0}
+.badge{display:inline-block;padding:4px 14px;border-radius:999px;font:800 11px Nunito,sans-serif;letter-spacing:.14em;background:#c9b8ff22;color:var(--lav);border:1px solid #c9b8ff44;margin-bottom:12px}
+.word-big{font:600 clamp(1.4rem,5vw,2rem)/1.3 Fraunces,serif;color:#fff;margin:6px 0 10px}
+.emoji-clue{font-size:clamp(2.4rem,9vw,3.4rem);letter-spacing:8px;margin:8px 0 12px;filter:drop-shadow(0 6px 14px #0006)}
 .taboo{color:var(--rose);font-size:14px;font-weight:700}
-.answer-box{margin-top:12px;padding:10px 14px;border-radius:12px;background:#22284d;color:var(--mint);font-weight:700;font-size:14.5px;display:none}
+.answer-box{margin-top:14px;padding:11px 15px;border-radius:14px;background:#b6f0d61a;border:1px solid #b6f0d655;color:var(--mint);font-weight:700;font-size:14.5px;display:none}
 .answer-box.show{display:block}
-.timer-box{font:800 2rem Fraunces,serif;color:var(--mint);margin-top:10px}
+.timer-box{font:700 2.2rem Fraunces,serif;color:var(--mint);margin-top:12px}
 .timer-box.warn{color:var(--rose)}
-
-.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:14px}
-.btn{padding:11px 17px;border-radius:14px;border:none;font:700 14.5px Nunito,sans-serif;cursor:pointer;transition:.15s}
-.btn:active{transform:scale(.97)}
-.btn-primary{background:var(--glow);color:#2a2208}
-.btn-mint{background:var(--mint);color:#0b2919}
-.btn-rose{background:var(--rose);color:#2b0a12}
-.btn-ghost{background:var(--bg3);color:var(--ink);border:1px solid #444b85}
-
-/* Input Game Tebak Harga & Sambung Kata */
-.input-row{display:flex;gap:8px;max-width:420px;margin:14px auto 0}
-.input-row input{flex:1;background:var(--bg2);border:2px solid #3c4278;border-radius:12px;padding:10px 14px;color:var(--ink);font:700 15px Nunito,sans-serif}
-.input-row input:focus{outline:none;border-color:var(--glow)}
-.chain-tags{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:14px;max-height:110px;overflow-y:auto}
-.chain-tag{background:#262c54;border:1px solid #3f4782;padding:4px 11px;border-radius:999px;font-size:13.5px;font-weight:700;color:var(--ink)}
-.chain-tag:last-child{border-color:var(--glow);color:var(--glow)}
-
-/* Roda / Spinner Lucu */
-.wheel-card{background:var(--bg);border-radius:20px;padding:26px 18px;text-align:center;border:1px solid #383e73}
-.spinner-emoji{font-size:3.6rem;display:inline-block;transition:transform .5s cubic-bezier(.22,1,.36,1)}
-.spinner-emoji.spin{transform:rotate(720deg) scale(1.15)}
-.dare-result{font:700 1.2rem/1.45 Nunito,sans-serif;color:var(--ink);margin:14px 0 6px;min-height:56px;display:flex;align-items:center;justify-content:center}
-.custom-row{display:flex;gap:8px;margin-top:16px}
-.custom-row input{flex:1;background:var(--bg);border:1px solid #3c4278;border-radius:12px;padding:10px 14px;color:var(--ink);font:inherit}
-.names{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
-.names input{background:var(--bg);border:2px solid #343968;border-radius:10px;color:var(--ink);padding:8px 12px;font:600 14px Nunito,sans-serif;min-width:0}
-.names input:focus-visible{outline:3px solid var(--rose);outline-offset:2px}
-#turn-ind{color:var(--glow);font-weight:700;font-size:14px;margin:0 0 14px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:16px}
+.btn{display:inline-flex;gap:8px;align-items:center;justify-content:center;padding:11px 19px;border-radius:999px;border:1px solid transparent;font:800 14px Nunito,sans-serif;cursor:pointer;transition:transform .15s,box-shadow .2s}
+.btn:hover{transform:translateY(-1px)}.btn:active{transform:scale(.97)}
+.btn-primary{background:linear-gradient(95deg,var(--peach),var(--rose));color:#35122a;box-shadow:0 12px 28px -12px #ffb3cfcc}
+.btn-mint{background:var(--mint);color:#0d3324}
+.btn-rose{background:#ffb3cf1f;color:var(--rose);border-color:#ffb3cf66}
+.btn-ghost{background:var(--glass);border-color:var(--line);color:var(--ink)}
+.input-row{display:flex;gap:8px;max-width:440px;margin:16px auto 0}
+.input-row input{flex:1;min-width:0;background:#0f102455;border:1px solid var(--line);border-radius:999px;padding:11px 18px;font:700 15px Nunito,sans-serif}
+.input-row input:focus{border-color:var(--peach)}
+.chain-tags{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:16px;max-height:110px;overflow-y:auto}
+.chain-tag{background:var(--glass);border:1px solid var(--line);padding:4px 12px;border-radius:999px;font-size:13.5px;font-weight:700}
+.chain-tag:last-child{border-color:var(--peach);color:var(--peach)}
+.wheel-card{margin-top:18px;background:linear-gradient(160deg,#ffffff10,#ffffff03);border:1px solid var(--line);border-radius:24px;padding:28px 18px;text-align:center}
+.spinner-emoji{display:inline-grid;place-items:center;width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,#ffd9b83a,#c9b8ff3a);border:1px solid var(--line);color:var(--peach);font-size:2.6rem;box-shadow:0 0 40px -8px #ffb3cf88;transition:transform .6s cubic-bezier(.22,1,.36,1)}
+.spinner-emoji .i{width:1em;height:1em;stroke-width:1.4}
+.spinner-emoji.spin{transform:rotate(720deg) scale(1.12)}
+.dare-result{font:600 1.2rem/1.5 Fraunces,serif;margin:16px 0 8px;min-height:60px;display:flex;align-items:center;justify-content:center}
+.custom-row{display:flex;gap:8px;margin-top:18px}
+.custom-row input{flex:1;min-width:0;background:#0f102455;border:1px solid var(--line);border-radius:999px;padding:11px 18px}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></symbol><symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol><symbol id="i-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/></symbol><symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol><symbol id="i-puzzle" viewBox="0 0 24 24"><path d="M4 8h4a2 2 0 1 1 4 0h4v4a2 2 0 1 1 0 4v4H4v-4a2 2 0 1 0 0-4z"/></symbol><symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="i-dice" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4.5"/><circle cx="9" cy="9" r="1" fill="currentColor"/><circle cx="15" cy="9" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="15" r="1" fill="currentColor"/><circle cx="15" cy="15" r="1" fill="currentColor"/></symbol><symbol id="i-wheel" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17M3.5 12h17M6 6l12 12M18 6L6 18"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/></symbol><symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.2L19 7"/></symbol><symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></symbol><symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3l1.9 5.3L19 10l-5.1 1.7L12 17l-1.9-5.3L5 10l5.1-1.7z"/><path d="M19 16v4M17 18h4"/></symbol><symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol><symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol><symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></symbol><symbol id="i-cards" viewBox="0 0 24 24"><rect x="4" y="6" width="11" height="14" rx="2.5"/><path d="M9 6l1-2.2a2 2 0 0 1 2.6-1l5.6 2.4a2 2 0 0 1 1 2.6L16 15"/></symbol><symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4M16 3v4M4 10h16"/></symbol></defs></svg>
 <main>
   <div class="top-nav">
-    <a class="back" href="index.html">← Kembali ke Dua Jendela</a>
+    <a class="back" href="index.html"><svg class="i"><use href="#i-back"/></svg> Kembali ke Dua Jendela</a>
     <button class="btn-mini" id="reset-score">Reset Skor</button>
   </div>
 
-  <h1>Paket Game Receh &amp; Call</h1>
+  <h1 class="fadein">Paket Game Receh &amp; Call</h1>
   <p class="sub">Pilih dari 6 game santai di bawah ini—mainkan bergantian sambil call.</p>
 
   <div class="names">
-    <input id="in1" maxlength="20" placeholder="💛 Namamu" aria-label="Nama pemain 1" autocomplete="off">
-    <input id="in2" maxlength="20" placeholder="🌸 Nama pasangan" aria-label="Nama pemain 2" autocomplete="off">
+    <input id="in1" maxlength="20" placeholder="Namamu" aria-label="Nama pemain 1" autocomplete="off">
+    <input id="in2" maxlength="20" placeholder="Nama pasangan" aria-label="Nama pemain 2" autocomplete="off">
   </div>
   <p id="turn-ind" role="status"></p>
 
   <div class="score-strip">
     <div class="p-box">
-      <span class="p-name">💛 <span class="nm1">Pemain 1</span></span>
+      <span class="p-name"><span class="dot p1"></span><span class="nm1">Pemain 1</span></span>
       <div>
         <span class="p-pts" id="s1">0</span>
         <button class="btn-mini" onclick="addScore(1, 1)">+1</button>
@@ -97,7 +112,7 @@ h1{font-size:clamp(1.9rem,6vw,2.7rem);font-weight:800}
     </div>
     <span style="color:var(--mute);font-weight:700">VS</span>
     <div class="p-box">
-      <span class="p-name">🌸 <span class="nm2">Pemain 2</span></span>
+      <span class="p-name"><span class="dot p2"></span><span class="nm2">Pemain 2</span></span>
       <div>
         <span class="p-pts" id="s2">0</span>
         <button class="btn-mini" onclick="addScore(2, 1)">+1</button>
@@ -106,12 +121,12 @@ h1{font-size:clamp(1.9rem,6vw,2.7rem);font-weight:800}
   </div>
 
   <div class="tabs" role="tablist">
-    <button class="tab active" data-tab="aksi">🎙️ Tebak Kata</button>
-    <button class="tab" data-tab="harga">💰 Tebak Harga</button>
-    <button class="tab" data-tab="sambung">🔗 Sambung Kata</button>
-    <button class="tab" data-tab="emoji">🧩 Sandi Emoji</button>
-    <button class="tab" data-tab="siapa">👀 Siapa Paling...</button>
-    <button class="tab" data-tab="roda">🎡 Tantangan Receh</button>
+    <button class="tab active" data-tab="aksi"><svg class="i"><use href="#i-mic"/></svg> Tebak Kata</button>
+    <button class="tab" data-tab="harga"><svg class="i"><use href="#i-coin"/></svg> Tebak Harga</button>
+    <button class="tab" data-tab="sambung"><svg class="i"><use href="#i-link"/></svg> Sambung Kata</button>
+    <button class="tab" data-tab="emoji"><svg class="i"><use href="#i-puzzle"/></svg> Sandi Emoji</button>
+    <button class="tab" data-tab="siapa"><svg class="i"><use href="#i-eye"/></svg> Siapa Paling...</button>
+    <button class="tab" data-tab="roda"><svg class="i"><use href="#i-wheel"/></svg> Tantangan Receh</button>
   </div>
 
   <!-- GAME 1: TEBAK KATA & DESKRIPSI KILAT -->
@@ -127,8 +142,8 @@ h1{font-size:clamp(1.9rem,6vw,2.7rem);font-weight:800}
     </div>
 
     <div class="actions">
-      <button class="btn btn-primary" id="btn-start-aksi">▶ Mulai Ronde (45d)</button>
-      <button class="btn btn-mint" id="btn-win-aksi">✅ Ketebak! (+1)</button>
+      <button class="btn btn-primary" id="btn-start-aksi"><svg class="i"><use href="#i-play"/></svg> Mulai Ronde (45d)</button>
+      <button class="btn btn-mint" id="btn-win-aksi"><svg class="i"><use href="#i-check"/></svg> Ketebak! (+1)</button>
       <button class="btn btn-ghost" id="btn-next-aksi">Ganti Kata</button>
       <button class="btn btn-rose" id="btn-stop-aksi">Stop</button>
     </div>
@@ -175,7 +190,7 @@ h1{font-size:clamp(1.9rem,6vw,2.7rem);font-weight:800}
     </div>
 
     <div class="actions">
-      <button class="btn btn-mint" id="btn-reset-sambung">🔄 Ronde &amp; Kata Awal Baru</button>
+      <button class="btn btn-mint" id="btn-reset-sambung"><svg class="i"><use href="#i-refresh"/></svg> Ronde &amp; Kata Awal Baru</button>
       <button class="btn btn-rose" id="btn-stop-sambung">Stop Timer</button>
     </div>
   </section>
@@ -195,7 +210,7 @@ h1{font-size:clamp(1.9rem,6vw,2.7rem);font-weight:800}
     <div class="actions">
       <button class="btn btn-primary" id="btn-next-emoji">Soal Baru</button>
       <button class="btn btn-ghost" id="btn-reveal-emoji">Intip Jawaban</button>
-      <button class="btn btn-mint" id="btn-win-emoji">✅ Benar! (+1)</button>
+      <button class="btn btn-mint" id="btn-win-emoji"><svg class="i"><use href="#i-check"/></svg> Benar! (+1)</button>
     </div>
   </section>
 
@@ -211,8 +226,8 @@ h1{font-size:clamp(1.9rem,6vw,2.7rem);font-weight:800}
 
     <div class="actions">
       <button class="btn btn-primary" id="btn-next-siapa">Pertanyaan Berikutnya</button>
-      <button class="btn btn-ghost" onclick="addScore(1, 1)">💛 Poin <span class="nm1">Pemain 1</span></button>
-      <button class="btn btn-rose" onclick="addScore(2, 1)">🌸 Poin <span class="nm2">Pemain 2</span></button>
+      <button class="btn btn-ghost" onclick="addScore(1, 1)"><svg class="i" style="color:var(--peach)"><use href="#i-heart"/></svg> Poin <span class="nm1">Pemain 1</span></button>
+      <button class="btn btn-rose" onclick="addScore(2, 1)"><svg class="i" style="color:var(--rose)"><use href="#i-heart"/></svg> Poin <span class="nm2">Pemain 2</span></button>
     </div>
   </section>
 
@@ -222,14 +237,14 @@ h1{font-size:clamp(1.9rem,6vw,2.7rem);font-weight:800}
     <p class="sub" style="margin-bottom:8px">Cocok buat nentuin "hukuman" lucu atau tantangan random pas lagi gabut.</p>
 
     <div class="wheel-card">
-      <div class="spinner-emoji" id="wheel-icon">🎡</div>
+      <div class="spinner-emoji" id="wheel-icon"><svg class="i"><use href="#i-wheel"/></svg></div>
       <div class="dare-result" id="dare-text">Klik putar buat dapat tantangan kocak!</div>
-      <button class="btn btn-primary" id="btn-spin">✨ Putar Tantangan</button>
+      <button class="btn btn-primary" id="btn-spin"><svg class="i"><use href="#i-sparkle"/></svg> Putar Tantangan</button>
     </div>
 
     <div class="custom-row">
       <input type="text" id="custom-dare" placeholder="Tambah tantangan versimu sendiri... (misal: kirim voice note ketawa jahat)">
-      <button class="btn btn-ghost" id="btn-add-dare">+ Tambah</button>
+      <button class="btn btn-ghost" id="btn-add-dare"><svg class="i"><use href="#i-plus"/></svg> Tambah</button>
     </div>
   </section>
 </main>
@@ -246,7 +261,10 @@ const nm = p => p === 1 ? (name1 || 'Pemain 1') : (name2 || 'Pemain 2');
 function showNames() {
   document.querySelectorAll('.nm1').forEach(e => e.textContent = nm(1));
   document.querySelectorAll('.nm2').forEach(e => e.textContent = nm(2));
-  document.getElementById('turn-ind').textContent = 'Giliran: ' + (turn === 1 ? '💛 ' : '🌸 ') + nm(turn);
+  const ti = document.getElementById('turn-ind');
+  ti.textContent = 'Giliran ';
+  const dt = document.createElement('span'); dt.className = 'dot p' + turn;
+  ti.append(dt, nm(turn));
 }
 function flipTurn() { turn = turn === 1 ? 2 : 1; showNames(); }
 const in1 = document.getElementById('in1'), in2 = document.getElementById('in2');
@@ -299,7 +317,7 @@ document.getElementById('btn-start-aksi').onclick = () => {
   }, 1000);
 };
 document.getElementById('btn-win-aksi').onclick = () => {
-  clearInterval(timerId); addScore(turn, 1); timerEl.textContent = `YEAY! +1 UNTUK ${nm(turn).toUpperCase()} 🎉`; flipTurn();
+  clearInterval(timerId); addScore(turn, 1); timerEl.textContent = `YEAY! +1 UNTUK ${nm(turn).toUpperCase()} ✦`; flipTurn();
 };
 document.getElementById('btn-next-aksi').onclick = () => { pickPrompt(); clearInterval(timerId); timeLeft = 45; timerEl.textContent = '45d'; timerEl.classList.remove('warn'); };
 document.getElementById('btn-stop-aksi').onclick = () => clearInterval(timerId);
@@ -338,15 +356,15 @@ const checkHarga = () => {
   const diff = Math.abs(val - curHarga.price);
   if (diff <= 2000) {
     hFeedback.style.color = 'var(--mint)';
-    hFeedback.textContent = `🎉 TEPAT / SANGAT DEKAT! Harga aslinya ${fmtRp(curHarga.price)} (${triesHarga}x tebak). +1 Poin untuk ${nm(turn)}!`;
+    hFeedback.textContent = `✦ TEPAT / SANGAT DEKAT! Harga aslinya ${fmtRp(curHarga.price)} (${triesHarga}x tebak). +1 Poin untuk ${nm(turn)}!`;
     addScore(turn, 1);
     flipTurn();
   } else if (val < curHarga.price) {
     hFeedback.style.color = 'var(--sky)';
-    hFeedback.textContent = `⬆️ ${fmtRp(val)} masih TERLALU MURAH! Naikin lagi!`;
+    hFeedback.textContent = `↑ ${fmtRp(val)} masih TERLALU MURAH! Naikin lagi!`;
   } else {
     hFeedback.style.color = 'var(--rose)';
-    hFeedback.textContent = `⬇️ ${fmtRp(val)} masih TERLALU MAHAL! Turunin dikit!`;
+    hFeedback.textContent = `↓ ${fmtRp(val)} masih TERLALU MAHAL! Turunin dikit!`;
   }
   hInput.value = '';
   hInput.focus();
@@ -357,7 +375,7 @@ document.getElementById('btn-next-harga').onclick = pickHarga;
 document.getElementById('btn-reveal-harga').onclick = () => {
   hFeedback.classList.add('show');
   hFeedback.style.color = 'var(--glow)';
-  hFeedback.textContent = `💡 Harga patokannya: ${fmtRp(curHarga.price)}`;
+  hFeedback.textContent = `✦ Harga patokannya: ${fmtRp(curHarga.price)}`;
 };
 
 // ================= GAME 3: SAMBUNG KATA =================
@@ -389,7 +407,7 @@ const startSambungTimer = () => {
     if (sambungSec <= 3) sTimerEl.classList.add('warn');
     if (sambungSec <= 0) {
       clearInterval(sambungTimer);
-      sTimerEl.textContent = '💥 WAKTU HABIS! LAWAN +1 POIN';
+      sTimerEl.textContent = 'Waktu habis! Lawan +1 poin';
     }
   }, 1000);
 };
@@ -410,11 +428,11 @@ const submitSambung = () => {
   if (raw.length < 2) return;
   const reqChar = usedWords[usedWords.length - 1].slice(-1);
   if (raw[0] !== reqChar) {
-    sClueEl.innerHTML = `❌ Harus diawali huruf <b>${reqChar}</b>!`;
+    sClueEl.innerHTML = `✕ Harus diawali huruf <b>${reqChar}</b>!`;
     return;
   }
   if (usedWords.includes(raw)) {
-    sClueEl.innerHTML = `❌ Kata <b>${raw}</b> sudah dipakai! Cari kata lain dari <b>${reqChar}</b>`;
+    sClueEl.innerHTML = `✕ Kata <b>${raw}</b> sudah dipakai! Cari kata lain dari <b>${reqChar}</b>`;
     return;
   }
   usedWords.push(raw);
@@ -464,12 +482,12 @@ document.getElementById('btn-next-siapa').onclick = () => {
 
 // ================= GAME 6: TANTANGAN RECEH =================
 const dares = [
-  '🎤 Nyanyi 1 reff lagu romantis atau dangdut dengan suara dramatis di call.',
-  '📸 Kirim foto benda terdekat di sebelahmu lewat chat sekarang juga!',
-  '😂 Ceritain hal paling konyol yang pernah bikin kamu malu sendiri.',
-  '🗣️ Tiruin gaya bicara atau kalimat andalan pasanganmu pas lagi kesel.',
-  '💌 Kasih 2 pujian jujur ke pasangan tanpa boleh ketawa atau salting.',
-  '🐢 Bicara pelan banget kayak lagi ngantuk berat selama 30 detik di call.'
+  'Nyanyi 1 reff lagu romantis atau dangdut dengan suara dramatis di call.',
+  'Kirim foto benda terdekat di sebelahmu lewat chat sekarang juga!',
+  'Ceritain hal paling konyol yang pernah bikin kamu malu sendiri.',
+  'Tiruin gaya bicara atau kalimat andalan pasanganmu pas lagi kesel.',
+  'Kasih 2 pujian jujur ke pasangan tanpa boleh ketawa atau salting.',
+  'Bicara pelan banget kayak lagi ngantuk berat selama 30 detik di call.'
 ];
 const wheelIcon = document.getElementById('wheel-icon'), dareText = document.getElementById('dare-text');
 document.getElementById('btn-spin').onclick = () => {
@@ -480,7 +498,7 @@ document.getElementById('btn-spin').onclick = () => {
 document.getElementById('btn-add-dare').onclick = () => {
   const input = document.getElementById('custom-dare'), val = input.value.trim();
   if (!val) return;
-  dares.push('🎲 ' + val); dareText.textContent = 'Tantangan ditambahkan: "' + val + '"'; input.value = '';
+  dares.push(val); dareText.textContent = 'Tantangan ditambahkan: "' + val + '"'; input.value = '';
 };
 </script>
 </body>
